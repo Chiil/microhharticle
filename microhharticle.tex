@@ -178,121 +178,161 @@ The spatial operators are based on finite differences. The code supports second 
 
 First, there are the second order accurate interpolation operators:
 \begin{eqnarray}
-\widehat{\phi}^   x_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
-\widehat{\phi}^{3x}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
+\phi_{i,j} \approx \widehat{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
+\phi_{i,j} \approx \widehat{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
-                                                                   {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta_{2x} \left( \phi \right)_{i,j} \equiv \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+                                                                                                                 {   x_{i+\frac{1}{2}}   -    x_{i-\frac{1}{2}  }}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
-                                                                   {   x_{i+\frac{3}{2},j} -    x_{i-\frac{3}{2},j}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta_{2xL} \left( \phi \right)_{i,j} \equiv \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+                                                                                                                  {   x_{i+\frac{3}{2}}   -    x_{i-\frac{3}{2}  }}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
-                                                                   {\Delta x}
+\delta_{2x} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+                                              {\Delta x}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
-                                                                   {3\Delta x}
+\delta_{2xL} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+                                               {3\Delta x}
 \end{eqnarray}
 
 \subsubsection{Fourth order operators}
 
 \begin{eqnarray}
-\widehat{\phi}^x_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}\label{eq:interp4}
+\phi_{i,j} \approx \widehat{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}\label{eq:interp4}
 \end{eqnarray}
 
 \begin{eqnarray}
-\widehat{\phi}^x_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}
+\phi_{i,j} \approx \widehat{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
-                                                              {   x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}}}
+\nonumber
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta_{4x} \left( \phi \right)_{i,j}\\
+& \equiv & \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
+             {       x_{i-\frac{3}{2}}   - 27    x_{i-\frac{1}{2}}   + 27    x_{i+\frac{1}{2}}   -    x_{i+\frac{3}{2}}}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} = \dfrac{-23 \phi_{i-\frac{1}{2},j} + 21 \phi_{i+\frac{1}{2},j} + 3 \phi_{i+\frac{3}{2},j} - \phi_{i+\frac{5}{2},j}}
-                                                              {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}
+\nonumber
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta_{4xb} \left( \phi \right)_{i,j}\\
+& \equiv & \dfrac{-23 \phi_{i-\frac{1}{2},j} + 21 \phi_{i+\frac{1}{2},j} + 3 \phi_{i+\frac{3}{2},j} - \phi_{i+\frac{5}{2},j}}
+                 {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
-                                                              {24 \Delta x}
+\delta_{4x} \left( \phi \right)_{i,j}  = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
+                                               {24 \Delta x}
 \end{eqnarray}
-
-\begin{eqnarray}
-\nonumber \left. \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} =
-\dfrac{1}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
-\left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right)
-\end{eqnarray}
+% \begin{eqnarray}
+% \nonumber 
+% &&\left. \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} \approx \delta_{4x} \left( \delta_{4x} \left( \phi \right) \right)_{i,j}\\
+% \nonumber
+% && = \dfrac{1}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
+% &&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right)
+% \end{eqnarray}
 
 \subsection{Advection}
 The advection term is discretized in the flux form:
 \begin{eqnarray}
 \nonumber
-\dfrac{\partial u \phi}{\partial x} + \dfrac{\partial v \phi}{\partial y} = \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
-                                                                                  { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
-                                                                          + \dfrac{ v_{i,j+\frac{1}{2}} \widehat{\phi}^y_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \widehat{\phi}^y_{i,j-\frac{1}{2}} }
-                                                                                  { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }
+\dfrac{\partial u \phi}{\partial x} + \dfrac{\partial v \phi}{\partial y} & \approx & \delta_{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} \\ 
+& = & \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^{2x}_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^{2x}_{i-\frac{1}{2},j} }
+            { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
+& + & \dfrac{ v_{i,j+\frac{1}{2}} \widehat{\phi}^{2x}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \widehat{\phi}^{2x}_{i,j-\frac{1}{2}} }
+            { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }
 \end{eqnarray}
 
 \begin{eqnarray}
-\dfrac{\partial v u}{\partial x} = \dfrac{ \widehat{v}^y_{i+\frac{1}{2},j} \widehat{u}^x_{i+\frac{1}{2},j} - \widehat{v}^y_{i-\frac{1}{2},j} \widehat{u}^x_{i-\frac{1}{2},j} }
-                                         { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
+\dfrac{\partial v u}{\partial x} = \delta_{2x} \left( \widehat{v}^{2y} \widehat{u}^{2x} \right)_{i,j} =
+\dfrac{ \widehat{v}^{2y}_{i+\frac{1}{2},j} \widehat{u}^{2x}_{i+\frac{1}{2},j} - \widehat{v}^{2y}_{i-\frac{1}{2},j} \widehat{u}^{2x}_{i-\frac{1}{2},j} }
+      { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
 \end{eqnarray}
-In the standard fourth order scheme:
+In the standard fourth-order scheme:
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & = &
-\left( u_{i-\frac{3}{2},j} \widehat{\phi}^x_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} \right.\\
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \delta_{4x} \left( u \widehat{\phi}^{4x} \right)_{i,j} \\
 \nonumber
-&&\left. + 27 u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \widehat{\phi}^x_{i+\frac{3}{2},j} \right)\\
-&&\slash \left( x_{i-\frac{3}{2}} - 27 x_{i-\frac{1}{2}} + 27 x_{i+\frac{1}{2}} - x_{i+\frac{3}{2}} \right)
+& = & \left( u_{i-\frac{3}{2},j} \widehat{\phi}^{4x}_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \widehat{\phi}^{4x}_{i-\frac{1}{2},j} \right.\\
+\nonumber
+&   &\left. + 27 u_{i+\frac{1}{2},j} \widehat{\phi}^{4x}_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \widehat{\phi}^{4x}_{i+\frac{3}{2},j} \right)\\
+&   &\slash \left( x_{i-\frac{3}{2}} - 27 x_{i-\frac{1}{2}} + 27 x_{i+\frac{1}{2}} - x_{i+\frac{3}{2}} \right)
 \end{eqnarray}
+Hereafter, we assume that the usage of the operators is clear and we no longer expand them.
+
 The fully energy conserving scheme is an interpolation of two second order operators:
 \begin{eqnarray}
-\nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j}  & = & \dfrac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
-                                                                                    { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
-                                                          & - & \dfrac{9}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
-                                                                                    { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }
+% \nonumber
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & = & \frac{9}{8} \delta_{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} 
+                                                             - \frac{1}{8} \delta_{2xL} \left( u \widehat{\phi}^{2xL} \right)_{i,j}%\\
+% \nonumber
+% & = & \frac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
+%                           { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
+% & - & \frac{1}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
+%                           { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }
 \end{eqnarray}
-Note that in this scheme velocity interpolations, such as in Eq. \ref{eq:advec2u}, still need to be performed with fourth order accuracy (Eq. \ref{eq:interp4}) in order to keep the total operator fourth order accurate.
+Note that in this scheme velocity interpolations, such as in Eq. \ref{eq:advec2u}, still need to be performed with fourth order accuracy (Eq. \ref{eq:interp4}) in order to keep the total operator fourth order accurate. Therefore, for instance:
+\begin{eqnarray}
+\dfrac{\partial v u}{\partial x} \approx \frac{9}{8} \delta_{2x} \left( \widehat{v}^{4y} \widehat{u}^{2x} \right)_{i,j} 
+                                       - \frac{1}{8} \delta_{2xL} \left( \widehat{v}^{4y} \widehat{u}^{2xL} \right)_{i,j}
+\end{eqnarray}
+
 \subsection{Diffusion}
 The diffusion operator is calculated as a divergence of a gradient:
 \begin{eqnarray}
-\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} \equiv 
-\kappa_\phi \dfrac{\left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} - \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j}}
-                                {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
+\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
+\kappa_\phi \delta_{2x} \left( \delta_{2x} \left( \phi \right) \right)_{i,j}\\
+% \kappa_\phi \dfrac{\left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} - \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j}}
+%                                 {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
+\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
+\kappa_\phi \delta_{4x} \left( \delta_{4x} \left( \phi \right) \right)_{i,j}
 \end{eqnarray}
+On an equidistant grid, this leads to the well-known second order accurate operator for the second derivate:
+\begin{eqnarray}
+\kappa_\phi \delta_{2x} \left( \delta_{2x} \left( \phi \right) \right)_{i,j} =
+\kappa_\phi \dfrac{ \phi_{i-1,j} - 2 \phi_{i,j} + \phi_{i+1,j} }{\left( \Delta x \right)^2},
+\end{eqnarray}
+whereas for a fourth-order accurate operator, a seven-point stencil is derived:
 \begin{eqnarray}
 \nonumber
-\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & = & \kappa_\phi
-\left( \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{3}{2},j} 
-- 27 \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j} \right. \\
+&& \kappa_\phi \delta_{4x} \left( \delta_{4x} \left( \phi \right) \right)_{i,j}\\
 \nonumber
-& & \left. + 27 \left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} 
-- \left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{3}{2},j} \right)\\
-& & / \left( x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}} \right)
+&& = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
+&&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right)
 \end{eqnarray}
+
+% \begin{eqnarray}
+% \nonumber
+% \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & = & \kappa_\phi
+% \left( \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{3}{2},j} 
+% - 27 \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j} \right. \\
+% \nonumber
+% & & \left. + 27 \left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} 
+% - \left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{3}{2},j} \right)\\
+% & & / \left( x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}} \right)
+% \end{eqnarray}
 \subsection{Pressure}
 The pressure solver follows the method of Chorin19XX.
 Modified wavenumber
 \begin{eqnarray}
 \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k}\\
-\left. u_i\right|^{t+1}_{i,j,k} & = & \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} - \Delta t \left. \dfrac{\partial p}{\partial x}\right|_{i,j,k}
+\left. u_i\right|^{t+1}_{i,j,k} & = & \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} - \Delta t \left. \delta_{nx_i}\left( \dfrac{p}{\rho_0}\right)\right|^t_{i,j,k}
 \end{eqnarray}
 Bla \ref{eq:poisson}
+\begin{eqnarray}
+\end{eqnarray}
+
 
 
 \subsection{Boundary conditions}
+The lateral boundaries in MicroHH are periodic.
+
 The boundary conditions can be formulated in their most general form, the Robin boundary condition:
 \begin{eqnarray}
 a \phi_s + b \left.\dfrac{\partial \phi}{\partial z}\right|_s = c,
