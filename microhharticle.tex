@@ -214,7 +214,7 @@ First, there are the second order accurate interpolation operators $I_2$ and $I_
 
 \begin{eqnarray}
 %\phi_{i} = \dfrac{- \phi_{i-\frac{3}{2}} + 9 \phi_{i-\frac{1}{2}} + 9 \phi_{i+\frac{1}{2}} - \phi_{i+\frac{3}{2}}}{16}
-I_{4x} \equiv \dfrac{- \phi_{i-\frac{3}{2},j,k} + 9 \phi_{i-\frac{1}{2},j,k} + 9 \phi_{i+\frac{1}{2},j,k} - \phi_{i+\frac{3}{2},j,k}}{16}
+I_{4x} \equiv \dfrac{- \phi_{i-\frac{3}{2},j,k} + 9 \phi_{i-\frac{1}{2},j,k} + 9 \phi_{i+\frac{1}{2},j,k} - \phi_{i+\frac{3}{2},j,k}}{16}\label{eq:interp4}
 \end{eqnarray}
 
 \begin{eqnarray}
@@ -252,11 +252,29 @@ The advection term is discretized in the flux form:
                                                                           + \dfrac{ v_{i,j+\frac{1}{2}} \widehat{\phi}^y_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \widehat{\phi}^y_{i,j-\frac{1}{2}} }
                                                                                   { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }
 \end{eqnarray}
+
 \begin{eqnarray}
 \dfrac{\partial v u}{\partial x} = \dfrac{ \widehat{v}^y_{i+\frac{1}{2},j} \widehat{u}^x_{i+\frac{1}{2},j} - \widehat{v}^y_{i-\frac{1}{2},j} \widehat{u}^x_{i-\frac{1}{2},j} }
-                                         { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }
+                                         { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
 \end{eqnarray}
-
+In the standard fourth order scheme:
+\begin{eqnarray}
+\nonumber
+\dfrac{\partial u \phi}{\partial x} & = &
+\left( u_{i-\frac{3}{2},j} \widehat{\phi}^x_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} \right.\\
+\nonumber
+&&\left. + 27 u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \widehat{\phi}^x_{i+\frac{3}{2},j} \right)\\
+&&\slash \left( x_{i-\frac{3}{2}} - 27 x_{i-\frac{1}{2}} + 27 x_{i+\frac{1}{2}} - x_{i+\frac{3}{2}} \right)
+\end{eqnarray}
+The fully energy conserving scheme is an interpolation of two second order operators:
+\begin{eqnarray}
+\nonumber
+\dfrac{\partial u \phi}{\partial x} & = & \dfrac{9}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
+                                                              { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }\\
+                                    & - & \dfrac{1}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
+                                                              { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }
+\end{eqnarray}
+Note that in this scheme velocity interpolations, such as in Eq. \ref{eq:advec2u}, still need to be performed with fourth order accuracy (Eq. \ref{eq:interp4}) in order to keep the total operator fourth order accurate.
 \subsection{Diffusion}
 
 
