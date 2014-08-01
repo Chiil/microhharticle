@@ -176,71 +176,61 @@ MicroHH is discretized on a staggered grid, where the scalars are located in the
 \subsection{Building blocks of the spatial discretization}
 The spatial operators are based on finite differences. The code supports second order and fourth order accurate discretizations, which follow \citet{Morinishi1998, Vasilyev2000}. From Taylor series spatial operators can be derived that form the building blocks of more advanced operators, such as the advection and diffusion operators. In the following section we describe for simplicity the operators and the derived operators in two dimensions.
 
-First, there are the second order accurate interpolation operators $I_2$ and $I_{2L}$:
+First, there are the second order accurate interpolation operators:
 \begin{eqnarray}
-\widehat{\phi}^x_{i,j,k} = \left( \phi_{i,j,k} \right) & \equiv & \dfrac{\phi_{i-\frac{1}{2},j,k} + \phi_{i+\frac{1}{2},j,k}}{2},\\
-\widehat{\phi}^{3x}_{i,j,k} = \left( \phi_{i,j,k} \right) & \equiv & \dfrac{\phi_{i-\frac{3}{2},j,k} + \phi_{i+\frac{3}{2},j,k}}{2},
+\widehat{\phi}^   x_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
+\widehat{\phi}^{3x}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
 \end{eqnarray}
 
 \begin{eqnarray}
-%\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{- \phi_{i-\frac{1}{2}} + \phi_{i+\frac{1}{2}}}
-%                                                          {-    x_{i-\frac{1}{2}} +    x_{i+\frac{1}{2}}}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} = G_{2x} \left( \phi_{i,j,k} \right) \equiv \dfrac{- \phi_{i-\frac{1}{2},j,k} + \phi_{i+\frac{1}{2},j,k}}
-                                                                                                          {-    x_{i-\frac{1}{2},j,k} +    x_{i+\frac{1}{2},j,k}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+                                                                   {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
 \end{eqnarray}
 
 \begin{eqnarray}
-%\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{- \phi_{i-\frac{1}{2}} + \phi_{i+\frac{1}{2}}}
-%             {\Delta x}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} = G_{2x} \left( \phi_{i,j,k} \right) \equiv \dfrac{- \phi_{i-\frac{1}{2},j,k} + \phi_{i+\frac{1}{2},j,k}}
-                                                                                                          {\Delta x}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+                                                                   {   x_{i+\frac{3}{2},j} -    x_{i-\frac{3}{2},j}}
 \end{eqnarray}
 
 \begin{eqnarray}
-%\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{- \phi_{i-\frac{1}{2}} + \phi_{i+\frac{1}{2}}}
-%                                                          {-    x_{i-\frac{1}{2}} +    x_{i+\frac{1}{2}}}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} = G_{2x} \left( \phi_{i,j,k} \right) \equiv \dfrac{- \phi_{3-\frac{1}{2},j,k} + \phi_{i+\frac{1}{2},j,k}}
-                                                                                                          {-    x_{i-\frac{1}{2},j,k} +    x_{i+\frac{1}{2},j,k}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+                                                                   {\Delta x}
 \end{eqnarray}
 
 \begin{eqnarray}
-%\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{- \phi_{i-\frac{1}{2}} + \phi_{i+\frac{1}{2}}}
-%             {\Delta x}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} = G_{2x} \left( \phi_{i,j,k} \right) \equiv \dfrac{- \phi_{i-\frac{1}{2},j,k} + \phi_{i+\frac{1}{2},j,k}}
-                                                                                                          {\Delta x}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \equiv \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+                                                                   {3\Delta x}
 \end{eqnarray}
 
 \subsubsection{Fourth order operators}
 
 \begin{eqnarray}
-%\phi_{i} = \dfrac{- \phi_{i-\frac{3}{2}} + 9 \phi_{i-\frac{1}{2}} + 9 \phi_{i+\frac{1}{2}} - \phi_{i+\frac{3}{2}}}{16}
-I_{4x} \equiv \dfrac{- \phi_{i-\frac{3}{2},j,k} + 9 \phi_{i-\frac{1}{2},j,k} + 9 \phi_{i+\frac{1}{2},j,k} - \phi_{i+\frac{3}{2},j,k}}{16}\label{eq:interp4}
+\widehat{\phi}^x_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}\label{eq:interp4}
 \end{eqnarray}
 
 \begin{eqnarray}
-%\phi_{i} = \dfrac{ 5 \phi_{i-\frac{1}{2}} + 15 \phi_{i+\frac{1}{2}} - 5 \phi_{i+\frac{3}{2}} + \phi_{i+\frac{5}{2}}}{16}
-I_{4Bx} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j,k} + 15 \phi_{i+\frac{1}{2},j,k} - 5 \phi_{i+\frac{3}{2},j,k} + \phi_{i+\frac{5}{2},j,k}}{16}
+\widehat{\phi}^x_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{\phi_{i-\frac{3}{2}} - 27 \phi_{i-\frac{1}{2}} + 27 \phi_{i+\frac{1}{2}} - \phi_{i+\frac{3}{2}}}
-                                                          {   x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
+                                                              {   x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}}}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{-23 \phi_{i-\frac{1}{2}} + 21 \phi_{i+\frac{1}{2}} + 3 \phi_{i+\frac{3}{2}} - \phi_{i+\frac{5}{2}}}
-                                                          {-23    x_{i-\frac{1}{2}} + 21    x_{i+\frac{1}{2}} + 3    x_{i+\frac{3}{2}} -    x_{i+\frac{5}{2}}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} = \dfrac{-23 \phi_{i-\frac{1}{2},j} + 21 \phi_{i+\frac{1}{2},j} + 3 \phi_{i+\frac{3}{2},j} - \phi_{i+\frac{5}{2},j}}
+                                                              {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}
 \end{eqnarray}
 
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_i = \dfrac{\phi_{i-\frac{3}{2}} - 27 \phi_{i-\frac{1}{2}} + 27 \phi_{i+\frac{1}{2}} - \phi_{i+\frac{3}{2}}}
-             {24 \Delta x}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
+                                                              {24 \Delta x}
 \end{eqnarray}
 
 \begin{eqnarray}
-\nonumber \left. \dfrac{\partial^2 \phi}{\partial x^2}\right|_i & = &
-\dfrac{1}{576 \left( \Delta x \right)^2} \left( \phi_{i-3} - 54 \phi_{i-2} + 783 \phi_{i-1}\right.\\
-& & \left. - 1460  \phi_i + 783 \phi_{i+1} - 54 \phi_{i+2} + \phi_{i+3} \right)
+\nonumber \left. \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} =
+\dfrac{1}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
+\left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right)
 \end{eqnarray}
 
 \subsection{Advection}
@@ -260,7 +250,7 @@ The advection term is discretized in the flux form:
 In the standard fourth order scheme:
 \begin{eqnarray}
 \nonumber
-\dfrac{\partial u \phi}{\partial x} & = &
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & = &
 \left( u_{i-\frac{3}{2},j} \widehat{\phi}^x_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} \right.\\
 \nonumber
 &&\left. + 27 u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \widehat{\phi}^x_{i+\frac{3}{2},j} \right)\\
@@ -269,15 +259,29 @@ In the standard fourth order scheme:
 The fully energy conserving scheme is an interpolation of two second order operators:
 \begin{eqnarray}
 \nonumber
-\dfrac{\partial u \phi}{\partial x} & = & \dfrac{9}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
-                                                              { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }\\
-                                    & - & \dfrac{1}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
-                                                              { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j}  & = & \dfrac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
+                                                                                    { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
+                                                          & - & \dfrac{9}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
+                                                                                    { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }
 \end{eqnarray}
 Note that in this scheme velocity interpolations, such as in Eq. \ref{eq:advec2u}, still need to be performed with fourth order accuracy (Eq. \ref{eq:interp4}) in order to keep the total operator fourth order accurate.
 \subsection{Diffusion}
-
-
+The diffusion operator is calculated as a divergence of a gradient:
+\begin{eqnarray}
+\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} \equiv 
+\kappa_\phi \dfrac{\left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} - \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j}}
+                                {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
+\end{eqnarray}
+\begin{eqnarray}
+\nonumber
+\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & = & \kappa_\phi
+\left( \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{3}{2},j} 
+- 27 \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j} \right. \\
+\nonumber
+& & \left. + 27 \left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} 
+- \left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{3}{2},j} \right)\\
+& & / \left( x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}} \right)
+\end{eqnarray}
 \subsection{Pressure}
 The pressure solver follows the method of Chorin19XX.
 Modified wavenumber
@@ -287,7 +291,7 @@ The boundary conditions can be formulated in their most general form, the Robin 
 \begin{eqnarray}
 a \phi_s + b \left.\dfrac{\partial \phi}{\partial z}\right|_s = c,
 \end{eqnarray}
-which gives the Dirichlet boundary condition when $a = 1, b = 0$ and the Neumann boundary condition when $a = 0, b = 1$. 
+which gives the Dirichlet boundary condition when ${a=1,~b=0}$ and the Neumann boundary condition when ${a=0,~b=1}$. 
 
 MicroHH makes use of ghost cells in order to avoid the need of biased schemes for single interpolation or gradient operators near the wall. The values at the ghost cells are derived making use of the boundary conditions. 
 
@@ -326,7 +330,7 @@ The code uses the Message Passing Interface (MPI) in order to run on a large num
 The Input/Output (IO) is entirely based on MPI-IO, such that three dimensional fields and two dimensional cross sections are stored as single files. We have chosen for MPI-IO in order to limit the number of files written by simulations done on a large number of processes and to allow for restarts on a different number of processes. In order to keep the code as clean as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write three dimensional fields and cross sections.
 
 \subsection{External dependencies}
-MicroHH depends on three external software tools or libraries. First, it uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time. Furthermore, the FFTW3 library is used for the computation of the Fast-Fourier Transforms. Last, the statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library.
+MicroHH depends on three external software tools or libraries. First, it uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of the Fast-Fourier Transforms. Last, the statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library.
 
 \section{Scaling experiments}
 \begin{figure}[t]
