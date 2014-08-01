@@ -285,6 +285,12 @@ The diffusion operator is calculated as a divergence of a gradient:
 \subsection{Pressure}
 The pressure solver follows the method of Chorin19XX.
 Modified wavenumber
+\begin{eqnarray}
+\left. \widetilde{u_i} \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k}\\
+\left. u_i\right|^{t+1}_{i,j,k} & = & \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} - \Delta t \left. \dfrac{\partial p}{\partial x}\right|_{i,j,k}
+\end{eqnarray}
+Bla \ref{eq:poisson}
+
 
 \subsection{Boundary conditions}
 The boundary conditions can be formulated in their most general form, the Robin boundary condition:
