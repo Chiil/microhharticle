@@ -99,6 +99,7 @@ For simplicity we define function $f$ that contains all right hand side terms of
 \end{eqnarray}
 Under the Boussinesq approximation the equation simplifies to:
 \begin{eqnarray}
+\label{eq:poisson}
 \dfrac{\partial^2}{\partial x_i^2} \left( \dfrac{p'}{\rho_0} \right) & = &
 \dfrac{\partial f_i}{\partial x_i}.
 \end{eqnarray}
@@ -324,11 +325,35 @@ Modified wavenumber
 \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k}\\
 \left. u_i\right|^{t+1}_{i,j,k} & = & \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} - \Delta t \left. \delta_{nx_i}\left( \dfrac{p}{\rho_0}\right)\right|^t_{i,j,k}
 \end{eqnarray}
-Bla \ref{eq:poisson}
 \begin{eqnarray}
+\left. \delta_{nx_i} \left( \rho_0 u_i\right) \right|^{t+1}_{i,j,k} & = & 
+\left. \delta_{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}\\
+& - &  \Delta t \left.\delta_{nx_i} \left[ \rho_0 \delta_{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k}
 \end{eqnarray}
+We set the left hand side to zero, to enforce a divergence free field at the next time step, which leaves us with the Poisson equation:
+\begin{eqnarray}
+\dfrac{\left. \delta_{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}}{\Delta t}
+& = &  \left. \delta_{nx_i} \left[ \rho_0 \delta_{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k},
+\end{eqnarray}
+which is the discretized version of Eq. \ref{eq:poisson}
 
-
+In order to simplify the notation, we name the left hand side term $\psi$ and the $p / \rho_0$ term on the right hand side $\pi$. Solving a Poisson equation is a global operation. Since the fields are periodic in the horizontal directions on an equidistant grid and the function is linear, we can perform a Fourier transform in the two horizontal directions:
+\begin{eqnarray}
+\widehat{\psi}_{l,m,k} = - k^2_{*n} \widehat{\pi}_{l,m,k} - l^2_{*n} \widehat{\pi}_{l,m,k}
++ \delta_{nz} \left[ \rho_0 \delta_{nz} \left( \widehat{\pi} \right) \right]_{l,m,k},
+\end{eqnarray}
+where $k_*$ and $l_*$ are the squares of the modified wave numbers belonging to the discretization:
+\begin{eqnarray}
+-k_{*2}^2 & \equiv & 2 \dfrac{\cos (k \Delta x)}{\left( \Delta x \right)^2} - \dfrac{2}{\left( \Delta x \right)^2}\\
+\nonumber
+-k_{*4}^2 & \equiv & 2 \dfrac{\cos (3k \Delta x) - 54 \cos (2k \Delta x) + 783 \cos (k \Delta x)}
+{576 \left( \Delta x \right)^2}\\
+& - & \dfrac{1460}{576 \left( \Delta x \right)^2}
+\end{eqnarray}
+The previous expressions fulfill the limit:
+\begin{eqnarray}
+\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2
+\end{eqnarray}
 
 \subsection{Boundary conditions}
 The lateral boundaries in MicroHH are periodic.
