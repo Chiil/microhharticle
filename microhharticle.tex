@@ -413,6 +413,47 @@ MicroHH depends on three external software tools or libraries. First, it uses th
 \caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}
 \end{figure}
 
+\section{Performance GPU (CUDA) implementation}
+
+Comparison single NVIDIA Quadro K6000 vs. Thunder cluster (2 Intel Xeon E5-2670 CPU's per node, 16 cores per node, 32 MPI tasks). Single core experiments performed with serial version (Intel 13.2), other experiments with OpenMPI 1.8.4. Drycblles case (Lxx), with grid dimensions of $64^3$, $128^3$, $256^3$ and $512^2 \times 384$. Moser180 and Moser600 default case from microhh repo. All cases without statistics. 
+
+\begin{table}[t]
+\caption{K6000 vs Thunder, cpu time (s) per iteration}
+\begin{tabular}{rccccc}
+\tophline
+case & GPU   & core   & n=1   & n=2   & n=4   \\
+\middlehline
+L64	 & 0.016 & 0.139	& 0.013 & 0.010 & 0.007 \\ 
+L128 & 0.055 & 1.189	& 0.124 & 0.070 & 0.039 \\
+L256 & 0.355 & 9.277	& 1.027 & 0.722 & 0.364 \\
+L512 & 1.987 & 60.356 & 6.107 & 3.632 & 2.088 \\
+\middlehline
+M180 & 0.168 & 3.401	& 0.352 & 0.209 & 0.119 \\
+M600 & 1.921 & 43.668 & 4.612 & 2.627 & 1.351 \\
+\bottomhline
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\caption{K6000 vs Thunder, relative performance (\%) compared to GPU}
+\begin{tabular}{rccccc}
+\tophline
+case & GPU & core & n=1   & n=2   & n=4   \\
+\middlehline
+L64	 & 100 & 11.2 & 116.8 & 163.2 & 210.2 \\
+L128 & 100 & 4.6  & 43.9  & 78.5  & 142.0 \\
+L256 & 100 & 3.8  & 34.5  & 49.1  & 97.4  \\
+L512 & 100 & 3.3  & 32.5  & 54.7  & 95.1  \\
+\middlehline
+M180 & 100 & 4.9  & 47.6  & 80.1  & 141.1 \\
+M600 & 100 & 4.4  & 41.7  & 73.1  & 142.2 \\
+\bottomhline
+\end{tabular}
+\end{table}
+
+
+
+
 \section{Model evaluation}
 \subsection{Evaluation of the dynamical core}
 \subsubsection{Taylor-Green vortex}
