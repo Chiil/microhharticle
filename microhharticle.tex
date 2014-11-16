@@ -65,7 +65,7 @@ In this paper we present a description of MicroHH 1.0, a new Computational Fluid
 In this paper we provide a full description of the governing equations and their numerical implementation. In addition, we discuss the added parametrizations and their underlying assumptions.
 
 \section{Dynamical core: governing equations}
-The dynamical core of MicroHH follows the conservation equations under the anelastic approximation as shown in BANNON1996. This approximation has the advantage that it directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant in space.
+The dynamical core of MicroHH follows the conservation equations under the anelastic approximation as shown in BANNON1996. The approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height.
 
 \subsection{Conservation of mass}
 \begin{eqnarray}
@@ -357,9 +357,7 @@ The previous expressions fulfill the limit:
 \end{eqnarray}
 
 \subsection{Boundary conditions}
-The lateral boundaries in MicroHH are periodic.
-
-The boundary conditions can be formulated in their most general form, the Robin boundary condition:
+The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form, the Robin boundary condition:
 \begin{eqnarray}
 a \phi_s + b \left.\dfrac{\partial \phi}{\partial z}\right|_s = c,
 \end{eqnarray}
@@ -394,7 +392,7 @@ whereas in case of a Neumann boundary condition we find:
 
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
-MicroHH is written in C++ and makes use of aspects of object-oriented programming. Separate model components are written in classes, to allow for a straightforward substitution and to avoid unnecessary switch statements inside of the code. Public and protected functions inside of the classes are declared virtual to open the possibility of replacing them in a derived class. This organization of the code has the advantage that any extension or case-specific code can be put in its own file, in order to minime the amount of code that needs to be edited and to allow for an easier merging with newer versions of the code.
+MicroHH is written in C++ and makes use of aspects of object-oriented programming. The model components are written in classes, to allow for a straightforward substitution and to avoid unnecessary switch statements inside of the code. Public and protected functions inside of the classes are declared virtual to open the possibility of replacing them in a derived class. This organization of the code has the advantage that any extension or case-specific code can be put in its own file, in order to minime the amount of code that needs to be edited and to allow for an easier merging with newer versions of the code.
 
 \subsection{Parallelization}
 The code uses the Message Passing Interface (MPI) in order to run on a large number of processes. The code creates a Cartesian grid using the MPI\_Cart\_create function and uses this grid to detect the IDs of neighboring processes. In order to avoid complex packing routines, we make use of MPI datatypes wherever possible. The MPI calls are written in an interface, such that the typical user never has to write any MPI calls for his personal routines.
