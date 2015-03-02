@@ -387,6 +387,41 @@ whereas in case of a Neumann boundary condition we find:
 
 \section{Physical parametrizations}
 \subsection{Surface model}
+In LES mode, it is possible to make use of a surface model to calculate the appropriate surface fluxes
+
+\begin{eqnarray}
+L   & \equiv & - \dfrac{u_*^3}{\kappa B_0} \\
+f_m & \equiv & \dfrac{\kappa}
+  { \ln{\left( \frac{z_1}{z_{0m}} \right)}
+  - \Psi_m \left( \frac{z_1}{L} \right)
+  + \Psi_m \left( \frac{z_{0m}}{L} \right) } \\
+f_h & \equiv &
+  \dfrac{\kappa}
+  { \ln{\left( \frac{z_1}{z_{0h}} \right)}
+  - \Psi_h \left( \frac{z_1}{L} \right)
+  + \Psi_h \left( \frac{z_{0h}}{L} \right) } \\
+u_* & \equiv & f_m \left( u_1 - u_0 \right) \\
+b_* & \equiv & f_h \left( b_1 - b_0 \right) 
+\end{eqnarray}
+
+MicroHH allows for three different boundary conditions:
+\begin{itemize}
+  \item Fixed $u_*$, fixed surface buoyancy flux $B_0$.
+  \begin{equation}
+    \dfrac{z}{L} = Ri_0 = - \dfrac{\kappa B_0}{u_*^3}
+  \end{equation}
+  
+  \item Fixed surface velocity $u_0$, fixed surface buoyancy flux $B_0$.
+  \begin{equation}
+    \dfrac{z}{L} f_m^3 = Ri_1 = - \dfrac{\kappa B_0}{ \left(u_1 - u_0 \right)^3}
+  \end{equation}
+  \item Fixed surface velocity $u_0$, fixed surface buoyancy $b_0$.
+  \begin{equation}
+    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_2 = \dfrac{\kappa \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
+  \end{equation}
+\end{itemize}
+In all three options the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to strech the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
+
 \subsection{Subfilter scale model}
 \subsection{Thermodynamics}
 
