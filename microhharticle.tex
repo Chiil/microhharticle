@@ -393,33 +393,50 @@ In LES mode, it is possible to make use of a surface model to calculate the appr
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0} \\
 f_m & \equiv & \dfrac{\kappa}
   { \ln{\left( \frac{z_1}{z_{0m}} \right)}
-  - \Psi_m \left( \frac{z_1}{L} \right)
-  + \Psi_m \left( \frac{z_{0m}}{L} \right) } \\
+  - \varPsi_m \left( \frac{z_1}{L} \right)
+  + \varPsi_m \left( \frac{z_{0m}}{L} \right) } \\
 f_h & \equiv &
   \dfrac{\kappa}
   { \ln{\left( \frac{z_1}{z_{0h}} \right)}
-  - \Psi_h \left( \frac{z_1}{L} \right)
-  + \Psi_h \left( \frac{z_{0h}}{L} \right) } \\
+  - \varPsi_h \left( \frac{z_1}{L} \right)
+  + \varPsi_h \left( \frac{z_{0h}}{L} \right) } \\
 u_* & \equiv & f_m \left( u_1 - u_0 \right) \\
 b_* & \equiv & f_h \left( b_1 - b_0 \right) 
 \end{eqnarray}
 
-MicroHH allows for three different boundary conditions:
+MicroHH supports three different boundary conditions, each with their own bulk Richardson number.
 \begin{itemize}
   \item Fixed $u_*$, fixed surface buoyancy flux $B_0$.
   \begin{equation}
-    \dfrac{z}{L} = Ri_0 = - \dfrac{\kappa B_0}{u_*^3}
+    \dfrac{z}{L} = Ri_a = - \dfrac{\kappa B_0}{u_*^3}
   \end{equation}
   
   \item Fixed surface velocity $u_0$, fixed surface buoyancy flux $B_0$.
   \begin{equation}
-    \dfrac{z}{L} f_m^3 = Ri_1 = - \dfrac{\kappa B_0}{ \left(u_1 - u_0 \right)^3}
+    \dfrac{z}{L} f_m^3 = Ri_b = - \dfrac{\kappa B_0}{ \left(u_1 - u_0 \right)^3}
   \end{equation}
   \item Fixed surface velocity $u_0$, fixed surface buoyancy $b_0$.
   \begin{equation}
-    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_2 = \dfrac{\kappa \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
+    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_c = \dfrac{\kappa \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
   \end{equation}
 \end{itemize}
+
+unstable $\zeta = z/L$ (Wyngaard book, Wilson):
+\begin{eqnarray}
+\phi_{m,h} & = & \left( 1 + \gamma_{m,h} \left| \zeta \right|^{2/3} \right)^{-1/2}\\
+%\phi_h & = & \left( 1 + \gamma_h \left| z/L \right|^{2/3} \right)^{-1/2}\\
+\varPsi_{m,h} & = & 3 \ln{\left( \dfrac{1 + \phi_{m,h}^{-1}}{2} \right)} 
+%\Psi_m & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
+%\Psi_h & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
+\end{eqnarray}
+where $\gamma_m = 3.6$ and $\gamma_h = 7.9$.\\
+stable (Hogstrom, Wyngaard book)
+\begin{eqnarray}
+\phi_{m,h} & = & 1 + \lambda_{m,h} \zeta\\
+\varPsi_{m,h} & = & - \lambda_{m,h} \zeta
+\end{eqnarray}
+where $\lambda_m = 4.8$ and $\lambda_h = 7.8$.
+
 In all three options the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to strech the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
 
 \subsection{Subfilter scale model}
