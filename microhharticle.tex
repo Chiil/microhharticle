@@ -23,12 +23,12 @@
 \author[1]{Chiel C. van Heerwaarden}
 \author[1]{Bart J. H. van Stratum}
 \author[2]{Thijs Heus}
-\author[3]{Jeremy Gibbs}
+\author[3]{Jeremy A. Gibbs}
 \author[3]{Evgeni Fedorovich}
 
 \affil[1]{Max Planck Institute for Meteorology, Hamburg, Germany}
 \affil[2]{Cleveland State University, Cleveland, OH, USA}
-\affil[3]{Oklahoma University, Norman, OK, USA}
+\affil[3]{University of Oklahoma, Norman, OK, USA}
 
 %% The [] brackets identify the author to the corresponding affiliation, 1, 2, 3, etc. should be inserted.
 
@@ -56,7 +56,7 @@
 \maketitle  %% Please note that for the copernicus2.cls this command needs to be inserted after \abstract{TEXT}
 
 \begin{abstract}
-This paper describes MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper also presents scaling tests showing good scaling from 256 to 32,738 processes.
+This paper describes MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,738 processes. The GPU version of the code reaches speedups of more than an order of magnitude with respect to the conventional CPU code for a variety of cases.
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
@@ -387,6 +387,58 @@ whereas in case of a Neumann boundary condition we find:
 
 \section{Physical parametrizations}
 \subsection{Surface model}
+In LES mode, it is possible to make use of a surface model to calculate the appropriate surface fluxes
+
+\begin{eqnarray}
+L   & \equiv & - \dfrac{u_*^3}{\kappa B_0} \\
+f_m & \equiv & \dfrac{\kappa}
+  { \ln{\left( \frac{z_1}{z_{0m}} \right)}
+  - \varPsi_m \left( \frac{z_1}{L} \right)
+  + \varPsi_m \left( \frac{z_{0m}}{L} \right) } \\
+f_h & \equiv &
+  \dfrac{\kappa}
+  { \ln{\left( \frac{z_1}{z_{0h}} \right)}
+  - \varPsi_h \left( \frac{z_1}{L} \right)
+  + \varPsi_h \left( \frac{z_{0h}}{L} \right) } \\
+u_* & \equiv & f_m \left( u_1 - u_0 \right) \\
+b_* & \equiv & f_h \left( b_1 - b_0 \right) 
+\end{eqnarray}
+
+MicroHH supports three different boundary conditions, each with their own bulk Richardson number.
+\begin{itemize}
+  \item Fixed $u_*$, fixed surface buoyancy flux $B_0$.
+  \begin{equation}
+    \dfrac{z}{L} = Ri_a = - \dfrac{\kappa B_0}{u_*^3}
+  \end{equation}
+  
+  \item Fixed surface velocity $u_0$, fixed surface buoyancy flux $B_0$.
+  \begin{equation}
+    \dfrac{z}{L} f_m^3 = Ri_b = - \dfrac{\kappa B_0}{ \left(u_1 - u_0 \right)^3}
+  \end{equation}
+  \item Fixed surface velocity $u_0$, fixed surface buoyancy $b_0$.
+  \begin{equation}
+    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_c = \dfrac{\kappa \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
+  \end{equation}
+\end{itemize}
+
+unstable $\zeta = z/L$ (Wyngaard book, Wilson):
+\begin{eqnarray}
+\phi_{m,h} & = & \left( 1 + \gamma_{m,h} \left| \zeta \right|^{2/3} \right)^{-1/2}\\
+%\phi_h & = & \left( 1 + \gamma_h \left| z/L \right|^{2/3} \right)^{-1/2}\\
+\varPsi_{m,h} & = & 3 \ln{\left( \dfrac{1 + \phi_{m,h}^{-1}}{2} \right)} 
+%\Psi_m & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
+%\Psi_h & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
+\end{eqnarray}
+where $\gamma_m = 3.6$ and $\gamma_h = 7.9$.\\
+stable (Hogstrom, Wyngaard book)
+\begin{eqnarray}
+\phi_{m,h} & = & 1 + \lambda_{m,h} \zeta\\
+\varPsi_{m,h} & = & - \lambda_{m,h} \zeta
+\end{eqnarray}
+where $\lambda_m = 4.8$ and $\lambda_h = 7.8$.
+
+In all three options the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to strech the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
+
 \subsection{Subfilter scale model}
 \subsection{Thermodynamics}
 
@@ -625,7 +677,7 @@ u_{n} =\sqrt{2} \sin (z_{n} /\sqrt{2} )\exp (-z_{n} /\sqrt{2} ),\\b_{n} =\sqrt{2
   \item Initial condition: stratified fluid at rest above the slope with zero surface buoyancy flux
   \item Lateral boundary conditions: periodic
   \item Lower boundary conditions: no-slip and impermeability conditions for velocity, surface-flux condition for buoyancy
-  \item Upper boundary conditions: no-slip and impermeability conditions for velocity, zero-flux condition for buoyancy
+  \item Upper boundary conditions: free-slip conditions for velocity, zero-gradient condition for buoyancy
 \end{itemize}
 \subsection{Flow description and simulation results}
 
@@ -713,7 +765,7 @@ Flux profiles shown in Fig.~\ref{katabatic_wu} and Fig.~\ref{katabatic_wb} indic
   \item Initial condition: stratified fluid at rest above the slope with zero surface buoyancy flux
   \item Lateral boundary conditions: periodic
   \item Lower boundary conditions: no-slip and impermeability conditions for velocity, surface-flux condition for buoyancy
-  \item Upper boundary conditions: no-slip and impermeability conditions for velocity, zero-flux condition for buoyancy
+  \item Upper boundary conditions: free-slip conditions for velocity, zero-gradient condition for buoyancy
 \end{itemize}
 
 \subsection{Flow description and simulation results}
