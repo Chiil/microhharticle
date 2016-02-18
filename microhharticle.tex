@@ -511,15 +511,25 @@ Bla.
 \caption{Time evolution of the energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes for three different time steps (a), and error convergence of the temporal discretization for the RK3 and RK4 scheme (b).}
 \end{figure}
 
+\subsubsection{Laminar katabatic flow}
+
 \subsection{Comparison against known case studies}
+
 \subsubsection{Channel flow}
+The first experiment we compare against data is a neutral channel flow as discussed in MOSER. Strictly speaking, this is an evaluation of the dynamical core of the model, but as the flow is turbulent, we cannot compare it against an analytical solution.
+
+The simulation has a Reynolds-$\tau$ number of 590. SPECS
+
+Figure \ref{fig:moser_velocity}a shows the normalized horizontally-averaged streamwise velocity in panel, and the normalized rms of all three velocity components in Figure \ref{fig:moser_velocity}b. All plotted variables show a perfect match with the data and are indistinguishable from Moser's data. In order to further assess the accuracy of the data, we show the budgets of the variances in Figure \ref{fig:moser_budget}. Also here, the match with the reference data is excellent, which indicates that the whole range of spatial scales in the flow is represented well and that the fourth-order scheme is well able to pick up the details of for instance the disspiation $\epsilon$ that depends on local gradients in the flow.
+
+The findings in the previous paragraph are further corroborated by the spectra shown in Figure \ref{fig:moser_spectra}.  
 
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
 \includegraphics[width=8.3cm]{figs/gmd_m590_umean_var.pdf}
 \end{center}
-\caption{Moser590. Dashed line = spectra location. $z$ normalized with $u_\tau / \nu$, velocities with $u_\tau^{-1}$.}
+\caption{Moser590. Dashed line = spectra location. $z$ normalized with $u_\tau / \nu$, velocities with $u_\tau^{-1}$.}\label{fig:moser_velocity}
 \end{figure}
 
 %% TWO-COLUMN FIGURES
@@ -528,14 +538,14 @@ Bla.
 \begin{center}
 \includegraphics[width=16.6cm]{figs/gmd_m590_turb_budg.pdf}
 \end{center}
-\caption{Moser590 variance and TKE budgets. $z$ normalized with $u_\tau / \nu$, variances and TKE budget with $\nu / u_\tau^{4}$.}
+\caption{Moser590 variance and TKE budgets. $z$ normalized with $u_\tau / \nu$, variances and TKE budget with $\nu / u_\tau^{4}$.}\label{fig:moser_variance}
 \end{figure*}
 
 %% TWO-COLUMN FIGURES
 \begin{figure*}[t]
 \vspace*{2mm}
 \begin{center}
-\includegraphics[width=16.6cm]{figs/gmd_m590_spectra_4x1.pdf}
+\includegraphics[width=16.6cm]{figs/gmd_m590_spectra_4x1.pdf}\label{fig:moser_spectra}
 \end{center}
 \caption{Moser590 spectra, velocity spectra are normalized with $u_\tau^{-2}$, pressure spectra with $u_\tau^{-4}$}
 \end{figure*}
@@ -800,8 +810,8 @@ In parallel, preliminary experiments have been performed to include a Domain-Spe
 This paper has explained MicroHH, an new Computational Fluid Dynamics code for simulations of turbulent flows in the atmospheric boundary layer. 
 
 \section{Availability of code and resources}
-MicroHH has its own website at www.microhh.org. Its code is hosted at GitHub and can be accessed either via the website, or directly from github.com/microhh/microhh. A selection of visualizations can be viewed at the MicroHH channel at Vimeo.
-
+MicroHH has its own website at \url{http://microhh.org}. Its code is hosted at GitHub and can be accessed either via the website, or directly from 
+\url{https://github.com/microhh/microhh}. A selection of visualizations can be viewed at the MicroHH channel at Vimeo \url{https://vimeo.com/channels/817195}.
 
 \bibliographystyle{copernicus}
 \bibliography{../../misc/refs}
