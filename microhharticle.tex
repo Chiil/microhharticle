@@ -17,7 +17,7 @@
 
 \linenumbers
 
-\title{MicroHH 1.0}
+\title{MicroHH 1.0: a computational fluid dynamics code for direct and large-eddy simulation of atmospheric boundary layer flows}
 
 
 \author[1]{Chiel C. van Heerwaarden}
@@ -60,7 +60,7 @@ This paper describes MicroHH 1.0, a new Computational Fluid Dynamical code for t
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloudy boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++, in contrast to the majority of its peers, which are written in Fortran 90 for reasons that we explain in Section \ref{sec:technical}.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloudy boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++, in contrast to the majority of its peers, which are written in Fortran 90. The reasons we explain in Section \ref{sec:technical}.
 
 In this paper we provide a full description of the governing equations and their numerical implementation. In addition, we discuss the added parametrizations and their underlying assumptions.
 
@@ -68,10 +68,12 @@ In this paper we provide a full description of the governing equations and their
 The dynamical core of MicroHH follows the conservation equations under the anelastic approximation as shown in BANNON1996. The approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height.
 
 \subsection{Conservation of mass}
+The conservation of mass is formulated as:
 \begin{eqnarray}
-\dfrac{\partial \rho_0 u_i}{\partial x_i} & = & 0\label{eq:consmassa}
+\dfrac{\partial \rho_0 u_i}{\partial x_i} & = & 0\label{eq:consmassa}.
 \end{eqnarray}
 
+Under the Boussinesq approximation, the equation simplifies to conservation of volume:
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial x_i} & = & 0\label{eq:consmassb}
 \end{eqnarray}
@@ -134,13 +136,12 @@ Under the Boussinesq approximation with only dry thermodynamics ($\theta_v = \th
 With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we no longer assume that gravity is directed along the z-axis, but instead assume that the domain is under a slope $\alpha$ such that gravity is distributed between the x-axis and z-axis, and assume that the reference buoyancy increases with height with slope $N^2$, the equations can be written as:
 \begin{eqnarray}
 \dfrac{\partial u}{\partial t} + \dfrac{\partial u_j u}{\partial x_j} & = & 
-- \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
+- \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + \sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
 \dfrac{\partial w}{\partial t} + \dfrac{\partial u_j w}{\partial x_j} & = & 
-- \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial z} + cos(\alpha) b + \nu \dfrac{\partial^2 w}{\partial x_j^2}\label{eq:conswslope},\\
+- \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial z} + \cos(\alpha) b + \nu \dfrac{\partial^2 w}{\partial x_j^2}\label{eq:conswslope},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
-\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,sin(\alpha) + w\,cos(\alpha) \right) N^2\label{eq:consbslope}
+\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N^2\label{eq:consbslope}
 \end{eqnarray}
-
 
 \section{Dynamical core: numerical implementation}
 \subsection{Time integration}
@@ -169,10 +170,12 @@ For the fourth-order scheme the vectors $a$ and $b$ are:
 \frac{2277821191437}{14882151754819} \right\}
 \end{eqnarray}
 
-Even though the fourth order scheme has five stages and is thus considerably more expensive than the third order scheme, the truncation error is so much smaller that under most conditions it pays off to use fourth order scheme. We demonstrate this in Section \ref{sec:validationtime}, where we study the conservation properties of the model and the accuracy of the time integration scheme.
+Even though the fourth order scheme has five stages and is thus considerably more expensive than the third order scheme, the truncation error is so much smaller that under many conditions it pays off to use fourth order scheme. We demonstrate this in Section \ref{sec:validationtime}, where we study the conservation properties of the model and the accuracy of the time integration scheme.
 
 \subsection{Grid}
-MicroHH is discretized on a staggered grid, where the scalars are located in the middle of a grid cell and the three velocity components on the boundaries. 
+MicroHH is discretized on a staggered grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
+
+MicroHH can work with stretched grids in the vertical dimension. The grid is initialized from vertical profiles that give the location of the cell centres. The locations of the faces are determined consistent with the spatial order of the interpolations that are described in the next section.
 
 \subsection{Building blocks of the spatial discretization}
 The spatial operators are based on finite differences. The code supports second order and fourth order accurate discretizations, which follow \citet{Morinishi1998, Vasilyev2000}. From Taylor series spatial operators can be derived that form the building blocks of more advanced operators, such as the advection and diffusion operators. In the following section we describe for simplicity the operators and the derived operators in two dimensions.
@@ -182,43 +185,42 @@ First, there are the second order accurate interpolation operators:
 \phi_{i,j} \approx \widehat{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
 \phi_{i,j} \approx \widehat{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
 \end{eqnarray}
-
+and the gradient operators defined using the same stencil size:
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2x} \left( \phi \right)_{i,j} \equiv \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
-                                                                                                                 {   x_{i+\frac{1}{2}}   -    x_{i-\frac{1}{2}  }}
-\end{eqnarray}
-
-\begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2xL} \left( \phi \right)_{i,j} \equiv \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2x} \left( \phi \right)_{i,j} & \equiv & \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+                                                                                                                 {   x_{i+\frac{1}{2}}   -    x_{i-\frac{1}{2}  }} \\
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2xL} \left( \phi \right)_{i,j}& \equiv & \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
                                                                                                                   {   x_{i+\frac{3}{2}}   -    x_{i-\frac{3}{2}  }}
 \end{eqnarray}
 In our notation, we use the Einstein summation in the operators. For instance, the divergence of vector $\left.u_i\right|_{i,j}$ can be written as $\delta^{2x_i}\left( u_i \right)$.
+% \begin{eqnarray}
+% \delta^{2x} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+%                                               {\Delta x}
+% \end{eqnarray}
+% 
+% \begin{eqnarray}
+% \delta^{2xL} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+%                                                {3\Delta x}
+% \end{eqnarray}
+
+\subsubsection{Fourth-order operators}
+Similar to the second-order operators, also fourth-order ones can be defined:
 \begin{eqnarray}
-\delta^{2x} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
-                                              {\Delta x}
+\phi_{i,j} \approx \widehat{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16},\label{eq:interp4}
+\end{eqnarray}
+and a biased one that can by applied in the vicinity of the boundaries:
+\begin{eqnarray}
+\phi_{i,j} \approx \widehat{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}.
 \end{eqnarray}
 
-\begin{eqnarray}
-\delta^{2xL} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
-                                               {3\Delta x}
-\end{eqnarray}
-
-\subsubsection{Fourth order operators}
-
-\begin{eqnarray}
-\phi_{i,j} \approx \widehat{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}\label{eq:interp4}
-\end{eqnarray}
-
-\begin{eqnarray}
-\phi_{i,j} \approx \widehat{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}
-\end{eqnarray}
-
+For these stencils the gradient operators are:
 \begin{eqnarray}
 \nonumber
 \left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta^{4x} \left( \phi \right)_{i,j}\\
 & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
-             {       x_{i-\frac{3}{2}}   - 27    x_{i-\frac{1}{2}}   + 27    x_{i+\frac{1}{2}}   -    x_{i+\frac{3}{2}}}
+             {       x_{i-\frac{3}{2}}   - 27    x_{i-\frac{1}{2}}   + 27    x_{i+\frac{1}{2}}   -    x_{i+\frac{3}{2}}},
 \end{eqnarray}
+and
 
 \begin{eqnarray}
 \nonumber
@@ -227,10 +229,11 @@ In our notation, we use the Einstein summation in the operators. For instance, t
                  {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}
 \end{eqnarray}
 
-\begin{eqnarray}
-\delta^{4x} \left( \phi \right)_{i,j}  = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
-                                               {24 \Delta x}
-\end{eqnarray}
+% \begin{eqnarray}
+% \delta^{4x} \left( \phi \right)_{i,j}  = \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
+%                                                {24 \Delta x}
+% \end{eqnarray}
+
 % \begin{eqnarray}
 % \nonumber 
 % &&\left. \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} \approx \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}\\
@@ -408,16 +411,16 @@ MicroHH supports three different boundary conditions, each with their own bulk R
 \begin{itemize}
   \item Fixed $u_*$, fixed surface buoyancy flux $B_0$.
   \begin{equation}
-    \dfrac{z}{L} = Ri_a = - \dfrac{\kappa B_0}{u_*^3}
+    \dfrac{z}{L} = Ri_a = - \dfrac{\kappa z B_0}{u_*^3}
   \end{equation}
   
   \item Fixed surface velocity $u_0$, fixed surface buoyancy flux $B_0$.
   \begin{equation}
-    \dfrac{z}{L} f_m^3 = Ri_b = - \dfrac{\kappa B_0}{ \left(u_1 - u_0 \right)^3}
+    \dfrac{z}{L} f_m^3 = Ri_b = - \dfrac{\kappa z B_0}{ \left(u_1 - u_0 \right)^3}
   \end{equation}
   \item Fixed surface velocity $u_0$, fixed surface buoyancy $b_0$.
   \begin{equation}
-    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_c = \dfrac{\kappa \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
+    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_c = \dfrac{\kappa z \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
   \end{equation}
 \end{itemize}
 
@@ -437,14 +440,16 @@ stable (Hogstrom, Wyngaard book)
 \end{eqnarray}
 where $\lambda_m = 4.8$ and $\lambda_h = 7.8$.
 
-In all three options the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to strech the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
+In all three options the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
 
 \subsection{Subfilter scale model}
 \subsection{Thermodynamics}
 
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
-MicroHH is written in C++ and makes use of aspects of object-oriented programming. The model components are written in classes, to allow for a straightforward substitution and to avoid unnecessary switch statements inside of the code. Public and protected functions inside of the classes are declared virtual to open the possibility of replacing them in a derived class. This organization of the code has the advantage that any extension or case-specific code can be put in its own file, in order to minime the amount of code that needs to be edited and to allow for an easier merging with newer versions of the code.
+MicroHH is written in C++ and makes use of aspects of object-oriented programming. The model components are written in classes, to allow for a straightforward substitution and to avoid unnecessary switch statements inside of the code. Public and protected functions inside of the classes are declared virtual to open the possibility of overriding them in a derived class. This organization of the code has the advantage that any extension or case-specific code can be put in its own file, in order to minimize the amount of code that needs to be edited and to allow for an easier merging with newer versions of the code.
+
+The GPU version of the code is activated through preprocessor statements. 
 
 \subsection{Parallelization}
 The code uses the Message Passing Interface (MPI) in order to run on a large number of processes. The code creates a Cartesian grid using the MPI\_Cart\_create function and uses this grid to detect the IDs of neighboring processes. In order to avoid complex packing routines, we make use of MPI datatypes wherever possible. The MPI calls are written in an interface, such that the typical user never has to write any MPI calls for his personal routines.
@@ -452,7 +457,7 @@ The code uses the Message Passing Interface (MPI) in order to run on a large num
 The Input/Output (IO) is entirely based on MPI-IO, such that three dimensional fields and two dimensional cross sections are stored as single files. We have chosen for MPI-IO in order to limit the number of files written by simulations done on a large number of processes and to allow for restarts on a different number of processes. In order to keep the code as clean as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write three dimensional fields and cross sections.
 
 \subsection{External dependencies}
-MicroHH depends on three external software tools or libraries. First, it uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of the Fast-Fourier Transforms. Last, the statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library.
+MicroHH depends on three external software tools or libraries. First, it uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of the Fast-Fourier Transforms. Last, the statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library. In order to run the provided test cases and their output scripts a Python installation including the Pylab library is required.
 
 \section{Scaling experiments}
 \begin{figure}[t]
@@ -781,7 +786,17 @@ Flux profiles shown in Fig.~\ref{katabatic_wu} and Fig.~\ref{katabatic_wb} indic
 
 After the negative buoyancy flux is applied at the surface, the fluid, which was initially at rest, goes through the series of decaying oscillations until it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Computed steady-state profiles of along-slope velocity $u$ and buoyancy $b$ were averaged over $x$ and then normalized using scales \eqref{GrindEQ__11_} - \eqref{GrindEQ__13_}. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{prandtl}.
 
+\section{Future plans}
+Currently, there are several ongoing projects to extend the model. The physical processes at are currenlty being implemented are microphysics and an interactive land surface model. [BART]
+
+In parallel, preliminary experiments have been performed to include a Domain-Specific Language (DSL) that enables the expression of complex finite difference operators in a simple syntax. The project has shown great potential, for two reasons. First, the DSL reduces the chances of making errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
+
 \conclusions  %% \conclusions[modified heading if necessary]
+This paper has explained MicroHH, an new Computational Fluid Dynamics code for simulations of turbulent flows in the atmospheric boundary layer. 
+
+\section{Availability of code and resources}
+MicroHH has its own website at www.microhh.org. Its code is hosted at GitHub and can be accessed either via the website, or directly from github.com/microhh/microhh. A selection of visualizations can be viewed at the MicroHH channel at Vimeo.
+
 
 \bibliographystyle{copernicus}
 \bibliography{../../misc/refs}
