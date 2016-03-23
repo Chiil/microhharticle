@@ -151,7 +151,7 @@ The prognostic equations are solved using low-storage Runge-Kutta time integrati
 \left( \delta \phi \right)_n & = & f \left( \phi_n \right) + a_n \left( \delta \phi \right)_{n-1} \\
 \phi_{n+1} & = & \phi_n + b_n \Delta t \left( \delta \phi \right)_{n},
 \end{eqnarray}
-where $f$ is a function that represent the computation of all right hand side terms, $\phi$ is an arbitrary variable and $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$. In principle, in low storage form, the tendencies of the previous stage $n-1$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. During the time integration, the tendency is multiplied with coefficient $b^n$ in order to find the value of arbitrary variable $\phi$ in stage $n+1$.
+where $f$ is a function that represent the computation of all right hand side terms, $\phi$ is an arbitrary variable and $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$. In principle, in low storage form, the tendencies of the previous stage $n-1$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. During the time integration, the tendency is multiplied with coefficient $b_n$ in order to find the value of arbitrary variable $\phi$ in stage $n+1$.
 
 For the third-order scheme the vectors $a$ and $b$ are:
 \begin{eqnarray}
