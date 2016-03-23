@@ -57,16 +57,18 @@
 \maketitle  %% Please note that for the copernicus2.cls this command needs to be inserted after \abstract{TEXT}
 
 \begin{abstract}
-This paper describes MicroHH 1.0, a new and freely available Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,738 processes. The GPU version of the code reaches speedups of more than an order of magnitude with respect to the conventional CPU code for a variety of cases.
+This paper describes MicroHH 1.0, a new and freely available (\url{www.microhh.org}) Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,738 processes. The Graphical Processing Unit (GPU)-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloud-covered atmospheric boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++, in contrast to the majority of its peers, which are written in Fortran 90 for reasons we explain in Section \ref{sec:technical}.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloud-covered atmospheric boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++contrast to the majority of its peers, which are mostly written in Fortran 90, for reasons we explain in Section \ref{sec:technical}.
 
-In Section X, we provide a full description of the governing equations and their numerical implementation. Subsequently, in Section X we discuss the added parametrizations and their underlying assumptions. Section X discusses the technical details of the code. This is followed by a series of model tests on validity, accuracy and performance. In these tests the dynamical core is tested separately, but also in combination with parameterizations.
+This paper is built up as following: in Section \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core and their numerical implementation is discussed in Section \ref{sec:dyncorediscrete}. Subsequently, in Section \ref{sec:parametrizations} we present the added parametrizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on validity, accuracy and performance in Section \ref{sec:tests}, followed by a series of test cases based on previous scientific research (Section \ref{sec:casestudies}). After a short description on how to download, compile and run MicroHH (Section \ref{sec:howto}), concluding remarks and future plans close the paper (Section \ref{sec:conclusion}). In order to keep the explanations of mathematical expressions concise, we have included an Appendix with the symbols, their description and their units that are used beyond the scope of a single section.
 
-\section{Dynamical core: governing equations}
-The dynamical core of MicroHH follows the conservation equations under the anelastic approximation as shown in BANNON1996. The approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height.
+\section{Dynamical core: governing equations}\label{sec:dyncore}
+The dynamical core of MicroHH solves the conservation equations of mass, momentum and energy under the anelastic approximation as presented in \citet{Bannon1996}.
+
+This form of the approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height.
 
 \subsection{Conservation of mass}
 The conservation of mass is formulated as:
@@ -83,13 +85,13 @@ Under the Boussinesq approximation, the equation simplifies to conservation of v
 The momentum equation is written it the flux form, in order to assure the best possible mass and momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted to arrive at the perturbation form:
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_i u_j}{\partial x_j} 
-- \dfrac{\partial}{\partial x_i}\left(\dfrac{p'}{\rho_0}\right) + g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmoma},\\
+- \dfrac{\partial}{\partial x_i}\left(\dfrac{p'}{\rho_0}\right) + g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2 + F_i}\label{eq:consmoma},\\
 \dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho g H_{\rho}} - \dfrac{\rho'}{\rho_0}\label{eq:statea},
 \end{eqnarray}
 where the scale height of density is defined as: $H_{\rho}~\equiv~\left( \dfrac{1}{\rho_0} \dfrac{d\rho_0}{dz} \right)^{-1}$. Under the Boussinesq approximation, where $\rho_0$ is constant with height and the scale height for density $H_\rho$ approaches infinity, the set simplifies to:
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} & = & - \dfrac{\partial u_i u_j}{\partial x_j}
-- \dfrac{1}{\rho_0}\dfrac{\partial p}{\partial x_i} + g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmomb},\\
+- \dfrac{1}{\rho_0}\dfrac{\partial p}{\partial x_i} + \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + S_i \label{eq:consmomb},\\
 \dfrac{\theta_v'}{\theta_{v0}} & = & - \dfrac{\rho'}{\rho_0}\label{eq:stateb}.
 \end{eqnarray}
 
@@ -112,7 +114,7 @@ Under the Boussinesq approximation the equation simplifies to:
 The conservation equation of an arbitrary scalar $\phi$ can be written in flux form:
 \begin{eqnarray}
 \dfrac{\partial \phi}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \phi}{\partial x_j} +
-\kappa_\phi \dfrac{\partial^2 \phi}{\partial x_j^2} + S_\phi,
+\kappa_\phi \dfrac{\partial^2 \phi}{\partial x_j^2} + S_\phi, \label{eq:consscal}
 \end{eqnarray}
 where $S_\phi$ represents sources and sinks of the variable.
 
@@ -144,14 +146,16 @@ With a slight modification to the previous set of equations, it is possible to s
 \kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N^2\label{eq:consbslope}
 \end{eqnarray}
 
-\section{Dynamical core: numerical implementation}
+\section{Dynamical core: numerical implementation}\label{sec:dyncorediscrete}
 \subsection{Time integration}
-The prognostic equations are solved using low-storage Runge-Kutta time integration schemes, where each prognostic variable requires only two three dimensional fields that we denote in this section with $\phi$ as the generic field and $\delta \phi$ as its tendency. The code provides two options: a three-stage third order scheme (WILSON) and a five stage fourth order scheme (CARPENTER). Both of them can be written in the same general form in semi-discrete formulation:
+The prognostic equations are solved using low-storage Runge-Kutta time integration schemes, where each prognostic variable requires only two three dimensional fields that we denote in this section with $\phi$ as an arbitrary prognostic variable and $\delta \phi$ as its tendency that is carried on during all stages of the time integration. The code provides two options: a three-stage third-order scheme \citep{Williamson1980} and a five-stage fourth-order scheme \citep{Carpenter1994}. Both can be written in the same generic form in semi-discrete formulation:
 \begin{eqnarray}
 \left( \delta \phi \right)_n & = & f \left( \phi_n \right) + a_n \left( \delta \phi \right)_{n-1} \\
 \phi_{n+1} & = & \phi_n + b_n \Delta t \left( \delta \phi \right)_{n},
 \end{eqnarray}
-where $f$ is a function that represent the computation of all right hand side terms, $\phi$ is an arbitrary variable and $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$. In principle, in low storage form, the tendencies of the previous stage $n-1$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. During the time integration, the tendency is multiplied with coefficient $b_n$ in order to find the value of arbitrary variable $\phi$ in stage $n+1$.
+where $f$ is a function that represent the computation of all right hand side terms, $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$, and $\Delta t$ is the time step. Expression $f \left( \phi_n \right)$ represents thus the actual tendency calculated using for instance Eqs. \ref{eq:consmoma}, \ref{eq:consscal}, whereas $\delta \phi$ is a composite of the actual tendency and those of the previous stages.
+
+In principle, in low storage form, the tendencies of the previous stage $\left( \delta \phi \right)_{n-1}$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. 
 
 For the third-order scheme the vectors $a$ and $b$ are:
 \begin{eqnarray}
@@ -389,7 +393,7 @@ whereas in case of a Neumann boundary condition we find:
 \phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}
 \end{eqnarray}
 
-\section{Physical parametrizations}
+\section{Physical parametrizations}\label{sec:parametrizations}
 \subsection{Surface model}
 In LES mode, it is possible to make use of a surface model to calculate the appropriate surface fluxes
 
@@ -457,10 +461,11 @@ The code uses the Message Passing Interface (MPI) in order to run on a large num
 
 The Input/Output (IO) is entirely based on MPI-IO, such that three dimensional fields and two dimensional cross sections are stored as single files. We have chosen for MPI-IO in order to limit the number of files written by simulations done on a large number of processes and to allow for restarts on a different number of processes. In order to keep the code as clean as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write three dimensional fields and cross sections.
 
+
 \subsection{External dependencies}
 MicroHH depends on three external software tools or libraries. First, it uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of the Fast-Fourier Transforms. Last, the statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library. In order to run the provided test cases and their output scripts a Python installation including the Pylab library is required.
 
-\section{Scaling experiments}
+\section{Validity, accuracy and performance} \label{sec:tests}
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
@@ -468,8 +473,30 @@ MicroHH depends on three external software tools or libraries. First, it uses th
 \end{center}
 \caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}
 \end{figure}
+\subsection{Evaluation of the dynamical core}
+\subsubsection{Taylor-Green vortex}
+Bla.
+\begin{figure}[t]
+\vspace*{2mm}
+\begin{center}
+\includegraphics[width=8.3cm]{figs/taylorgreen.pdf}
+\end{center}
+\caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}
+\end{figure}
 
-\section{Performance GPU (CUDA) implementation}
+\subsection{Energy conservation and time accuracy}\label{sec:validationtime}
+Bla.
+\begin{figure}[t]
+\vspace*{2mm}
+\begin{center}
+\includegraphics[width=8.3cm]{figs/timeconvergence.pdf}
+\end{center}
+\caption{Time evolution of the energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes for three different time steps (a), and error convergence of the temporal discretization for the RK3 and RK4 scheme (b).}
+\end{figure}
+
+\subsection{Performance}\label{sec:performance}
+\subsubsection{CPU}
+\subsubsection{Performance GPU (CUDA) implementation}
 
 Comparison single NVIDIA Quadro K6000 (Cuda 6.5) versus Thunder cluster (2 Intel Xeon E5-2670 CPU's per node, 16 cores per node, Intel 15.01 with OpenMPI 1.8.4). Bomex case (Bxx), with grid dimensions of $64^3$, $128^3$, $256^3$ and $512^2 \times 384$. Moser180 and Moser600 default case from microhh repo. All cases without statistics. 
 
@@ -490,31 +517,10 @@ M600 & 22.55 & 2.25 & 1.06 & 0.60 \\
 \end{tabular}
 \end{table}
 
-\section{Model evaluation}
-\subsection{Evaluation of the dynamical core}
-\subsubsection{Taylor-Green vortex}
-Bla.
-\begin{figure}[t]
-\vspace*{2mm}
-\begin{center}
-\includegraphics[width=8.3cm]{figs/taylorgreen.pdf}
-\end{center}
-\caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}
-\end{figure}
 
-\subsubsection{Energy conservation and time accuracy}\label{sec:validationtime}
-Bla.
-\begin{figure}[t]
-\vspace*{2mm}
-\begin{center}
-\includegraphics[width=8.3cm]{figs/timeconvergence.pdf}
-\end{center}
-\caption{Time evolution of the energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes for three different time steps (a), and error convergence of the temporal discretization for the RK3 and RK4 scheme (b).}
-\end{figure}
-
+\section{Case studies}\label{sec:casestudies}
 \subsubsection{Laminar katabatic flow}
 
-\subsection{Comparison against known case studies}
 
 \subsubsection{Channel flow}
 The first experiment we compare against data is a neutral channel flow as discussed in MOSER. Strictly speaking, this is an evaluation of the dynamical core of the model, but as the flow is turbulent, we cannot compare it against an analytical solution.
@@ -804,12 +810,14 @@ Flux profiles shown in Fig.~\ref{katabatic_wu} and Fig.~\ref{katabatic_wb} indic
 
 After the negative buoyancy flux is applied at the surface, the fluid, which was initially at rest, goes through the series of decaying oscillations until it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Computed steady-state profiles of along-slope velocity $u$ and buoyancy $b$ were averaged over $x$ and then normalized using scales \eqref{GrindEQ__11_} - \eqref{GrindEQ__13_}. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{prandtl}.
 
+\section{How to get MicroHH} \label{sec:howto}
+
 \section{Future plans}
 Currently, there are several ongoing projects to extend the model. The physical processes at are currenlty being implemented are microphysics and an interactive land surface model. [BART]
 
 In parallel, preliminary experiments have been performed to include a Domain-Specific Language (DSL) that enables the expression of complex finite difference operators in a simple syntax. The project has shown great potential, for two reasons. First, the DSL reduces the chances of making errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
 
-\conclusions  %% \conclusions[modified heading if necessary]
+\conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
 This paper has explained MicroHH, an new Computational Fluid Dynamics code for simulations of turbulent flows in the atmospheric boundary layer. 
 
 \section{Availability of code and resources}
