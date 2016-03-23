@@ -146,12 +146,12 @@ With a slight modification to the previous set of equations, it is possible to s
 
 \section{Dynamical core: numerical implementation}
 \subsection{Time integration}
-The prognostic equations are solved using low-storage Runge-Kutta time integration schemes, where each prognostic variable requires only two three dimensional fields. The code provides two options: a three-stage third order scheme (WILSON) and a five stage fourth order scheme (CARPENTER). Both of them can be written in the same general form in semi-discrete formulation:
+The prognostic equations are solved using low-storage Runge-Kutta time integration schemes, where each prognostic variable requires only two three dimensional fields that we denote in this section with $\phi$ as the generic field and $\delta \phi$ as its tendency. The code provides two options: a three-stage third order scheme (WILSON) and a five stage fourth order scheme (CARPENTER). Both of them can be written in the same general form in semi-discrete formulation:
 \begin{eqnarray}
-f\left(\phi^n\right) & = & a^n f\left( \phi^{n-1} \right) \\
-\phi^{n+1} & = & \phi^n + b^n \Delta t f\left(\phi^n\right),
+\left( \delta \phi \right)_n & = & f \left( \phi_n \right) + a_n \left( \delta \phi \right)_{n-1} \\
+\phi_{n+1} & = & \phi_n + b_n \Delta t \left( \delta \phi \right)_{n},
 \end{eqnarray}
-where $f$ is a function that represent the computation of all right hand side terms, $\phi$ is an arbitrary variable and $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$. In principle, in low storage form, the tendencies of the previous stage $n-1$ are retained and multiplied with $a^n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. During the time integration, the tendency is multiplied with coefficient $b^n$ in order to find the value of arbitrary variable $\phi$ in stage $n+1$.
+where $f$ is a function that represent the computation of all right hand side terms, $\phi$ is an arbitrary variable and $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$. In principle, in low storage form, the tendencies of the previous stage $n-1$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. During the time integration, the tendency is multiplied with coefficient $b^n$ in order to find the value of arbitrary variable $\phi$ in stage $n+1$.
 
 For the third-order scheme the vectors $a$ and $b$ are:
 \begin{eqnarray}
