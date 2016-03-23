@@ -20,15 +20,16 @@
 \title{MicroHH 1.0: a computational fluid dynamics code for direct and large-eddy simulation of atmospheric boundary layer flows}
 
 
-\author[1]{Chiel C. van Heerwaarden}
+\author[1,2]{Chiel C. van Heerwaarden}
 \author[1]{Bart J. H. van Stratum}
-\author[2]{Thijs Heus}
-\author[3]{Jeremy A. Gibbs}
-\author[3]{Evgeni Fedorovich}
+\author[3]{Thijs Heus}
+\author[4]{Jeremy A. Gibbs}
+\author[4]{Evgeni Fedorovich}
 
-\affil[1]{Max Planck Institute for Meteorology, Hamburg, Germany}
-\affil[2]{Cleveland State University, Cleveland, OH, USA}
-\affil[3]{University of Oklahoma, Norman, OK, USA}
+\affil[1]{Meteorology and Air Quality Group, Wageningen University, Wageningen, The Netherlands}
+\affil[2]{Max Planck Institute for Meteorology, Hamburg, Germany}
+\affil[3]{Cleveland State University, Cleveland, OH, USA}
+\affil[4]{University of Oklahoma, Norman, OK, USA}
 
 %% The [] brackets identify the author to the corresponding affiliation, 1, 2, 3, etc. should be inserted.
 
@@ -38,7 +39,7 @@
 
 \runningauthor{van Heerwaarden et al.}
 
-\correspondence{Chiel van Heerwaarden\\ (chiel.vanheerwaarden@mpimet.mpg.de)}
+\correspondence{Chiel van Heerwaarden\\ (chiel.vanheerwaarden@wur.nl)}
 
 
 
@@ -56,13 +57,13 @@
 \maketitle  %% Please note that for the copernicus2.cls this command needs to be inserted after \abstract{TEXT}
 
 \begin{abstract}
-This paper describes MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,738 processes. The GPU version of the code reaches speedups of more than an order of magnitude with respect to the conventional CPU code for a variety of cases.
+This paper describes MicroHH 1.0, a new and freely available Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,738 processes. The GPU version of the code reaches speedups of more than an order of magnitude with respect to the conventional CPU code for a variety of cases.
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloudy boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++, in contrast to the majority of its peers, which are written in Fortran 90. The reasons we explain in Section \ref{sec:technical}.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloud-covered atmospheric boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++, in contrast to the majority of its peers, which are written in Fortran 90 for reasons we explain in Section \ref{sec:technical}.
 
-In this paper we provide a full description of the governing equations and their numerical implementation. In addition, we discuss the added parametrizations and their underlying assumptions.
+In Section X, we provide a full description of the governing equations and their numerical implementation. Subsequently, in Section X we discuss the added parametrizations and their underlying assumptions. Section X discusses the technical details of the code. This is followed by a series of model tests on validity, accuracy and performance. In these tests the dynamical core is tested separately, but also in combination with parameterizations.
 
 \section{Dynamical core: governing equations}
 The dynamical core of MicroHH follows the conservation equations under the anelastic approximation as shown in BANNON1996. The approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height.
@@ -814,6 +815,22 @@ This paper has explained MicroHH, an new Computational Fluid Dynamics code for s
 \section{Availability of code and resources}
 MicroHH has its own website at \url{http://microhh.org}. Its code is hosted at GitHub and can be accessed either via the website, or directly from 
 \url{https://github.com/microhh/microhh}. A selection of visualizations can be viewed at the MicroHH channel at Vimeo \url{https://vimeo.com/channels/817195}.
+
+
+\section{Appendix}
+\begin{table*}[t]
+\caption{Overview of used symbols}\label{tab:symbols}
+\begin{tabular}{ccc}
+\tophline
+Symbol & Description & Units \\
+\middlehline
+$\rho_0$ & Base density & kg~m$^{-3}$\\
+$u_i$  & Velocity vector $\left( u, v, w \right)$ & m~s$^{-1}$\\
+$x_i$  & Position vector $\left( x, y, z \right)$ & m\\
+\bottomhline
+\end{tabular}
+\end{table*}
+
 
 \bibliographystyle{copernicus}
 \bibliography{../../misc/refs}
