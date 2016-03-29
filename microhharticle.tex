@@ -57,58 +57,65 @@
 \maketitle  %% Please note that for the copernicus2.cls this command needs to be inserted after \abstract{TEXT}
 
 \begin{abstract}
-This paper describes MicroHH 1.0, a new and freely available (\url{www.microhh.org}) Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,738 processes. The Graphical Processing Unit (GPU)-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
+This paper describes MicroHH 1.0, a new and freely available (\url{www.microhh.org}) Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows in the atmosphere using Direct Numerical Simulation and Large-Eddy Simulation. The paper covers the description of the governing equations, their numerical implementation and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established models. The full numerical model, including the associated parametrizations for Large-Eddy simulations of high Reynolds number flows, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,768 processes. The Graphical Processing Unit (GPU)-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloud-covered atmospheric boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++contrast to the majority of its peers, which are mostly written in Fortran 90, for reasons we explain in Section \ref{sec:technical}.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamical code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is a model that can be run both for Direct Numerical Simulations as well as for Large-Eddy Simulations with applications ranging from channel flows to cloud-covered atmospheric boundary layers. The model has been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers, which are mostly written in Fortran 90. The underlying reasons reasons we explain in Section \ref{sec:technical}.
 
 This paper is built up as following: in Section \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core and their numerical implementation is discussed in Section \ref{sec:dyncorediscrete}. Subsequently, in Section \ref{sec:parametrizations} we present the added parametrizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on validity, accuracy and performance in Section \ref{sec:tests}, followed by a series of test cases based on previous scientific research (Section \ref{sec:casestudies}). After a short description on how to download, compile and run MicroHH (Section \ref{sec:howto}), concluding remarks and future plans close the paper (Section \ref{sec:conclusion}). In order to keep the explanations of mathematical expressions concise, we have included an Appendix with the symbols, their description and their units that are used beyond the scope of a single section.
 
 \section{Dynamical core: governing equations}\label{sec:dyncore}
-The dynamical core of MicroHH solves the conservation equations of mass, momentum and energy under the anelastic approximation as presented in \citet{Bannon1996}.
-
-This form of the approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height.
-
-\subsection{Conservation of mass}
-The conservation of mass is formulated as:
+The dynamical core of MicroHH solves the conservation equations of mass, momentum and energy under the anelastic approximation as presented in \citet{Bannon1996}. In this approximation, the state variables density, pressure and temperature are described as small fluctuations (denoted with a prime in this paper) around their respective reference profiles (denoted with subcript zero) that are a function of height only. This form of the approximation directly simplifies to the Boussinesq equations if the base density $\rho_0$ is assumed to be constant with height. To facilitate the subsequent discussion of the conservation equations, we define the scale height for density $H_\rho$ based on the reference profile
 \begin{eqnarray}
-\dfrac{\partial \rho_0 u_i}{\partial x_i} & = & 0\label{eq:consmassa}.
+H_{\rho} & \equiv & \left( \dfrac{1}{\rho_0} \dfrac{d \rho_0}{dz} \right)^{-1}
 \end{eqnarray}
 
-Under the Boussinesq approximation, the equation simplifies to conservation of volume:
+\subsection{Conservation of mass}
+The conservation of mass is formulated as
+\begin{eqnarray}
+\dfrac{\partial \rho_0 u_i}{\partial x_i} & = & \rho_0 \dfrac{\partial u_i}{\partial x_i} + \rho_0 w H_{\rho}^{-1} = 0 \label{eq:consmassa}.
+\end{eqnarray}
+
+Under the Boussinesq approximation ($H_{\rho} \rightarrow \infty$), the equation under division by $\rho_0$ simplifies to conservation of volume
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial x_i} & = & 0\label{eq:consmassb}
 \end{eqnarray}
 
-\subsection{Conservation of momentum}
-The momentum equation is written it the flux form, in order to assure the best possible mass and momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted to arrive at the perturbation form:
+\subsection{Conservation of momentum and the equation of state}
+The momentum equation is written it the flux form, in order to assure the best possible mass and momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted to arrive at the perturbation form
 \begin{eqnarray}
-\dfrac{\partial u_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_i u_j}{\partial x_j} 
-- \dfrac{\partial}{\partial x_i}\left(\dfrac{p'}{\rho_0}\right) + g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2 + F_i}\label{eq:consmoma},\\
-\dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho g H_{\rho}} - \dfrac{\rho'}{\rho_0}\label{eq:statea},
+\nonumber \dfrac{\partial u_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_i u_j}{\partial x_j} 
+- \dfrac{\partial}{\partial x_i}\left(\dfrac{p'}{\rho_0}\right) \\
+& + & \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + F_i,\label{eq:consmoma}
 \end{eqnarray}
-where the scale height of density is defined as: $H_{\rho}~\equiv~\left( \dfrac{1}{\rho_0} \dfrac{d\rho_0}{dz} \right)^{-1}$. Under the Boussinesq approximation, where $\rho_0$ is constant with height and the scale height for density $H_\rho$ approaches infinity, the set simplifies to:
+where $\delta_{i3}$ is the Kronecker delta and vector $F_i$ represents external forces resulting from parametrizations or large-scale forcings.
+
+The corresponding equation of state is
 \begin{eqnarray}
-\dfrac{\partial u_i}{\partial t} & = & - \dfrac{\partial u_i u_j}{\partial x_j}
-- \dfrac{1}{\rho_0}\dfrac{\partial p}{\partial x_i} + \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + S_i \label{eq:consmomb},\\
+\dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho_0 g H_{\rho}} - \dfrac{\rho'}{\rho_0}\label{eq:statea},
+\end{eqnarray}
+Under the Boussinesq approximation the two equations simplify to
+\begin{eqnarray}
+\nonumber \dfrac{\partial u_i}{\partial t} & = & - \dfrac{\partial u_i u_j}{\partial x_j} - \dfrac{1}{\rho_0}\dfrac{\partial p^\prime}{\partial x_i} \\
+& + & \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + F_i \label{eq:consmomb},\\
 \dfrac{\theta_v'}{\theta_{v0}} & = & - \dfrac{\rho'}{\rho_0}\label{eq:stateb}.
 \end{eqnarray}
 
 \subsection{Pressure equation}
-For simplicity we define function $f$ that contains all right hand side terms of Eq., except the pressure gradient. In order to arrive at the equation that allows us to solve for the pressure we multiply the equation with the base density $\rho_0$ and take the divergence. Conservation of mass ensures that the tendency term vanishes, such that an elliptic equation remains for the pressure:
+The equation to acquire the pressure is diagnostic, because density fluctuations are neglected in the conservation of mass in the anelastic equations (Eq. \ref{eq:consmassa}). To simplify the notation, we define function $f \left( u_i \right)$ that contains all right hand side terms of Eq. \ref{eq:consmoma}, except the pressure gradient. To arrive at the equation that allows us to solve for the pressure, we multiply the equation with the base density $\rho_0$ and take its divergence. Conservation of mass ensures that the tendency term vanishes, and an elliptic equation for pressure remains
 \begin{eqnarray}
 \dfrac{\partial}{\partial x_i} 
 \left[ \rho_0 \dfrac{\partial}{\partial x_i} \left( \dfrac{p'}{\rho_0} \right) \right] & = &
-\dfrac{\partial \rho_0 f_i}{\partial x_i}.
+\dfrac{\partial \rho_0 f \left( u_i \right)}{\partial x_i}.
 \end{eqnarray}
-Under the Boussinesq approximation the equation simplifies to:
+Under the Boussinesq approximation the equation simplifies to
 \begin{eqnarray}
 \label{eq:poisson}
 \dfrac{\partial^2}{\partial x_i^2} \left( \dfrac{p'}{\rho_0} \right) & = &
-\dfrac{\partial f_i}{\partial x_i}.
+\dfrac{\partial f \left( u_i \right)}{\partial x_i}.
 \end{eqnarray}
-
+In Section \ref{sec:dyncorediscrete} we explain how these equations are solved.
 
 \subsection{Conservation of an arbitrary scalar}
 The conservation equation of an arbitrary scalar $\phi$ can be written in flux form:
@@ -119,16 +126,12 @@ The conservation equation of an arbitrary scalar $\phi$ can be written in flux f
 where $S_\phi$ represents sources and sinks of the variable.
 
 \subsection{Conservation of energy}
-MicroHH supports a series of governing equations for the energy equation. In short there are two modes, one that uses the potential temperature as a prognostic variable
+MicroHH provides multiple options for the governing equation for energy. Two modes work with potential temperature $\theta$ (dry dynamics) or liquid water potential temperature $\theta_l$ (moist dynamics) with the following conservation equation
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\phi \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
 \end{eqnarray}
-and one that uses the liquid water potential temperature $\theta_l$.
 
-
-
-\subsection{Simplification of the Boussinesq system and the extension to slope flows}
-Under the Boussinesq approximation with only dry thermodynamics ($\theta_v = \theta$), the equation of state can be eliminated and the conservation of momentum and energy can be written as:
+A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written as
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} + \dfrac{\partial u_i u_j}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x_i} + \delta_{i3} b + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmombsimp},\\
@@ -136,7 +139,7 @@ Under the Boussinesq approximation with only dry thermodynamics ($\theta_v = \th
 \kappa_b \dfrac{\partial^2 b}{\partial x_j^2}\label{eq:consenbsimp}
 \end{eqnarray}
 
-With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we no longer assume that gravity is directed along the z-axis, but instead assume that the domain is under a slope $\alpha$ such that gravity is distributed between the x-axis and z-axis, and assume that the reference buoyancy increases with height with slope $N^2$, the equations can be written as:
+With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we no longer assume that gravity is directed along the z-axis, but instead assume that the domain is under a slope $\alpha$ such that gravity is distributed between the x-axis and z-axis, and assume that the reference buoyancy increases with height with slope $N^2$, the equations are
 \begin{eqnarray}
 \dfrac{\partial u}{\partial t} + \dfrac{\partial u_j u}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + \sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
@@ -828,13 +831,33 @@ MicroHH has its own website at \url{http://microhh.org}. Its code is hosted at G
 \section{Appendix}
 \begin{table*}[t]
 \caption{Overview of used symbols}\label{tab:symbols}
-\begin{tabular}{ccc}
+\begin{tabular}{lll}
 \tophline
 Symbol & Description & Units \\
 \middlehline
-$\rho_0$ & Base density & kg~m$^{-3}$\\
+$\rho_0$ & Reference density & kg~m$^{-3}$\\
+$H_\rho$ & Scale height for density & m\\
 $u_i$  & Velocity vector $\left( u, v, w \right)$ & m~s$^{-1}$\\
 $x_i$  & Position vector $\left( x, y, z \right)$ & m\\
+$p^\prime$ & Perturbation pressure & Pa\\
+$p_0$ & Reference pressure & Pa\\
+$\rho^\prime$ & Perturbation density & kg~m$^{-3}$ \\
+$p^\prime$ & Perturbation pressure & Pa\\
+$p_0$ & Reference pressure & Pa\\
+$\theta_v^\prime$ & Perturbation virtual potential temperature & K\\
+$\theta_{v0}$ & Reference virtual potential temperature & K\\
+$g$ & Gravity acceleration & m~s$^{-2}$\\
+$\nu$ & Kinematic viscosity & m$^{2}$~s$^{-1}$\\
+$\kappa$ & Diffusivity of a variable & m$^{2}$~s$^{-1}$\\
+$F_i$ & External acceleration vector &  m~s$^{-2}$\\
+$S$ & External sources and sinks & variable dependent\\
+$\theta$ & Potential temperature & K \\
+$\theta_l$ & Liquid water potential temperature & K\\
+$b$ & Buoyancy & m~s$^{-2}$\\
+$T_0$ & Reference absolute temperature & K\\
+$Q$ & Heat input & J~m$^{-3}$~s$^{-1}$\\
+$\alpha$ & Slope of surface & rad \\
+$N$ & Brunt-Vaissala frequency & s\\
 \bottomhline
 \end{tabular}
 \end{table*}
