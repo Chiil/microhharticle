@@ -355,7 +355,7 @@ To simplify the notation, we name the left hand side term $\psi$ and the $p / \r
 \widehat{\psi}_{l,m,k} = - k^2_{*n} \widehat{\pi}_{l,m,k} - l^2_{*n} \widehat{\pi}_{l,m,k}
 + \delta^{nz} \left[ \rho_0 \delta^{nz} \left( \widehat{\pi} \right) \right]_{l,m,k},\label{eq:presfourier}
 \end{eqnarray}
-where Fourier transformed variables are denoted with a hat, and the wave numbers in the two horizontal dimensions $x$ and $y$ are $l$ and $m$ respectively; variables $k_*^2$ and $l_*^2$ are the squares of the modified wave numbers
+where Fourier transformed variables are denoted with a hat, the spatial order of the operation with $n$ and the wave numbers in the two horizontal dimensions $x$ and $y$ are $l$ and $m$ respectively; variables $k_*^2$ and $l_*^2$ are the squares of the modified wave numbers
 \begin{eqnarray}
 -k_{*2}^2 & \equiv & 2 \dfrac{\cos (k \Delta x)}{\left( \Delta x \right)^2} - \dfrac{2}{\left( \Delta x \right)^2}\\
 \nonumber
@@ -369,29 +369,26 @@ $\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2$, where $n$ is the order of the sc
 Solving Eq. \ref{eq:presfourier} for $\widehat{\pi}$ requires solving a banded matrix, which is tridiagonal for the second-order solver and hepta-diagonal for the fourth-order solver. For this a standard Thomas-algorithm is used. After the pressure is acquired, inverse Fourier transforms are applied and subsequently the pressure gradient term (see Eqs \ref{eq:consmoma} and \ref{eq:consmomb}) is computed for all three components of the velocity tendency. Note that the solution of this equation does not require a boundary condition for pressure (see \citet{Vreman2014} for details).
 
 \subsection{Boundary conditions}
-The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form, the Robin boundary condition:
+The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form, the Robin boundary condition
 \begin{eqnarray}
 a \phi_s + b \left.\dfrac{\partial \phi}{\partial z}\right|_s = c,
 \end{eqnarray}
 which gives the Dirichlet boundary condition when ${a=1,~b=0}$ and the Neumann boundary condition when ${a=0,~b=1}$. 
 
-MicroHH makes use of ghost cells in order to avoid the need of biased schemes for single interpolation or gradient operators near the wall. The values at the ghost cells are derived making use of the boundary conditions. 
-
-The ghost cells for the Dirichlet boundary conditions in the second order accurate discretization are:
+MicroHH makes use of ghost cells in order to avoid the need of biased schemes for single interpolation or gradient operators near the wall. The values at the ghost cells are derived making use of the boundary conditions following \citet{Morinishi1998}. The ghost cells for the Dirichlet boundary conditions in the second order accurate discretization are
 \begin{eqnarray}
 \phi_{-\frac{1}{2}} & = & 2 c - \phi_{\frac{1}{2}},
 \end{eqnarray}
-whereas those for the Neumann boundary condition are:
+whereas those for the Neumann boundary condition are
 \begin{eqnarray}
 \phi_{-\frac{1}{2}} & = & -c \left( - z_{-\frac{1}{2}} + z_{\frac{1}{2}} \right) + \phi_{\frac{1}{2}}
 \end{eqnarray}
-
-In case of the fourth order scheme, we have two ghost cells and therefore a second boundary condition is required. Here we set the third order derivative equal to zero (see \citet{Morinishi1998}). For the Dirichlet boundary condition we arrive at the following expressions for the ghost cells:
+In case of the fourth-order scheme, we have two ghost cells and therefore a second boundary condition is required. Here we set the third order derivative equal to zero (see \citet{Morinishi1998}). For the Dirichlet boundary condition we then acquire the following expressions for the ghost cells
 \begin{eqnarray}
 \phi_{-\frac{1}{2}} & = & \dfrac{8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}}}{3} \\
 \phi_{-\frac{3}{2}} & = & 8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}},
 \end{eqnarray}
-whereas in case of a Neumann boundary condition we find:
+whereas in case of a Neumann boundary condition we find
 \begin{eqnarray}
 \phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{1}{2}} \\
 \phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}
