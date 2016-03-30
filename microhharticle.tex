@@ -151,22 +151,20 @@ With a slight modification to the previous set of equations, it is possible to s
 
 \section{Dynamical core: numerical implementation}\label{sec:dyncorediscrete}
 \subsection{Time integration}
-The prognostic equations are solved using low-storage Runge-Kutta time integration schemes, where each prognostic variable requires only two three dimensional fields that we denote in this section with $\phi$ as an arbitrary prognostic variable and $\delta \phi$ as its tendency that is carried on during all stages of the time integration. The code provides two options: a three-stage third-order scheme \citep{Williamson1980} and a five-stage fourth-order scheme \citep{Carpenter1994}. Both can be written in the same generic form in semi-discrete formulation:
+The prognostic equations are solved using low-storage Runge-Kutta time integration schemes, where each prognostic variable requires only two three-dimensional fields that we denote in this section with $\phi$ as an arbitrary prognostic variable and $\delta \phi$ as its tendency that is carried on during all stages of the time integration. The code provides two options: a three-stage third-order scheme \citep{Williamson1980} and a five-stage fourth-order scheme \citep{Carpenter1994}. Both can be written in the same generic form in semi-discrete formulation
 \begin{eqnarray}
 \left( \delta \phi \right)_n & = & f \left( \phi_n \right) + a_n \left( \delta \phi \right)_{n-1} \\
 \phi_{n+1} & = & \phi_n + b_n \Delta t \left( \delta \phi \right)_{n},
 \end{eqnarray}
-where $f$ is a function that represent the computation of all right hand side terms, $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$, and $\Delta t$ is the time step. Expression $f \left( \phi_n \right)$ represents thus the actual tendency calculated using for instance Eqs. \ref{eq:consmoma}, \ref{eq:consscal}, whereas $\delta \phi$ is a composite of the actual tendency and those of the previous stages.
+where $f$ is a function that represent the computation of all right hand side terms, $a$ and $b$ are the coefficients for the Runge-Kutta method at stage $n$, and $\Delta t$ is the time step. Expression $f \left( \phi_n \right)$ represents thus the actual tendency calculated using for instance Eqs. \ref{eq:consmoma} or \ref{eq:consscal}, whereas $\delta \phi$ is a composite of the actual tendency and those of the previous stages. In low storage form, the tendencies of the previous stage $\left( \delta \phi \right)_{n-1}$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. 
 
-In principle, in low storage form, the tendencies of the previous stage $\left( \delta \phi \right)_{n-1}$ are retained and multiplied with $a_n$ at the beginning of a stage, except for the first stage, where $a_1 = 0$. 
-
-For the third-order scheme the vectors $a$ and $b$ are:
+For the third-order scheme the vectors $a$ and $b$ are
 \begin{eqnarray}
 a & = & \left\{0, -\frac{5}{9}, -\frac{153}{128} \right\}\\
 b & = & \left\{\frac{1}{3}, \frac{15}{16}, \frac{8}{15} \right\}
 \end{eqnarray}
 
-For the fourth-order scheme the vectors $a$ and $b$ are:
+For the fourth-order scheme the vectors $a$ and $b$ are
 \begin{eqnarray}
 \nonumber a & = & \left\{0, -\frac{567301805773}{1357537059087},
 -\frac{2404267990393}{2016746695238},\right.\\
@@ -178,29 +176,31 @@ For the fourth-order scheme the vectors $a$ and $b$ are:
 \frac{2277821191437}{14882151754819} \right\}
 \end{eqnarray}
 
-Even though the fourth order scheme has five stages and is thus considerably more expensive than the third order scheme, the truncation error is so much smaller that under many conditions it pays off to use fourth order scheme. We demonstrate this in Section \ref{sec:validationtime}, where we study the conservation properties of the model and the accuracy of the time integration scheme.
+Even though the fourth-order scheme has five stages and is thus considerably more expensive than the third order scheme, the truncation error is so much smaller that under many conditions it pays off to use it. We demonstrate this in Section \ref{sec:validationtime}, where we study the conservation properties of the model and the accuracy of the time integration scheme.
 
 \subsection{Grid}
-MicroHH is discretized on a staggered grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
+MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
 
 MicroHH can work with stretched grids in the vertical dimension. The grid is initialized from vertical profiles that give the location of the cell centres. The locations of the faces are determined consistent with the spatial order of the interpolations that are described in the next section.
 
 \subsection{Building blocks of the spatial discretization}
-The spatial operators are based on finite differences. The code supports second order and fourth order accurate discretizations, which follow \citet{Morinishi1998, Vasilyev2000}. From Taylor series spatial operators can be derived that form the building blocks of more advanced operators, such as the advection and diffusion operators. In the following section we describe for simplicity the operators and the derived operators in two dimensions.
+The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series spatial operators can be derived that form the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the operators and the derived operators. We use only two dimensions for brevity.
 
-First, there are the second order accurate interpolation operators:
+We define two second-order interpolation operators, the former with a small stencil and the latter with a wide stencil
 \begin{eqnarray}
 \phi_{i,j} \approx \widehat{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
 \phi_{i,j} \approx \widehat{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
 \end{eqnarray}
-and the gradient operators defined using the same stencil size:
+Interpolations are marked with a hat. The superscript indicates the spatial order (2), and the direction ($x$) and has an extra qualifier $L$ when it is taken over a greater distance. The subscript indicates the position on the grid ($i,j$).
+
+The gradient operators, denoted with operator $\delta$, are defined in a similar way
 \begin{eqnarray}
 \left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2x} \left( \phi \right)_{i,j} & \equiv & \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
                                                                                                                  {   x_{i+\frac{1}{2}}   -    x_{i-\frac{1}{2}  }} \\
 \left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2xL} \left( \phi \right)_{i,j}& \equiv & \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
                                                                                                                   {   x_{i+\frac{3}{2}}   -    x_{i-\frac{3}{2}  }}
 \end{eqnarray}
-In our notation, we use the Einstein summation in the operators. For instance, the divergence of vector $\left.u_i\right|_{i,j}$ can be written as $\delta^{2x_i}\left( u_i \right)$.
+We use the Einstein summation in the operators. For instance, the divergence of vector $\left.u_i\right|_{i,j}$ can be written as $\delta^{2x_i}\left( u_i \right)$.
 % \begin{eqnarray}
 % \delta^{2x} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
 %                                               {\Delta x}
@@ -212,16 +212,16 @@ In our notation, we use the Einstein summation in the operators. For instance, t
 % \end{eqnarray}
 
 \subsubsection{Fourth-order operators}
-Similar to the second-order operators, also fourth-order ones can be defined:
+The fourth-order operators, written down in the same notation, are defined as
 \begin{eqnarray}
 \phi_{i,j} \approx \widehat{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16},\label{eq:interp4}
 \end{eqnarray}
-and a biased one that can by applied in the vicinity of the boundaries:
+and a biased one that can by applied in the vicinity of the boundaries. Note that we only write down the bottom boundary (marked with superscript qualifier $b$) for brevity
 \begin{eqnarray}
 \phi_{i,j} \approx \widehat{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}.
 \end{eqnarray}
 
-For these stencils the gradient operators are:
+The centered and biased fourth-order gradient operators are
 \begin{eqnarray}
 \nonumber
 \left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta^{4x} \left( \phi \right)_{i,j}\\
@@ -251,7 +251,7 @@ and
 % \end{eqnarray}
 
 \subsection{Advection}
-The advection term is discretized in the flux form:
+We use the introduced notation to describe the more complex operators and expand them for illustration. The advection term is discretized in the flux form, where $\phi$ is an arbitrary scalar located in the center of the grid cell. In second order, this gives the following discretization
 \begin{eqnarray}
 \nonumber
 \dfrac{\partial u \phi}{\partial x} + \dfrac{\partial v \phi}{\partial y} & \approx & 
@@ -261,13 +261,14 @@ The advection term is discretized in the flux form:
 & + & \dfrac{ v_{i,j+\frac{1}{2}} \widehat{\phi}^{2y}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \widehat{\phi}^{2y}_{i,j-\frac{1}{2}} }
             { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }
 \end{eqnarray}
-
+The discretization of the advection of the velocity components (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) involves extra interpolations as the following example illustrates
 \begin{eqnarray}
 \dfrac{\partial v u}{\partial x} = \delta^{2x} \left( \widehat{v}^{2y} \widehat{u}^{2x} \right)_{i,j} =
 \dfrac{ \widehat{v}^{2y}_{i+\frac{1}{2},j} \widehat{u}^{2x}_{i+\frac{1}{2},j} - \widehat{v}^{2y}_{i-\frac{1}{2},j} \widehat{u}^{2x}_{i-\frac{1}{2},j} }
       { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
 \end{eqnarray}
-In the standard fourth-order scheme:
+
+In the standard fourth-order scheme, the scalar advection in flux form is denoted as
 \begin{eqnarray}
 \nonumber
 \left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \delta^{4x} \left( u \widehat{\phi}^{4x} \right)_{i,j} \\
@@ -277,9 +278,9 @@ In the standard fourth-order scheme:
 &   &\left. + 27 u_{i+\frac{1}{2},j} \widehat{\phi}^{4x}_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \widehat{\phi}^{4x}_{i+\frac{3}{2},j} \right)\\
 &   &\slash \left( x_{i-\frac{3}{2}} - 27 x_{i-\frac{1}{2}} + 27 x_{i+\frac{1}{2}} - x_{i+\frac{3}{2}} \right)
 \end{eqnarray}
-Hereafter, we assume that the usage of the operators is clear and we no longer expand them.
+Hereafter, we assume that operator notation is clear and we no longer expand them.
 
-The fully energy conserving scheme is an interpolation of two second order operators:
+MicroHH has fully energy-conserving fourth order advection schemes \citep{Morinishi1998} available. These consist of interpolation of two energy conserving second-order schemes to eliminate the second-order error
 \begin{eqnarray}
 % \nonumber
 \left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & = & \frac{9}{8} \delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} 
@@ -290,14 +291,14 @@ The fully energy conserving scheme is an interpolation of two second order opera
 % & - & \frac{1}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
 %                           { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }
 \end{eqnarray}
-Note that in this scheme velocity interpolations, such as in Eq. \ref{eq:advec2u}, still need to be performed with fourth order accuracy (Eq. \ref{eq:interp4}) in order to keep the total operator fourth order accurate. Therefore, for instance:
+Velocity interpolations, such as in Eq. \ref{eq:advec2u}, still need to be performed with fourth-order accuracy (Eq. \ref{eq:interp4}) in order to  be fourth-order accurate (see \citet{Morinishi1998} for details). To illustrate
 \begin{eqnarray}
 \dfrac{\partial v u}{\partial x} \approx \frac{9}{8} \delta^{2x} \left( \widehat{v}^{4y} \widehat{u}^{2x} \right)_{i,j} 
                                        - \frac{1}{8} \delta^{2xL} \left( \widehat{v}^{4y} \widehat{u}^{2xL} \right)_{i,j}
 \end{eqnarray}
 
 \subsection{Diffusion}
-The diffusion operator is calculated as a divergence of a gradient:
+We use a mimetic discretisation for the diffusion that can be written as the divergence of a gradient, using the building blocks defined earlier in this section. As this operator is identical in all directions, we write down only one dimension
 \begin{eqnarray}
 \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
 \kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j}\\
@@ -306,12 +307,13 @@ The diffusion operator is calculated as a divergence of a gradient:
 \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
 \kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}
 \end{eqnarray}
-On an equidistant grid, this leads to the well-known second order accurate operator for the second derivate:
+
+On an equidistant grid, this leads to the well-known second-order accurate operator for the second derivate
 \begin{eqnarray}
 \kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j} =
 \kappa_\phi \dfrac{ \phi_{i-1,j} - 2 \phi_{i,j} + \phi_{i+1,j} }{\left( \Delta x \right)^2},
 \end{eqnarray}
-whereas for a fourth-order accurate operator, a seven-point stencil is derived:
+whereas for a fourth-order accurate operator, a seven-point stencil is derived
 \begin{eqnarray}
 \nonumber
 && \kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}\\
@@ -319,7 +321,7 @@ whereas for a fourth-order accurate operator, a seven-point stencil is derived:
 && = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
 &&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right)
 \end{eqnarray}
-
+The seven point wide stencil and its properties has been discussed in detail in \citet{Castillo1995}.
 % \begin{eqnarray}
 % \nonumber
 % \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & = & \kappa_\phi
@@ -848,7 +850,7 @@ $\theta_v^\prime$ & Perturbation virtual potential temperature & K\\
 $\theta_{v0}$ & Reference virtual potential temperature & K\\
 $g$ & Gravity acceleration & m~s$^{-2}$\\
 $\nu$ & Kinematic viscosity & m$^{2}$~s$^{-1}$\\
-$\kappa$ & Diffusivity of a variable & m$^{2}$~s$^{-1}$\\
+$\kappa$ & Scalar diffusivity & m$^{2}$~s$^{-1}$\\
 $F_i$ & External acceleration vector &  m~s$^{-2}$\\
 $S$ & External sources and sinks & variable dependent\\
 $\theta$ & Potential temperature & K \\
