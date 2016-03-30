@@ -107,13 +107,12 @@ The equation to acquire the pressure is diagnostic, because density fluctuations
 \begin{eqnarray}
 \dfrac{\partial}{\partial x_i} 
 \left[ \rho_0 \dfrac{\partial}{\partial x_i} \left( \dfrac{p'}{\rho_0} \right) \right] & = &
-\dfrac{\partial \rho_0 f \left( u_i \right)}{\partial x_i}.
+\dfrac{\partial \rho_0 f \left( u_i \right)}{\partial x_i}.\label{eq:presa}
 \end{eqnarray}
 Under the Boussinesq approximation the equation simplifies to
 \begin{eqnarray}
-\label{eq:poisson}
 \dfrac{\partial^2}{\partial x_i^2} \left( \dfrac{p'}{\rho_0} \right) & = &
-\dfrac{\partial f \left( u_i \right)}{\partial x_i}.
+\dfrac{\partial f \left( u_i \right)}{\partial x_i}.\label{eq:presb}
 \end{eqnarray}
 In Section \ref{sec:dyncorediscrete} we explain how these equations are solved.
 
@@ -211,7 +210,6 @@ We use the Einstein summation in the operators. For instance, the divergence of 
 %                                                {3\Delta x}
 % \end{eqnarray}
 
-\subsubsection{Fourth-order operators}
 The fourth-order operators, written down in the same notation, are defined as
 \begin{eqnarray}
 \phi_{i,j} \approx \widehat{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16},\label{eq:interp4}
@@ -333,30 +331,31 @@ The seven point wide stencil and its properties has been discussed in detail in 
 % & & / \left( x_{i-\frac{3}{2}} - 27    x_{i-\frac{1}{2}} + 27    x_{i+\frac{1}{2}} -    x_{i+\frac{3}{2}} \right)
 % \end{eqnarray}
 \subsection{Pressure}
-The pressure solver follows the method of Chorin19XX.
-Modified wavenumber
+The pressure solver has to solve Eqs. \ref{eq:presa} and \ref{eq:presb} following the method of \citet{Chorin1968}. This method is a fractional step method that first computes an intermediate velocity component for the next time step based all right hand side terms of the momentum conservation equation Eq. \ref{eq:consmoma}, denoted with a tilde
 \begin{eqnarray}
-\left. \widetilde{u_i} \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k}\\
+\left. \widetilde{u_i} \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k}
+\end{eqnarray}
+The value at the next time step can be computed as soon as the pressure is known with
+\begin{eqnarray}
 \left. u_i\right|^{t+1}_{i,j,k} & = & \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} - \Delta t \left. \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right)\right|^t_{i,j,k}
 \end{eqnarray}
+In order to compute the pressure, we multiply the previous equation with the reference density and take its gradient, to arrive at
 \begin{eqnarray}
-\left. \delta^{nx_i} \left( \rho_0 u_i\right) \right|^{t+1}_{i,j,k} & = & 
+\nonumber \left. \delta^{nx_i} \left( \rho_0 u_i\right) \right|^{t+1}_{i,j,k} & = & 
 \left. \delta^{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}\\
 & - &  \Delta t \left.\delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k}
 \end{eqnarray}
-We set the left hand side to zero, to enforce a divergence free field at the next time step, which leaves us with the Poisson equation:
+The left hand side is the conservation of mass at the next time step, which equals zero (Eq. \ref{eq:consmassa}). Cancellation of the left hand side results in a diagnostic Poisson equation that is the discrete equivalent of Eq. \ref{eq:presa}. Rewriting leads to
 \begin{eqnarray}
 \dfrac{\left. \delta^{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}}{\Delta t}
-& = &  \left. \delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k},
+& = &  \left. \delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k}.
 \end{eqnarray}
-which is the discretized version of Eq. \ref{eq:poisson}
-
-In order to simplify the notation, we name the left hand side term $\psi$ and the $p / \rho_0$ term on the right hand side $\pi$. Solving a Poisson equation is a global operation. Since the fields are periodic in the horizontal directions on an equidistant grid and the function is linear, we can perform a Fourier transform in the two horizontal directions:
+To simplify the notation, we name the left hand side term $\psi$ and the $p / \rho_0$ term on the right hand side $\pi$. Solving a Poisson equation is a global operation. Because the fields are periodic in the horizontal directions on an equidistant grid and a Poisson equation is linear, we can perform a Fourier transform in the two horizontal directions
 \begin{eqnarray}
 \widehat{\psi}_{l,m,k} = - k^2_{*n} \widehat{\pi}_{l,m,k} - l^2_{*n} \widehat{\pi}_{l,m,k}
-+ \delta^{nz} \left[ \rho_0 \delta^{nz} \left( \widehat{\pi} \right) \right]_{l,m,k},
++ \delta^{nz} \left[ \rho_0 \delta^{nz} \left( \widehat{\pi} \right) \right]_{l,m,k},\label{eq:presfourier}
 \end{eqnarray}
-where $k_*$ and $l_*$ are the squares of the modified wave numbers belonging to the discretization:
+where Fourier transformed variables are denoted with a hat, and the wave numbers in the two horizontal dimensions $x$ and $y$ are $l$ and $m$ respectively; variables $k_*^2$ and $l_*^2$ are the squares of the modified wave numbers
 \begin{eqnarray}
 -k_{*2}^2 & \equiv & 2 \dfrac{\cos (k \Delta x)}{\left( \Delta x \right)^2} - \dfrac{2}{\left( \Delta x \right)^2}\\
 \nonumber
@@ -364,10 +363,10 @@ where $k_*$ and $l_*$ are the squares of the modified wave numbers belonging to 
 {576 \left( \Delta x \right)^2}\\
 & - & \dfrac{1460}{576 \left( \Delta x \right)^2}
 \end{eqnarray}
-The previous expressions fulfill the limit:
-\begin{eqnarray}
-\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2
-\end{eqnarray}
+where the former is the modified wave number for the second-order accurate solver and the latter is the wave number for the fourth-order one. Both expressions fulfill the limit
+$\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2$, where $n$ is the order of the scheme.
+
+Solving Eq. \ref{eq:presfourier} for $\widehat{\pi}$ requires solving a banded matrix, which is tridiagonal for the second-order solver and hepta-diagonal for the fourth-order solver. For this a standard Thomas-algorithm is used. After the pressure is acquired, inverse Fourier transforms are applied and subsequently the pressure gradient term (see Eqs \ref{eq:consmoma} and \ref{eq:consmomb}) is computed for all three components of the velocity tendency. Note that the solution of this equation does not require a boundary condition for pressure (see \citet{Vreman2014} for details).
 
 \subsection{Boundary conditions}
 The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form, the Robin boundary condition:
@@ -866,7 +865,8 @@ $N$ & Brunt-Vaissala frequency & s\\
 
 
 \bibliographystyle{copernicus}
-\bibliography{../../misc/refs}
+%\bibliography{../../misc/refs}
+\bibliography{microhharticle}
 \nopagebreak
 
 \smallskip
