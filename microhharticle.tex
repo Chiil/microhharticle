@@ -13,6 +13,10 @@
 %% copernicus.cls
 \documentclass[gmd]{copernicus}
 
+% A few handy shortcuts
+\newcommand{\uf}{\ensuremath{\widetilde{u}}}
+\newcommand{\thetaf}{\ensuremath{\widetilde{\theta}}}
+
 \begin{document}
 
 \linenumbers
@@ -395,60 +399,111 @@ whereas in case of a Neumann boundary condition we find
 \end{eqnarray}
 
 \section{Physical parametrizations}\label{sec:parametrizations}
-\subsection{Surface model}
-In LES mode, it is possible to make use of a surface model to calculate the appropriate surface fluxes
 
+\subsection{Surface model}
+MicroHH provides the option of a surface model that can be used to compute the surface fluxes of the horizontal momentum components and the scalars in flows over rough surfaces at high Reynolds numbers, which is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that take the height $z_1$ divided by the Obukhov length $L$ as a parameter. $L$ is defined as
 \begin{eqnarray}
-L   & \equiv & - \dfrac{u_*^3}{\kappa B_0} \\
+L   & \equiv & - \dfrac{u_*^3}{\kappa B_0};
+\end{eqnarray}
+it represents the height at which the magnitude of the buoyancy production / destruction of turbulence kinetic energy equals the shear production.
+
+Following MOST, the friction velocity $u_*$ and the momentum fluxes relate to the near surface wind gradient following:
+\begin{eqnarray}
+\dfrac{\kappa z_1}{u_*} \dfrac{\partial U}{\partial z}  = 
+- \dfrac{\kappa z_1 u_*}{u w} \dfrac{\partial u}{\partial z} =
+- \dfrac{\kappa z_1 u_*}{v w} \dfrac{\partial v}{\partial z} =
+\phi_m \left( \dfrac{z_1}{L} \right),
+\end{eqnarray}
+where $U$ is defined as $\sqrt{u^2 + v^2}$. This relationship can be integrated from the roughness length $z_{0m}$ to the first model level $z_1$ resulting in 
+\begin{eqnarray}
+u_* & \equiv & f_m \left( U_1 - U_0 \right),
+\end{eqnarray}
+with $f_m$ defined as:
+\begin{eqnarray}
 f_m & \equiv & \dfrac{\kappa}
-  { \ln{\left( \frac{z_1}{z_{0m}} \right)}
-  - \varPsi_m \left( \frac{z_1}{L} \right)
-  + \varPsi_m \left( \frac{z_{0m}}{L} \right) } \\
-f_h & \equiv &
-  \dfrac{\kappa}
-  { \ln{\left( \frac{z_1}{z_{0h}} \right)}
-  - \varPsi_h \left( \frac{z_1}{L} \right)
-  + \varPsi_h \left( \frac{z_{0h}}{L} \right) } \\
-u_* & \equiv & f_m \left( u_1 - u_0 \right) \\
-b_* & \equiv & f_h \left( b_1 - b_0 \right) 
+{ \ln{\left( \dfrac{z_1}{z_{0m}} \right)}
+	- \varPsi_m \left( \dfrac{z_1}{L} \right)
+	+ \varPsi_m \left( \dfrac{z_{0m}}{L} \right) }
 \end{eqnarray}
 
-MicroHH supports three different boundary conditions, each with their own bulk Richardson number.
-\begin{itemize}
-  \item Fixed $u_*$, fixed surface buoyancy flux $B_0$.
-  \begin{equation}
-    \dfrac{z}{L} = Ri_a = - \dfrac{\kappa z B_0}{u_*^3}
-  \end{equation}
-  
-  \item Fixed surface velocity $u_0$, fixed surface buoyancy flux $B_0$.
-  \begin{equation}
-    \dfrac{z}{L} f_m^3 = Ri_b = - \dfrac{\kappa z B_0}{ \left(u_1 - u_0 \right)^3}
-  \end{equation}
-  \item Fixed surface velocity $u_0$, fixed surface buoyancy $b_0$.
-  \begin{equation}
-    \dfrac{z}{L} \dfrac{f_m^2}{f_h} = Ri_c = \dfrac{\kappa z \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
-  \end{equation}
-\end{itemize}
-
-unstable $\zeta = z/L$ (Wyngaard book, Wilson):
+The exact procedure for scalars is followed, with
 \begin{eqnarray}
-\phi_{m,h} & = & \left( 1 + \gamma_{m,h} \left| \zeta \right|^{2/3} \right)^{-1/2}\\
+- \dfrac{\kappa z_1 u_*}{s w} \dfrac{\partial s}{\partial z} =
+\phi_h \left( \dfrac{z_1}{L} \right),
+\end{eqnarray}
+and in integrated form
+\begin{eqnarray}
+-\dfrac{sw}{u_*} & \equiv & f_h \left( s_1 - s_0 \right),
+\end{eqnarray}
+with
+\begin{eqnarray}
+f_h & \equiv &
+\dfrac{\kappa}
+{ \ln{\left( \dfrac{z_1}{z_{0h}} \right)}
+	- \varPsi_h \left( \dfrac{z_1}{L} \right)
+	+ \varPsi_h \left( \dfrac{z_{0h}}{L} \right) }
+\end{eqnarray}
+
+The functions $\phi_m$, $\phi_h$, $\varPsi_m$ and $\varPsi_h$ are empirical and depend on the static stability of the atmosphere. Under unstable conditions we follow \citet{Wilson2001, Wyngaard2010} 
+\begin{eqnarray}
+\phi_{m,h} & = & \left( 1 + \gamma_{m,h} \left| \dfrac{z_1}{L} \right|^{2/3} \right)^{-1/2}\\
 %\phi_h & = & \left( 1 + \gamma_h \left| z/L \right|^{2/3} \right)^{-1/2}\\
 \varPsi_{m,h} & = & 3 \ln{\left( \dfrac{1 + \phi_{m,h}^{-1}}{2} \right)} 
 %\Psi_m & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
 %\Psi_h & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
 \end{eqnarray}
-where $\gamma_m = 3.6$ and $\gamma_h = 7.9$.\\
-stable (Hogstrom, Wyngaard book)
+where $\gamma_m = 3.6$ and $\gamma_h = 7.9$. Under stable conditions we use \citet{Hogstrom1988, Wyngaard2010}
 \begin{eqnarray}
-\phi_{m,h} & = & 1 + \lambda_{m,h} \zeta\\
-\varPsi_{m,h} & = & - \lambda_{m,h} \zeta
+\phi_{m,h} & = & 1 + \lambda_{m,h} \dfrac{z_1}{L}\\
+\varPsi_{m,h} & = & - \lambda_{m,h} \dfrac{z_1}{L}
 \end{eqnarray}
 where $\lambda_m = 4.8$ and $\lambda_h = 7.8$.
 
-In all three options the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
+With the equations above the surface fluxes, surface values and near-surface gradients can be computed, but only when the Obukhov length $L$ is know. The surface model calculates the Obukhov length by relating the dimensionless parameter $z_1/ L$ to a Richardson number. The exact definition of the Richardson number depends on the chosen boundary condition in the model. Three possible options are available
+\begin{itemize}
+	\item Fixed momentum fluxes and a fixed surface buoyancy flux. Both the friction velocity $u_*$ and the surface buoyancy flux $B_0$ are specified. Under these conditions we define the Richardson number $Ri_a$ equal to $z_1/L$  and $L$ can be computed directly from expression
+	\begin{equation}
+	Ri_a \equiv \dfrac{z_1}{L} = - \dfrac{\kappa z B_0}{u_*^3}.
+	\end{equation}
+	\item A fixed horizontal velocity $u_0$ at the surface and a fixed surface buoyancy flux $B_0$. The friction velocity $u_*$ is unknown. Now,  $L$ needs to be retrieved from the implicit relationship 
+	\begin{equation}
+	Ri_b \equiv \dfrac{z_1}{L} f_m^3 = - \dfrac{\kappa z B_0}{ \left(u_1 - u_0 \right)^3}.
+	\end{equation}
+	\item A fixed surface velocity $u_0$ and a fixed surface buoyancy $b_0$. In this boundary condition the surface values for the horizontal velocities and the buoyancy are given and both $u_*$ and the surface buoyancy flux $B_0$ are unknown. $L$ is then retrieved from
+	\begin{equation}
+	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
+	\end{equation}
+\end{itemize}
+In case of the two options that need to be solved by iteration, the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
 
-\subsection{Subfilter scale model}
+\subsection{Subfilter-scale model}
+The governing equations described in Section \ref{sec:dyncore} describe the full equations that resolve the flow until the finest scales. In many applications, such simulations are too costly, and filtered equations are used and the subfilter-scale motions are modeled. The filtered version of Eq. \ref{eq:consmoma} looks as following, with a tilde to denote filtered variables
+\begin{eqnarray}
+\nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
+- \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
+& + & \delta_{i3} g \dfrac{\thetaf_v'}{\theta_{v0}} + F_i,\label{eq:consmoma_filter}
+\end{eqnarray}
+In this equation, a new tensor $\tau_{ij}$ is introduced, which we denote as the anisotropic subfilter-scale stress tensor, because the definition below shows that the isotropic part has been moved to the pressure.
+
+\begin{eqnarray}
+e          & \equiv & \frac{1}{2} \widetilde{u_i u_i} - \uf_i \uf_i\\
+\tau_{ij}  & \equiv & \widetilde{u_i u_j} - \uf_i \uf_j\\
+\pi        & \equiv & \dfrac{\widetilde{p}^\prime}{\rho_0} - \frac{2}{3} e
+\end{eqnarray}
+As $\tau_{ij}$ contains the filtered version of a product of unfiltered velocity components, this term needs to be parameterized. MicroHH uses a Smagorinsky-Lilly \citep{Lilly1968} scheme, in which $\tau_{ij}$ is modeled as
+\begin{eqnarray}
+\tau_{ij} & = & -K_m \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
+\end{eqnarray}
+The eddy-diffusivity $K_m$ is proportional to the magnitude of the strain $S_{ij}$
+\begin{eqnarray}
+S_{ij} & = & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)\\
+K_m    & = & c_s^2 \Delta^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2}
+\end{eqnarray}
+Near the wall, where the flow is unresolved, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory, calculated with the help of the Obukhov length $L$ computed in the surface model that is described hereafter. The gradients are calculated following:
+\begin{eqnarray}
+\dfrac{\partial \uf_{i,j}}{\partial z} & = & -\dfrac{\kappa z_1 u_*}{uw} \phi_m \left( \dfrac{z_1}{L} \right)
+\end{eqnarray}
+
 \subsection{Thermodynamics}
 
 \section{Technical details of the code}\label{sec:technical}
@@ -862,8 +917,8 @@ $N$ & Brunt-Vaissala frequency & s\\
 
 
 \bibliographystyle{copernicus}
-%\bibliography{../../misc/refs}
-\bibliography{microhharticle}
+\bibliography{../../misc/refs}
+%\bibliography{microhharticle}
 \nopagebreak
 
 \smallskip
