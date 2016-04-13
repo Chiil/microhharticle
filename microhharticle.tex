@@ -407,16 +407,18 @@ L   & \equiv & - \dfrac{u_*^3}{\kappa B_0};
 \end{eqnarray}
 it represents the height at which the magnitude of the buoyancy production / destruction of turbulence kinetic energy equals the shear production.
 
-Following MOST, the friction velocity $u_*$ and the momentum fluxes relate to the near surface wind gradient following:
+Following MOST, the friction velocity $u_*$ and the momentum fluxes relate to the near surface wind gradient
 \begin{eqnarray}
 \dfrac{\kappa z_1}{u_*} \dfrac{\partial U}{\partial z}  = 
 - \dfrac{\kappa z_1 u_*}{u w} \dfrac{\partial u}{\partial z} =
 - \dfrac{\kappa z_1 u_*}{v w} \dfrac{\partial v}{\partial z} =
 \phi_m \left( \dfrac{z_1}{L} \right),
 \end{eqnarray}
-where $U$ is defined as $\sqrt{u^2 + v^2}$. This relationship can be integrated from the roughness length $z_{0m}$ to the first model level $z_1$ resulting in 
+where $U$ is defined as $\sqrt{u^2 + v^2}$. These relationships can be integrated from the roughness length $z_{0m}$ to the first model level $z_1$ resulting in 
 \begin{eqnarray}
-u_* & \equiv & f_m \left( U_1 - U_0 \right),
+u_* & =  & f_m \left( U_1 - U_0 \right),\\
+uw & = & - u_* f_m \left( u_1 - u_0 \right),\\
+vw & = & - u_* f_m \left( v_1 - v_0 \right),
 \end{eqnarray}
 with $f_m$ defined as:
 \begin{eqnarray}
@@ -433,7 +435,7 @@ The exact procedure for scalars is followed, with
 \end{eqnarray}
 and in integrated form
 \begin{eqnarray}
--\dfrac{sw}{u_*} & \equiv & f_h \left( s_1 - s_0 \right),
+sw & = & u_* f_h \left( s_1 - s_0 \right),
 \end{eqnarray}
 with
 \begin{eqnarray}
@@ -467,11 +469,11 @@ With the equations above the surface fluxes, surface values and near-surface gra
 	\end{equation}
 	\item A fixed horizontal velocity $u_0$ at the surface and a fixed surface buoyancy flux $B_0$. The friction velocity $u_*$ is unknown. Now,  $L$ needs to be retrieved from the implicit relationship 
 	\begin{equation}
-	Ri_b \equiv \dfrac{z_1}{L} f_m^3 = - \dfrac{\kappa z B_0}{ \left(u_1 - u_0 \right)^3}.
+	Ri_b \equiv \dfrac{z_1}{L} f_m^3 = - \dfrac{\kappa z B_0}{ \left(U_1 - U_0 \right)^3}.
 	\end{equation}
 	\item A fixed surface velocity $u_0$ and a fixed surface buoyancy $b_0$. In this boundary condition the surface values for the horizontal velocities and the buoyancy are given and both $u_*$ and the surface buoyancy flux $B_0$ are unknown. $L$ is then retrieved from
 	\begin{equation}
-	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(b_1 - b_0 \right)}{ \left(u_1 - u_0 \right)^2}
+	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(b_1 - b_0 \right)}{ \left(U_1 - U_0 \right)^2}
 	\end{equation}
 \end{itemize}
 In case of the two options that need to be solved by iteration, the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
