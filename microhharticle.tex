@@ -16,6 +16,7 @@
 % A few handy shortcuts
 \newcommand{\uf}{\ensuremath{\widetilde{u}}}
 \newcommand{\thetaf}{\ensuremath{\widetilde{\theta}}}
+\newcommand{\phif}{\ensuremath{\widetilde{\phi}}}
 
 \begin{document}
 
@@ -430,7 +431,7 @@ f_m & \equiv & \dfrac{\kappa}
 
 The exact procedure for scalars is followed, with
 \begin{eqnarray}
-- \dfrac{\kappa z_1 u_*}{s w} \dfrac{\partial s}{\partial z} =
+\dfrac{\kappa z_1 u_*}{s w} \dfrac{\partial s}{\partial z} =
 \phi_h \left( \dfrac{z_1}{L} \right),
 \end{eqnarray}
 and in integrated form
@@ -479,32 +480,52 @@ With the equations above the surface fluxes, surface values and near-surface gra
 In case of the two options that need to be solved by iteration, the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
 
 \subsection{Subfilter-scale model}
-The governing equations described in Section \ref{sec:dyncore} describe the full equations that resolve the flow until the finest scales. In many applications, such simulations are too costly, and filtered equations are used and the subfilter-scale motions are modeled. The filtered version of Eq. \ref{eq:consmoma} looks as following, with a tilde to denote filtered variables
+With the governing equations described in Section \ref{sec:dyncore} it is possible to resolve the flow until the finest scales. In many applications, such simulations are too costly, and filtered equations are used to describe the largest scales of the flow, whereas the subfilter-scale motions are modeled. The filtered version of Eq. \ref{eq:consmoma} looks as following, with a tilde to denote filtered variables
 \begin{eqnarray}
 \nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
 - \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
 & + & \delta_{i3} g \dfrac{\thetaf_v'}{\theta_{v0}} + F_i,\label{eq:consmoma_filter}
 \end{eqnarray}
-In this equation, a new tensor $\tau_{ij}$ is introduced, which we denote as the anisotropic subfilter-scale stress tensor, because the definition below shows that the isotropic part has been moved to the pressure.
-
+In this equation, a new tensor $\tau_{ij}$ is introduced, which is defined as
 \begin{eqnarray}
-e          & \equiv & \frac{1}{2} \widetilde{u_i u_i} - \uf_i \uf_i\\
-\tau_{ij}  & \equiv & \widetilde{u_i u_j} - \uf_i \uf_j\\
-\pi        & \equiv & \dfrac{\widetilde{p}^\prime}{\rho_0} - \frac{2}{3} e
+\tau_{ij}  & \equiv & \widetilde{u_i u_j} - \uf_i \uf_j
 \end{eqnarray}
-As $\tau_{ij}$ contains the filtered version of a product of unfiltered velocity components, this term needs to be parameterized. MicroHH uses a Smagorinsky-Lilly \citep{Lilly1968} scheme, in which $\tau_{ij}$ is modeled as
+We denote tensor $\tau_{ij}$ as the anisotropic subfilter-scale stress tensor, because the isotropic part of the full stress tensor has been moved to the pressure
+\begin{eqnarray}
+\pi        & \equiv & \dfrac{\widetilde{p}^\prime}{\rho_0} - \frac{1}{3} \left( \widetilde{u_i u_i} - \uf_i \uf_i \right)
+\end{eqnarray}
+As $\tau_{ij}$ contains the filtered version of a product of unfiltered velocity components, this term needs to be parameterized. MicroHH uses the Smagorinsky-Lilly \citep{Lilly1968} model, in which $\tau_{ij}$ is modeled as
 \begin{eqnarray}
 \tau_{ij} & = & -K_m \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
 \end{eqnarray}
-The eddy-diffusivity $K_m$ is proportional to the magnitude of the strain $S_{ij}$
+The eddy-diffusivity $K_m$ is proportional to the magnitude of the strain $S_{ij}$ and in a stratified atmosphere
 \begin{eqnarray}
 S_{ij} & = & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)\\
-K_m    & = & c_s^2 \Delta^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2}
+K_m    & = & c_s^2 \Delta^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2} \
+                    \left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2}
 \end{eqnarray}
-Near the wall, where the flow is unresolved, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory, calculated with the help of the Obukhov length $L$ computed in the surface model that is described hereafter. The gradients are calculated following:
+with $N^2$ as the local temperature stratification.
+
+Near the wall, where the flow is unresolved, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory, calculated with the help of the Obukhov length $L$ computed in the surface model that is described hereafter. These gradients are computed following:
 \begin{eqnarray}
 \dfrac{\partial \uf_{i,j}}{\partial z} & = & -\dfrac{\kappa z_1 u_*}{uw} \phi_m \left( \dfrac{z_1}{L} \right)
 \end{eqnarray}
+
+The same approach is followed for scalars, including temperature. 
+\begin{eqnarray}
+\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} + \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_j}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal}
+\end{eqnarray}
+
+The term $R$ refers to the subfilter flux of $\phif$ and is defined as:
+\begin{eqnarray}
+R_{\phi,j} = \widetilde{u_j \phi} - \uf_j \phif
+\end{eqnarray}
+
+Again, the subfilter-scale flux is parameterized as a function of the gradient:
+\begin{eqnarray}
+R_{\phi,j} = - \dfrac{K_m}{Pr_t} \dfrac{\partial \phif}{\partial x_j}
+\end{eqnarray}
+with the turbulent Prandtl number $Pr_t$ set to $\frac{1}{3}$.
 
 \subsection{Thermodynamics}
 
