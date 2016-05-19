@@ -501,10 +501,14 @@ As $\tau_{ij}$ contains the filtered version of a product of unfiltered velocity
 The eddy-diffusivity $K_m$ is proportional to the magnitude of the strain $S_{ij}$ and in a stratified atmosphere
 \begin{eqnarray}
 S_{ij} & = & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)\\
-K_m    & = & c_s^2 \Delta^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2} \
+K_m    & = & \lambda^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2} \
                     \left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2}
 \end{eqnarray}
-with $N^2$ as the local temperature stratification.
+with $N^2$ as the local temperature stratification and $\lambda$ as the mixing length defined following \citet{Mason1992}
+\begin{eqnarray}
+\dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\lambda_0^n}
+\end{eqnarray}
+which is an arbitrary matching function between the mixing length following wall scaling to that of the subfilter-scale model.
 
 Near the wall, where the flow is unresolved, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory, calculated with the help of the Obukhov length $L$ computed in the surface model that is described hereafter. These gradients are computed following:
 \begin{eqnarray}
