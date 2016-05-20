@@ -545,32 +545,46 @@ The Input/Output (IO) is entirely based on MPI-IO, to ensure that three-dimensio
 MicroHH depends on three external software tools or libraries. First, it uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of Fast-Fourier Transforms. Last, the statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library. In order to run the provided test cases and their output scripts a Python installation including the Numpy and Matplotlib modules is required. Automatic documentation generation can be done using Doxygen, but this is optional.
 
 \section{Validity, accuracy and performance} \label{sec:tests}
-\begin{figure}[t]
-\vspace*{2mm}
-\begin{center}
-\includegraphics[width=8.3cm]{figs/scaling.pdf}
-\end{center}
-\caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}
-\end{figure}
 \subsection{Evaluation of the dynamical core}
 \subsubsection{Taylor-Green vortex}
-Bla.
+The Taylor-Green vortex forms an ideal test for a dynamical core as it has an analytical solution, even though it is nonlinear. It consist of two rotating vortices whose evolution on a domain 0-1, 0-0.5 can be described by
+\begin{eqnarray}
+u(x,z,t) & = & \sin(2\pi x) \cos(\pi z) f(t)\\
+w(x,z,t) & = & \cos(2\pi x) \sin(\pi z) f(t)\\
+p(x,z,t) & = & \tfrac{1}{4} \left(\sin(4 \pi x) + \sin(4 \pi y) \right) f(t)^2
+\end{eqnarray}
+with $f(t) = 8 \pi^2 \nu t$.
+
+We use the analytical description at $t=0$ as the initial condition and run this case for one vortex rotation ($t = 1$), with $\nu = (800 \pi^2)^{-1}$. We compare the result against the analytical solution for a set of grid spacings and with the second-order and fourth-order dynamical core, whereas the latter is done with the most accurate advection scheme as well as the fully energy-conserving one.
 \begin{figure}[t]
-\vspace*{2mm}
-\begin{center}
-\includegraphics[width=8.3cm]{figs/taylorgreen.pdf}
-\end{center}
-\caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=8.3cm]{figs/taylorgreen.pdf}
+	\end{center}
+	\caption{Error convergence of the spatial discretization in the two-dimensional Taylor-Green vortex. The dashed black line shows second-order convergence, the dotted black line shows fourth-order convergence.}\label{fig:taylorgreen}
 \end{figure}
 
-\subsection{Energy conservation and time accuracy}\label{sec:validationtime}
-Bla.
+Figure \ref{fig:taylorgreen} shows that the simulations have an excellent match with the analytical solution and the error converges according to the order of the scheme. The fully energy-conserving fourth-order dynamical core loses some accuracy at very fine grid spacings due to the treatment of the boundary conditions.
+
+\subsubsection{Energy conservation and time accuracy} \label{sec:validationtime}
+The second test of the dynamical core consist 
+In this experiment we switch the diffusion off and advect random noise around the domain for 1000 seconds. This we have done with the fully energy conserving fourth-order dynamical core, once with the third-order Runge-Kutta scheme, and once with the fourth-order one.
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
 \includegraphics[width=8.3cm]{figs/timeconvergence.pdf}
 \end{center}
 \caption{Time evolution of the energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes for three different time steps (a), and error convergence of the temporal discretization for the RK3 and RK4 scheme (b).}
+\end{figure}
+
+
+
+\begin{figure}[t]
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=8.3cm]{figs/scaling.pdf}
+	\end{center}
+	\caption{Bla?}
 \end{figure}
 
 \subsection{Performance}\label{sec:performance}
