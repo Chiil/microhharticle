@@ -15,6 +15,7 @@
 
 % A few handy shortcuts
 \newcommand{\uf}{\ensuremath{\widetilde{u}}}
+\newcommand{\vf}{\ensuremath{\widetilde{v}}}
 \newcommand{\thetaf}{\ensuremath{\widetilde{\theta}}}
 \newcommand{\phif}{\ensuremath{\widetilde{\phi}}}
 
@@ -401,7 +402,57 @@ whereas in case of a Neumann boundary condition we find
 
 \section{Physical parametrizations}\label{sec:parametrizations}
 
-\subsection{Surface model}
+\subsection{Subfilter-scale model for large-eddy simulation}
+With the governing equations described in Section \ref{sec:dyncore} it is possible to resolve the flow until the finest scales. In many applications, such simulations are too costly. In that case, we do large-eddy simulation, where filtered equations are used to describe the largest scales of the flow, whereas the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation \ref{eq:consmoma} leads to, with a tilde to denote filtered variables
+\begin{eqnarray}
+\nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
+- \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
+& + & \delta_{i3} g \dfrac{\thetaf_v'}{\theta_{v0}} + F_i,\label{eq:consmoma_filter}
+\end{eqnarray}
+In this equation, a new tensor $\tau_{ij}$ is introduced, which is defined as
+\begin{eqnarray}
+\tau_{ij}  & \equiv & \widetilde{u_i u_j} - \uf_i \uf_j - \frac{1}{3} \left( \widetilde{u_i u_i} - \uf_i \uf_i \right)
+\end{eqnarray}
+We denote tensor $\tau_{ij}$ as the anisotropic subfilter-scale stress tensor, because the isotropic part of the full stress tensor has been moved to the pressure, to give the modified pressure $\pi$
+\begin{eqnarray}
+\pi        & \equiv & \dfrac{\widetilde{p}^\prime}{\rho_0} + \frac{1}{3} \left( \widetilde{u_i u_i} - \uf_i \uf_i \right).
+\end{eqnarray}
+As $\tau_{ij}$ contains the filtered version of a product of unfiltered velocity components, this term needs to be parameterized. MicroHH uses the Smagorinsky-Lilly \citep{Lilly1968} model, in which $\tau_{ij}$ is modeled as
+\begin{eqnarray}
+\tau_{ij} & = & -\left( K_m + \nu \right) \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
+\end{eqnarray}
+The eddy-diffusivity $K_m$ 
+\begin{eqnarray}
+K_m    & = & \lambda^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2}
+\left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2}
+\end{eqnarray}
+is proportional to the magnitude of the strain $S_{ij}$
+\begin{eqnarray}
+S_{ij} & = & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
+\end{eqnarray}
+ and takes into account the stratification $N^2 \equiv (g/\theta_0)/(\partial \thetaf / \partial z)$ as the local potential temperature stratification. Length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}
+\begin{eqnarray}
+\dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\left( c_s \Delta \right)^n}
+\end{eqnarray}
+which is an arbitrary ($n$ can be chosen freely) matching function between the mixing length following wall scaling to that of the subfilter-scale model. Length scale $\Delta \equiv (\Delta x \Delta y \Delta z)^\frac{1}{3}$ relates to the grid spacing.
+
+In case an atmospheric large-eddy simulation with an unresolved near-wall flow is performed, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory. These calculated following Eq. \ref{eq:surf_grad} and explained in detail in Section \ref{sec:surface_model}.
+
+The same approach is followed for all scalars, including the thermodynamic variable.
+\begin{eqnarray}
+\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} + \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_j}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal}
+\end{eqnarray}
+The term $R$ refers to the subfilter flux of $\phif$ and is defined as:
+\begin{eqnarray}
+R_{\phi,j} = \widetilde{u_j \phi} - \uf_j \phif
+\end{eqnarray}
+Again, the subfilter-scale flux is parameterized as a function of the gradient:
+\begin{eqnarray}
+R_{\phi,j} = - \left( \dfrac{K_m}{Pr_t} + \kappa \right) \dfrac{\partial \phif}{\partial x_j}
+\end{eqnarray}
+with the turbulent Prandtl number $Pr_t$ set to $\frac{1}{3}$.
+
+\subsection{Surface model}\label{sec:surface_model}
 MicroHH provides the option of a surface model that can be used to compute the surface fluxes of the horizontal momentum components and the scalars in flows over rough surfaces at high Reynolds numbers, which is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that take the height $z_1$ divided by the Obukhov length $L$ as a parameter. $L$ is defined as
 \begin{eqnarray}
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0};
@@ -411,15 +462,15 @@ it represents the height at which the magnitude of the buoyancy production / des
 Following MOST, the friction velocity $u_*$ and the momentum fluxes relate to the near surface wind gradient
 \begin{eqnarray}
 \dfrac{\kappa z_1}{u_*} \dfrac{\partial U}{\partial z}  = 
-- \dfrac{\kappa z_1 u_*}{u w} \dfrac{\partial u}{\partial z} =
-- \dfrac{\kappa z_1 u_*}{v w} \dfrac{\partial v}{\partial z} =
-\phi_m \left( \dfrac{z_1}{L} \right),
+- \dfrac{\kappa z_1 u_*}{u w} \dfrac{\partial \uf}{\partial z} =
+- \dfrac{\kappa z_1 u_*}{v w} \dfrac{\partial \vf}{\partial z} =
+\phi_m \left( \dfrac{z_1}{L} \right),\label{eq:surf_grad}
 \end{eqnarray}
-where $U$ is defined as $\sqrt{u^2 + v^2}$. These relationships can be integrated from the roughness length $z_{0m}$ to the first model level $z_1$ resulting in 
+where $U$ is defined as $\sqrt{\uf^2 + \vf^2}$. These relationships can be integrated from the roughness length $z_{0m}$ to the first model level $z_1$ resulting in 
 \begin{eqnarray}
 u_* & =  & f_m \left( U_1 - U_0 \right),\\
-uw & = & - u_* f_m \left( u_1 - u_0 \right),\\
-vw & = & - u_* f_m \left( v_1 - v_0 \right),
+uw & = & - u_* f_m \left( \uf_1 - \uf_0 \right),\\
+vw & = & - u_* f_m \left( \vf_1 - \vf_0 \right),
 \end{eqnarray}
 with $f_m$ defined as:
 \begin{eqnarray}
@@ -431,12 +482,12 @@ f_m & \equiv & \dfrac{\kappa}
 
 The exact procedure for scalars is followed, with
 \begin{eqnarray}
-\dfrac{\kappa z_1 u_*}{s w} \dfrac{\partial s}{\partial z} =
+\dfrac{\kappa z_1 u_*}{\phi w} \dfrac{\partial \phif}{\partial z} =
 \phi_h \left( \dfrac{z_1}{L} \right),
 \end{eqnarray}
 and in integrated form
 \begin{eqnarray}
-sw & = & u_* f_h \left( s_1 - s_0 \right),
+\phi w & = & u_* f_h \left( \phif_1 - \phif_0 \right),
 \end{eqnarray}
 with
 \begin{eqnarray}
@@ -474,62 +525,10 @@ With the equations above the surface fluxes, surface values and near-surface gra
 	\end{equation}
 	\item A fixed surface velocity $u_0$ and a fixed surface buoyancy $b_0$. In this boundary condition the surface values for the horizontal velocities and the buoyancy are given and both $u_*$ and the surface buoyancy flux $B_0$ are unknown. $L$ is then retrieved from
 	\begin{equation}
-	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(b_1 - b_0 \right)}{ \left(U_1 - U_0 \right)^2}
+	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(\widetilde{b}_1 - \widetilde{b}_0 \right)}{ \left(U_1 - U_0 \right)^2}
 	\end{equation}
 \end{itemize}
 In case of the two options that need to be solved by iteration, the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
-
-\subsection{Subfilter-scale model}
-With the governing equations described in Section \ref{sec:dyncore} it is possible to resolve the flow until the finest scales. In many applications, such simulations are too costly, and filtered equations are used to describe the largest scales of the flow, whereas the subfilter-scale motions are modeled. The filtered version of Eq. \ref{eq:consmoma} looks as following, with a tilde to denote filtered variables
-\begin{eqnarray}
-\nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
-- \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
-& + & \delta_{i3} g \dfrac{\thetaf_v'}{\theta_{v0}} + F_i,\label{eq:consmoma_filter}
-\end{eqnarray}
-In this equation, a new tensor $\tau_{ij}$ is introduced, which is defined as
-\begin{eqnarray}
-\tau_{ij}  & \equiv & \widetilde{u_i u_j} - \uf_i \uf_j
-\end{eqnarray}
-We denote tensor $\tau_{ij}$ as the anisotropic subfilter-scale stress tensor, because the isotropic part of the full stress tensor has been moved to the pressure
-\begin{eqnarray}
-\pi        & \equiv & \dfrac{\widetilde{p}^\prime}{\rho_0} - \frac{1}{3} \left( \widetilde{u_i u_i} - \uf_i \uf_i \right)
-\end{eqnarray}
-As $\tau_{ij}$ contains the filtered version of a product of unfiltered velocity components, this term needs to be parameterized. MicroHH uses the Smagorinsky-Lilly \citep{Lilly1968} model, in which $\tau_{ij}$ is modeled as
-\begin{eqnarray}
-\tau_{ij} & = & -K_m \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
-\end{eqnarray}
-The eddy-diffusivity $K_m$ is proportional to the magnitude of the strain $S_{ij}$ and in a stratified atmosphere
-\begin{eqnarray}
-S_{ij} & = & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)\\
-K_m    & = & \lambda^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2} \
-                    \left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2}
-\end{eqnarray}
-with $N^2$ as the local temperature stratification and $\lambda$ as the mixing length defined following \citet{Mason1992}
-\begin{eqnarray}
-\dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\lambda_0^n}
-\end{eqnarray}
-which is an arbitrary matching function between the mixing length following wall scaling to that of the subfilter-scale model.
-
-Near the wall, where the flow is unresolved, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory, calculated with the help of the Obukhov length $L$ computed in the surface model that is described hereafter. These gradients are computed following:
-\begin{eqnarray}
-\dfrac{\partial \uf_{i,j}}{\partial z} & = & -\dfrac{\kappa z_1 u_*}{uw} \phi_m \left( \dfrac{z_1}{L} \right)
-\end{eqnarray}
-
-The same approach is followed for scalars, including temperature. 
-\begin{eqnarray}
-\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} + \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_j}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal}
-\end{eqnarray}
-
-The term $R$ refers to the subfilter flux of $\phif$ and is defined as:
-\begin{eqnarray}
-R_{\phi,j} = \widetilde{u_j \phi} - \uf_j \phif
-\end{eqnarray}
-
-Again, the subfilter-scale flux is parameterized as a function of the gradient:
-\begin{eqnarray}
-R_{\phi,j} = - \dfrac{K_m}{Pr_t} \dfrac{\partial \phif}{\partial x_j}
-\end{eqnarray}
-with the turbulent Prandtl number $Pr_t$ set to $\frac{1}{3}$.
 
 \subsection{Thermodynamics}
 
