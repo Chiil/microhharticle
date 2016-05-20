@@ -403,7 +403,7 @@ whereas in case of a Neumann boundary condition we find
 \section{Physical parametrizations}\label{sec:parametrizations}
 
 \subsection{Subfilter-scale model for large-eddy simulation}
-With the governing equations described in Section \ref{sec:dyncore} it is possible to resolve the flow until the finest scales. In many applications, such simulations are too costly. In that case, we do large-eddy simulation, where filtered equations are used to describe the largest scales of the flow, whereas the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation \ref{eq:consmoma} leads to, with a tilde to denote filtered variables
+With the governing equations described in Section \ref{sec:dyncore} it is possible to resolve the flow until the finest scales. In many applications, such simulations are too costly. In that case, we do large-eddy simulation, where filtered equations are used to describe the largest scales of the flow, whereas the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde to denote filtered variables, leads to 
 \begin{eqnarray}
 \nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
 - \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
@@ -426,34 +426,32 @@ The eddy-diffusivity $K_m$
 K_m    & = & \lambda^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2}
 \left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2}
 \end{eqnarray}
-is proportional to the magnitude of the strain $S_{ij}$
+is proportional to the magnitude of the strain $S_{ij}$ tensor
 \begin{eqnarray}
-S_{ij} & = & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
+S_{ij} & \equiv & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right)
 \end{eqnarray}
- and takes into account the stratification $N^2 \equiv (g/\theta_0)/(\partial \thetaf / \partial z)$ as the local potential temperature stratification. Length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}
+ and takes into account the stratification $N^2 \equiv (g/\theta_{v0})/(\partial \thetaf_v / \partial z)$ as the local potential temperature stratification. Length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}
 \begin{eqnarray}
 \dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\left( c_s \Delta \right)^n}
 \end{eqnarray}
-which is an arbitrary ($n$ can be chosen freely) matching function between the mixing length following wall scaling to that of the subfilter-scale model. Length scale $\Delta \equiv (\Delta x \Delta y \Delta z)^\frac{1}{3}$ relates to the grid spacing.
+which is an arbitrary ($n$ can be chosen freely) matching function between the mixing length following wall scaling to that of the subfilter-scale model. Length scale $\Delta \equiv (\Delta x \Delta y \Delta z)^\frac{1}{3}$ relates to the grid spacing. In case of a high-Reynolds number atmospheric large-eddy simulation with an unresolved near-wall flow, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$  in the strain tensor are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory. These calculated following Eq. \ref{eq:surf_grad} and explained in detail in Section \ref{sec:surface_model}.
 
-In case an atmospheric large-eddy simulation with an unresolved near-wall flow is performed, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$ are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory. These calculated following Eq. \ref{eq:surf_grad} and explained in detail in Section \ref{sec:surface_model}.
-
-The same approach is followed for all scalars, including the thermodynamic variable.
+The same approach is followed for all scalars, including the thermodynamic variable
 \begin{eqnarray}
-\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} + \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_j}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal}
+\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_j}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal}
 \end{eqnarray}
-The term $R$ refers to the subfilter flux of $\phif$ and is defined as:
+The term $R$ refers to the subfilter flux of $\phif$ and is defined as
 \begin{eqnarray}
 R_{\phi,j} = \widetilde{u_j \phi} - \uf_j \phif
 \end{eqnarray}
-Again, the subfilter-scale flux is parameterized as a function of the gradient:
+Again, the subfilter-scale flux is parameterized as a function of the gradient
 \begin{eqnarray}
 R_{\phi,j} = - \left( \dfrac{K_m}{Pr_t} + \kappa \right) \dfrac{\partial \phif}{\partial x_j}
 \end{eqnarray}
 with the turbulent Prandtl number $Pr_t$ set to $\frac{1}{3}$.
 
 \subsection{Surface model}\label{sec:surface_model}
-MicroHH provides the option of a surface model that can be used to compute the surface fluxes of the horizontal momentum components and the scalars in flows over rough surfaces at high Reynolds numbers, which is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that take the height $z_1$ divided by the Obukhov length $L$ as a parameter. $L$ is defined as
+MicroHH provides the option for a surface model that can be used to compute the surface fluxes of the horizontal momentum components and the scalars in flows over rough surfaces at high Reynolds numbers, which is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that take the height $z_1$ divided by the Obukhov length $L$ as a parameter. $L$ is defined as
 \begin{eqnarray}
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0};
 \end{eqnarray}
@@ -513,9 +511,9 @@ where $\gamma_m = 3.6$ and $\gamma_h = 7.9$. Under stable conditions we use \cit
 \end{eqnarray}
 where $\lambda_m = 4.8$ and $\lambda_h = 7.8$.
 
-With the equations above the surface fluxes, surface values and near-surface gradients can be computed, but only when the Obukhov length $L$ is know. The surface model calculates the Obukhov length by relating the dimensionless parameter $z_1/ L$ to a Richardson number. The exact definition of the Richardson number depends on the chosen boundary condition in the model. Three possible options are available
+With the equations above, the surface fluxes, surface values and near-surface gradients can be computed, but only when the Obukhov length $L$ is know. The surface model calculates the Obukhov length by relating the dimensionless parameter $z_1/ L$ to a Richardson number. The exact definition of the Richardson number, and therefore of the solver, depends on the chosen boundary condition in the model. Three possible options are available
 \begin{itemize}
-	\item Fixed momentum fluxes and a fixed surface buoyancy flux. Both the friction velocity $u_*$ and the surface buoyancy flux $B_0$ are specified. Under these conditions we define the Richardson number $Ri_a$ equal to $z_1/L$  and $L$ can be computed directly from expression
+	\item Fixed momentum fluxes and a fixed surface buoyancy flux. Both the friction velocity $u_*$ and the surface buoyancy flux $B_0$ are specified. Under these conditions we define the Richardson number $Ri_a$ equal to $z_1/L$; $L$ can be computed directly from expression
 	\begin{equation}
 	Ri_a \equiv \dfrac{z_1}{L} = - \dfrac{\kappa z B_0}{u_*^3}.
 	\end{equation}
@@ -528,7 +526,7 @@ With the equations above the surface fluxes, surface values and near-surface gra
 	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(\widetilde{b}_1 - \widetilde{b}_0 \right)}{ \left(U_1 - U_0 \right)^2}
 	\end{equation}
 \end{itemize}
-In case of the two options that need to be solved by iteration, the function on the lefthand side has a universal shape that can be calculated a-priori and stored in a lookup table against which the respective Richardson number can be compared during the simulation to find the correct value of the stability parameter $z/L$. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
+In case of the two options that need to be solved by iteration, a lookup table is created  with $L$ as a function of Richardson number. The lookup tables have $10^4$ entries, of which 90 percent is spaced uniformly between $z/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z/L = -10^4$ to allow for the correct free convection limit.
 
 \subsection{Thermodynamics}
 
