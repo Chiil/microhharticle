@@ -534,6 +534,9 @@ In case of the two options that need to be solved by iteration, a lookup table i
 \subsection{Code structure}
 MicroHH is written in C++ and uses of elements of object-oriented programming. The model components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows extension to reside in their own file, which increases code clarity and facilitates the merging of new code. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of restrict keywords to ensure that fields do not overlap in memory. Furthermore, compiler specific pragmas are used to indicate where code can be vectorized.
 
+\subsection{GPU}
+The GPU version of the code is based on NVIDIA's CUDA. The CPU and GPU version are the same code; the GPU implementation is activated with the help of precompiler statements. The philosophy is that the entire model is initialized on the CPU and that the GPU implementation is only activated right before starting the main time loop. At that stage the required fields are copied to the GPU and the entire time integration is done there. Synchronization only happens when statistics have to be performed or when restart files or cross sections are saved to disk.
+
 \subsection{Parallelization}
 The code uses the Message Passing Interface (MPI) in order to run on a large number of processes. The three-dimensional computational domain for a simulation is split into vertically-oriented pencils standing on a two-dimensional grid.
 
