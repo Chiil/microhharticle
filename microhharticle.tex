@@ -603,8 +603,6 @@ The fluid, which was initially at rest, goes through a series of decaying oscill
 
 \subsection{Performance}\label{sec:performance}
 \subsubsection{CPU}
-The scaling of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. 
-
 \begin{figure}[!hbt]
 	\vspace*{2mm}
 	\begin{center}
@@ -612,11 +610,11 @@ The scaling of MicroHH has been evaluated in strong and weak scaling experiments
 	\end{center}
 	\caption{Bla?}\label{fig:scaling}
 \end{figure}
+The scaling of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experment has been performed on the SuperMUC machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on the Juqueen machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
 
-The strong scaling experment has been performed on the SuperMUC machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment.
+The strong scaling experiments show that increasing the number of processors leads to faster simulations. The speedup is following the linear line, but each consecutive increase in the number of cores makes the model less efficient. Based on these results, we conclude that for the chosen test case, a work load of approximately $2\cdot 10^6$ grid points per core is the best balance between speed and efficiency.
 
-The weak scaling experiment has been performed on the Juqueen machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased.
-
+The weak scaling shows almost 90 percent efficiency going from 512 to 8192 cores, beyond that the scaling falls off to 80 percent. This can be explained by the fact that the simulation no longer fits on one midplane (with 8192 cores) of the machine, leading to slower communication.
 
 \subsubsection{Performance GPU (CUDA) implementation}
 
