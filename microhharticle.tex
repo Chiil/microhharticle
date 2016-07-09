@@ -587,17 +587,37 @@ The second test of the dynamical core consist of combined evaluation of energy c
 
 The loss of energy as a function of time is shown in Figure \ref{fig:timeconvergence}a. The fourth-order scheme has a smaller energy loss for the same time step and converges faster. The error-convergence plot (Figure \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the respective scheme. Furthermore, it highlights that if high time accuracy is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the L2 error of the fourth-order scheme is approximately equal to the L2 error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy the fourth-order scheme needs to take only 5 steps per 10 time units, whereas the third-order scheme has to take 12 steps.
 
-\iffalse
-\begin{figure}[t]
+\subsubsection{Laminar katabatic flow} \label{sec:laminarkatabatic}
+To test the buoyancy routine and the option to put the surface under a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942}. In this test case, the surface is put under an angle of $30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$)  cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~$s^{-3}$.
+
+\begin{figure*}[t]
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=16.6cm]{figs/prandtl.pdf}
+	\end{center}
+	\caption{Normalized numerical Prandtl-model solutions for velocity $u$ (left) and buoyancy $b$ (right) compared to their analytical counterparts.}
+	\label{fig:prandtl}
+\end{figure*}
+
+The fluid, which was initially at rest, goes through a series of decaying oscillations after the negative buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{fig:prandtl}.
+
+\subsection{Performance}\label{sec:performance}
+\subsubsection{CPU}
+The scaling of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. 
+
+\begin{figure}[!hbt]
 	\vspace*{2mm}
 	\begin{center}
 		\includegraphics[width=8.3cm]{figs/scaling.pdf}
 	\end{center}
-	\caption{Bla?}
+	\caption{Bla?}\label{fig:scaling}
 \end{figure}
 
-\subsection{Performance}\label{sec:performance}
-\subsubsection{CPU}
+The strong scaling experment has been performed on the SuperMUC machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment.
+
+The weak scaling experiment has been performed on the Juqueen machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased.
+
+
 \subsubsection{Performance GPU (CUDA) implementation}
 
 Comparison single NVIDIA Quadro K6000 (Cuda 6.5) versus Thunder cluster (2 Intel Xeon E5-2670 CPU's per node, 16 cores per node, Intel 15.01 with OpenMPI 1.8.4). Bomex case (Bxx), with grid dimensions of $64^3$, $128^3$, $256^3$ and $512^2 \times 384$. Moser180 and Moser600 default case from microhh repo. All cases without statistics. 
@@ -690,7 +710,7 @@ The previous examples all focussed on neutral or (conditionally) unstable condit
 \subsubsection{Katabatic flow}
 \subsubsection{Governing equations}
 
-\noindent Katabatic flow (wind) is an atmospheric buoyantly driven boundary-layer flow along a cooled sloping surface in a stratified fluid. We simulate a particular case of katabatic wind that blows along a planar, doubly-infinite slope with the surface cooling prescribed in terms of a spatially and temporally constant surface heat/buoyancy flux. Effects of the Earth rotation on the katabatic wind are neglected, which corresponds to the assumption of a very large Rossby number, and the diffusivities for momentum and temperature are taken equal each other (Prandtl number is assumed to be 1). 
+Katabatic flow (wind) is an atmospheric buoyantly driven boundary-layer flow along a cooled sloping surface in a stratified fluid. We simulate a particular case of katabatic wind that blows along a planar, doubly-infinite slope with the surface cooling prescribed in terms of a spatially and temporally constant surface heat/buoyancy flux. Effects of the Earth rotation on the katabatic wind are neglected, which corresponds to the assumption of a very large Rossby number, and the diffusivities for momentum and temperature are taken equal each other (Prandtl number is assumed to be 1). 
 
 Momentum balance equations for a katabatic flow in the Boussinesq approximation are the following (Fedorovich and Shapiro 2009): 
 \begin{eqnarray} \label{GrindEQ__1_} 
@@ -918,7 +938,6 @@ After the negative buoyancy flux is applied at the surface, the fluid, which was
 Currently, there are several ongoing projects to extend the model. The physical processes at are currenlty being implemented are microphysics and an interactive land surface model. [BART]
 
 In parallel, preliminary experiments have been performed to include a Domain-Specific Language (DSL) that enables the expression of complex finite difference operators in a simple syntax. The project has shown great potential, for two reasons. First, the DSL reduces the chances of making errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
-\fi
 
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
 This paper has explained MicroHH, an new Computational Fluid Dynamics code for simulations of turbulent flows in the atmospheric boundary layer. 
@@ -967,7 +986,6 @@ $N$ & Brunt-Vaissala frequency & s\\
 \bibliography{microhharticle}
 \nopagebreak
 
-\iffalse
 \smallskip
 
 \noindent Durran, D. R., 1999: \textit{Numerical Methods for Wave Equations in Geophysical Fluid Dynamics}, Springer-Verlag, New York, 465 pp.
@@ -987,6 +1005,5 @@ $N$ & Brunt-Vaissala frequency & s\\
 \smallskip
 
 \noindent Shapiro, A., and E. Fedorovich, 2008: Coriolis effects in homogeneous and inhomogeneous katabatic flows. \textit{Q. J. R. Meteorol. Soc.}, \textbf{134}, 353-370.
-\fi
 
 \end{document}
