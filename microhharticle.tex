@@ -723,7 +723,7 @@ Profiles of slope-normal fluxes of momentum, $\overline{w'u'}$ (Fig.~\ref{kataba
 
 Flux profiles shown in Fig.~\ref{katabatic_wu} and Fig.~\ref{katabatic_wb} indicate that there is no region in the flow domain with constancy (even approximate) of either flux with distance from the wall. In more conventional boundary-layer type flows, the existence of height intervals with slowly changing (in the first approximation, constant) momentum and buoyancy fluxes is used as a foundation for similarity analyses and scalings. Such a constant-flux formalism does not apply, at least in a straightforward manner, to the considered katabatic flow case.
 
-\subsubsection{BOMEX}
+\subsection{BOMEX}
 
 To validate the moist thermodynamics (influence of phase changes on buoyancy) Fig. \ref{fig:bomex} shows the comparison of MicroHH for the BOMEX non-precipitating shallow cumulus LES intercomparison (SIEBESMA), using the resolution from the intercomparison setup (100 m $\times$ 100 m $\times$ 40 m) and a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m) setup. All mean and conditionally sampled statistics are predominantly within one standard deviation of the results from SIEBESMA, except for the cloud and cloud core vertical velocity in the higher resolution setup (STILL LOOKING INTO WHY, T.B.C...). 
 
@@ -736,15 +736,15 @@ To validate the moist thermodynamics (influence of phase changes on buoyancy) Fi
 \label{fig:bomex}
 \end{figure*}
 
-\subsubsection{GABLS1}
-To validate the Large-Eddy Simulation mode under stable conditions, results for the GABLS1 LES intercomparison case \citep{BeareXXXX} are shown (\texttt{cases/gabls1}). The result from MicroHH were obtained using the Boussinesq approximation, a centered advection scheme with 4th order accurate interpolations (SECOND ORDER ADVECTION WITH HIGHER ORDER INTERPOLATIONS IS NOT YET DESCRIBED...), and Smagorinsky diffusion using $C_\mathrm{s}$ = 0.XX and a turbulent Prandtl number of XX (JUST TO BE SURE I'LL RE-RUN THESE EXPERIMENTS, RESULTS ARE REALLY OLD...)
+\subsection{GABLS1}
+To validate the Large-Eddy Simulation mode under stable conditions, results for the GABLS1 LES intercomparison case \citep{Beare2006} are shown (\texttt{cases/gabls1}). The result from MicroHH were obtained using the Boussinesq approximation, a centered advection scheme with 4th order accurate interpolations (SECOND ORDER ADVECTION WITH HIGHER ORDER INTERPOLATIONS IS NOT YET DESCRIBED...), and Smagorinsky diffusion using $C_\mathrm{s}$ = 0.XX and a turbulent Prandtl number of XX (JUST TO BE SURE I'LL RE-RUN THESE EXPERIMENTS, RESULTS ARE REALLY OLD...)
 
 \begin{figure*}[t]
 \vspace*{2mm}
 \begin{center}
 \includegraphics[width=16.6cm]{figs/gmd_gabls_prof_tser.pdf}
 \end{center}
-\caption{GABLS1 LES intercomparison (BEARE). Shown are the vertical profiles of (a) potential temperature and (b) u-component of the horizontal velocity, and time series of the (c) boundary layer depth and (d) surface friction velocity. The vertical profiles are averages over t=28800 s -- 32400 s. In gray the results from the participating models from BEARE (2 m resolution) are shown, in blue and red the results from MicroHH using a 2 m and 6.25 m grid spacing, respectively. The dotted black line shows the initial conditions.}
+\caption{GABLS1 LES intercomparison \citep{Beare2006}. Shown are the vertical profiles of (a) potential temperature and (b) u-component of the horizontal velocity, and time series of the (c) boundary layer depth and (d) surface friction velocity. The vertical profiles are averages over t=28800 s -- 32400 s. In gray the results from the participating models from  \citep{Beare2006} (2~m resolution) are shown, in blue and red the results from MicroHH using a 2 m and 6.25 m grid spacing, respectively. The dotted black line shows the initial conditions.}
 \label{fig:gabls}
 \end{figure*}
 
@@ -757,7 +757,7 @@ To validate the Large-Eddy Simulation mode under stable conditions, results for 
 	\end{center}
 	\caption{Bla?}\label{fig:scaling}
 \end{figure}
-The parallel performance of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case, based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experment has been performed on the SuperMUC machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on the Juqueen machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
+The parallel performance of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case, based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experment has been performed on LRZ's SuperMUC\footnote{\url{https://www.lrz.de/services/compute/supermuc/}} machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on Forschungszentrum J\"{u}lich's Juqueen\footnote{\url{http://www.fz-juelich.de/ias/jsc/EN/Expertise/Supercomputers/JUQUEEN/JUQUEEN_node.html}} machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
 
 The strong scaling experiments show that increasing the number of processors leads to faster simulations. The speedup is following the linear line, but each consecutive increase in the number of cores makes the model less efficient. Based on these results, we conclude that for the chosen test case, a work load of approximately $2\cdot 10^6$ grid points per core is the best balance between speed and computational efficiency.
 
@@ -788,7 +788,7 @@ The results shown in Table \ref{tab:gpu} show the great potential of GPU computi
 \section{Future plans}
 Currently, there are several ongoing projects to extend the model. The physical processes at are currenlty being implemented are microphysics and an interactive land surface model. [BART] Furthermore, immersed boundaries are being implemented to allow for simulation of flow over obstacles and hills.
 
-In parallel, preliminary experiments have been performed to include a Domain-Specific Language (DSL) that enables the expression of complex finite difference operators in a simple syntax. The project has shown great potential, for two reasons. First, the DSL reduces the chances of making errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
+Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) that enables the expression of complex finite difference operators in a simple syntax. The project has shown great potential, for two reasons. First, the DSL reduces the chances of making errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
 
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
 This paper presents a full description MicroHH, an new Computational Fluid Dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
