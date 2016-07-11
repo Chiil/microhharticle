@@ -22,6 +22,7 @@
 \begin{document}
 
 \linenumbers
+\raggedbottom
 
 \title{MicroHH 1.0: a computational fluid dynamics code for direct and large-eddy simulation of atmospheric boundary layer flows}
 
@@ -553,10 +554,11 @@ The Input/Output (IO) is entirely based on MPI-IO, to ensure that three-dimensio
 \subsection{External dependencies}
 MicroHH depends several external software tools or libraries. It uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of Fast-Fourier Transforms. The statistical routines save their output in NetCDF format and therefore rely on UCAR's NetCDF library. In order to run the provided test cases and their output scripts, a Python installation including the Numpy and Matplotlib modules is required. Automatic documentation generation can be done using Doxygen, but this is optional.
 
-\section{Validity, accuracy and performance} \label{sec:tests}
-\subsection{Evaluation of the dynamical core}
-\subsubsection{Taylor-Green vortex}
-The two-dimensional Taylor-Green vortex forms an ideal test for a dynamical core as it has an analytical solution, even though it is nonlinear. It consist of two rotating vortices whose evolution on a domain $\left[0,1; 0,0.5 \right]$ can be described by
+\section{Validation of the dynamical core} \label{sec:tests}
+In this section we present a series of cases in order to validate MicroHH under a wide range of settings. Each of these test cases is available in the \texttt{cases/} directory in the MicroHH repository.
+
+\subsection{Taylor-Green vortex}
+The two-dimensional Taylor-Green vortex (\texttt{cases/taylorgreen}) forms an ideal test for a dynamical core as it has an analytical solution, even though it is nonlinear. It consist of two rotating vortices whose evolution on a domain $\left[0,1; 0,0.5 \right]$ can be described by
 \begin{eqnarray}
 u(x,z,t) & = & \sin(2\pi x) \cos(\pi z) f(t)\\
 w(x,z,t) & = & \cos(2\pi x) \sin(\pi z) f(t)\\
@@ -575,8 +577,8 @@ We use the analytical description at $t=0$ as the initial condition and run this
 
 Figure \ref{fig:taylorgreen} shows that the simulations have an excellent match with the analytical solution and the error converges according to the order of the scheme. The fourth-order dynamical core loses accuracy at fine grid spacings due to the treatment of the boundary condition for the vertical velocity that is constructed to ensure momentum conservation.
 
-\subsubsection{Energy conservation and time accuracy} \label{sec:validationtime}
-The second test of the dynamical core consist of combined evaluation of energy conservation and time accuracy. In this experiment, we switch the diffusion off and advect, using the energy-conserving fourth-order discretization, random noise through the domain for 1000 seconds. These tests have been done with the third- and fourth-order Runge-Kutta scheme.
+\subsection{Energy conservation and time accuracy} \label{sec:validationtime}
+The second test of the dynamical core consist of combined evaluation of energy conservation and time accuracy (\texttt{cases/conservation}) . In this experiment, we switch the diffusion off and advect, using the energy-conserving fourth-order discretization, random noise through the domain for 1000 seconds. These tests have been done with the third- and fourth-order Runge-Kutta scheme.
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
@@ -587,8 +589,8 @@ The second test of the dynamical core consist of combined evaluation of energy c
 
 The loss of energy as a function of time is shown in Figure \ref{fig:timeconvergence}a. The fourth-order scheme has a smaller energy loss for the same time step and converges faster. The error-convergence plot (Figure \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the respective scheme. Furthermore, it highlights that if high time accuracy is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the L2 error of the fourth-order scheme is approximately equal to the L2 error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy the fourth-order scheme needs to take only 5 steps per 10 time units, whereas the third-order scheme has to take 12 steps.
 
-\subsubsection{Laminar katabatic flow} \label{sec:laminarkatabatic}
-To test the buoyancy routine and the option to put the surface under a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942}. In this test case, the surface is put under an angle of $30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$)  cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~$s^{-3}$.
+\subsection{Laminar katabatic flow} \label{sec:laminarkatabatic}
+To test the buoyancy routine and the option to put the surface under a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942} (\texttt{cases/prandtl}) . In this test case, the surface is put under an angle of $30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$)  cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~$s^{-3}$.
 
 \begin{figure*}[t]
 	\vspace*{2mm}
@@ -601,63 +603,20 @@ To test the buoyancy routine and the option to put the surface under a slope, a 
 
 The fluid, which was initially at rest, goes through a series of decaying oscillations after the negative buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{fig:prandtl}.
 
-\subsection{Performance}\label{sec:performance}
-\subsubsection{CPU}
-\begin{figure}[!hbt]
+\subsection{Channel flow}
+For fully turbulent flows, the solution cannot be compared against an analytical testcase. Therefore, we validate our results against a channel flow at a Reynolds-$\tau$ number of 590 \citep{Moser1999} for means, variances, spectra and second order budget statistics (\texttt{cases/moser590}) .
+\begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/scaling.pdf}
+		\includegraphics[width=8.3cm]{figs/gmd_m590_umean_var.pdf}
 	\end{center}
-	\caption{Bla?}\label{fig:scaling}
+	\caption{Velocity means and variances for \citet{Moser1999} channel flow case at Reynolds-$\tau$ 590. The dashed vertical lines marks the spectra locations. Height $z$ is normalized with $u_\tau / \nu$, velocities with $u_\tau^{-1}$.}\label{fig:moser_velocity}
 \end{figure}
-The scaling of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experment has been performed on the SuperMUC machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on the Juqueen machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
 
-The strong scaling experiments show that increasing the number of processors leads to faster simulations. The speedup is following the linear line, but each consecutive increase in the number of cores makes the model less efficient. Based on these results, we conclude that for the chosen test case, a work load of approximately $2\cdot 10^6$ grid points per core is the best balance between speed and efficiency.
+Figure \ref{fig:moser_velocity}a shows the normalized horizontally-averaged streamwise velocity in panel, and the normalized rms of all three velocity components in Figure \ref{fig:moser_velocity}b. All plotted variables show a perfect match with the data and are indistinguishable from Moser's data. In order to further assess the accuracy of the data, we show the second-order budgets of the variances in Figure \ref{fig:moser_budget}. Also here, the match with the reference data is excellent, which indicates that the whole range of spatial scales in the flow is represented well and that the fourth-order scheme is well able to pick up the small scale details of the flow.
 
-The weak scaling shows almost 90 percent efficiency going from 512 to 8192 cores, beyond that the scaling falls off to 80 percent. This can be explained by the fact that the simulation no longer fits on one midplane (with 8192 cores) of the machine, leading to slower communication.
+The findings in the previous paragraph are further corroborated by the spectra shown in Figure \ref{fig:moser_spectra}.  Over the whole range of scales, the match between our simulation and that of Moser is excellent.
 
-\subsubsection{Performance GPU (CUDA) implementation}
-
-Comparison single NVIDIA Quadro K6000 (Cuda 6.5) versus Thunder cluster (2 Intel Xeon E5-2670 CPU's per node, 16 cores per node, Intel 15.01 with OpenMPI 1.8.4). Bomex case (Bxx), with grid dimensions of $64^3$, $128^3$, $256^3$ and $512^2 \times 384$. Moser180 and Moser600 default case from microhh repo. All cases without statistics. 
-
-\begin{table}[t]
-\caption{Performance relative to GPU}
-\begin{tabular}{rccccc}
-\tophline
-case & $n$=1 & $n$=16 & $n$=32 & $n$=64   \\
-\middlehline
-B64  & 18.49 & 1.93 & 1.14 & 0.95 \\
-B128 & 28.01 & 2.98 & 1.51 & 0.92 \\
-B256 & 27.76 & 3.02 & 1.59 & 0.91 \\
-B512 & 29.88 & 3.03 & 1.56 & 0.86 \\
-\middlehline
-M180 & 21.57 & 2.17 & 1.13 & 0.69 \\
-M600 & 22.55 & 2.25 & 1.06 & 0.60 \\
-\bottomhline
-\end{tabular}
-\end{table}
-
-
-\section{Case studies}\label{sec:casestudies}
-\subsubsection{Laminar katabatic flow}
-
-
-\subsubsection{Channel flow}
-The first experiment we compare against data is a neutral channel flow as discussed in MOSER. Strictly speaking, this is an evaluation of the dynamical core of the model, but as the flow is turbulent, we cannot compare it against an analytical solution.
-
-The simulation has a Reynolds-$\tau$ number of 590. SPECS
-
-Figure \ref{fig:moser_velocity}a shows the normalized horizontally-averaged streamwise velocity in panel, and the normalized rms of all three velocity components in Figure \ref{fig:moser_velocity}b. All plotted variables show a perfect match with the data and are indistinguishable from Moser's data. In order to further assess the accuracy of the data, we show the budgets of the variances in Figure \ref{fig:moser_budget}. Also here, the match with the reference data is excellent, which indicates that the whole range of spatial scales in the flow is represented well and that the fourth-order scheme is well able to pick up the details of for instance the disspiation $\epsilon$ that depends on local gradients in the flow.
-
-The findings in the previous paragraph are further corroborated by the spectra shown in Figure \ref{fig:moser_spectra}.  
-
-\begin{figure}[t]
-\vspace*{2mm}
-\begin{center}
-\includegraphics[width=8.3cm]{figs/gmd_m590_umean_var.pdf}
-\end{center}
-\caption{Moser590. Dashed line = spectra location. $z$ normalized with $u_\tau / \nu$, velocities with $u_\tau^{-1}$.}\label{fig:moser_velocity}
-\end{figure}
 
 %% TWO-COLUMN FIGURES
 \begin{figure*}[t]
@@ -665,7 +624,7 @@ The findings in the previous paragraph are further corroborated by the spectra s
 \begin{center}
 \includegraphics[width=16.6cm]{figs/gmd_m590_turb_budg.pdf}
 \end{center}
-\caption{Moser590 variance and TKE budgets. $z$ normalized with $u_\tau / \nu$, variances and TKE budget with $\nu / u_\tau^{4}$.}\label{fig:moser_variance}
+\caption{Budgets of variances and TKE compared against \citet{Moser1999}'s reference data at Reynolds-$\tau$ of 590. Height $z$ is normalized with $u_\tau / \nu$, the variances and TKE budget with $\nu / u_\tau^{4}$.}\label{fig:moser_budget}
 \end{figure*}
 
 %% TWO-COLUMN FIGURES
@@ -674,7 +633,7 @@ The findings in the previous paragraph are further corroborated by the spectra s
 \begin{center}
 \includegraphics[width=16.6cm]{figs/gmd_m590_spectra_4x1.pdf}\label{fig:moser_spectra}
 \end{center}
-\caption{Moser590 spectra, velocity spectra are normalized with $u_\tau^{-2}$, pressure spectra with $u_\tau^{-4}$}
+\caption{Spectra of all velocity components and pressure compared against \citet{Moser1999}'s reference data at Reynolds-$\tau$ of 590. The velocity spectra are normalized with $u_\tau^{-2}$, the pressure spectra with $u_\tau^{-4}$}
 \end{figure*}
 
 \subsubsection{Dry CBL}
@@ -806,6 +765,45 @@ u_{n} =\sqrt{2} \sin (z_{n} /\sqrt{2} )\exp (-z_{n} /\sqrt{2} ),\\b_{n} =\sqrt{2
 
 \noindent These solutions were employed for evaluation of the numerical predictions of velocity and buoyancy profiles in a Prandtl-type laminar katabatic flow. Results of the evaluation are presented in section 3.
 
+\section{Performance}\label{sec:performance}
+\subsection{CPU}
+\begin{figure}[!hbt]
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=8.3cm]{figs/scaling.pdf}
+	\end{center}
+	\caption{Bla?}\label{fig:scaling}
+\end{figure}
+The scaling of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case, based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experment has been performed on the SuperMUC machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on the Juqueen machine. Within this experiment a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
+
+The strong scaling experiments show that increasing the number of processors leads to faster simulations. The speedup is following the linear line, but each consecutive increase in the number of cores makes the model less efficient. Based on these results, we conclude that for the chosen test case, a work load of approximately $2\cdot 10^6$ grid points per core is the best balance between speed and computational efficiency.
+
+The weak scaling shows almost 90 percent efficiency going from 512 to 8192 cores, beyond that the scaling falls off to 80 percent. This can be explained by physical properties of the machine;  beyond 8192 cores a simulation no longer fits on one midplane (with 8192 cores), leading to slower communication.
+
+\subsection{Performance GPU (CUDA) implementation}
+The GPU implementation of MicroHH allows for fast computations on a single core. The state-of-the-art GPU at the time of these benchmarks feature 6~GB of memory. With the memory efficiency of MicroHH this allows for simulations up to $512 \times 512 \times 384$ for a flow with three velocity components and a single scalar. To test the performance of the code, the performance of a single NVIDIA Quadro K6000 (Cuda 6.5) has been compared against the Max Planck Institute for Meteorology's cluster Thunder (2 Intel Xeon E5-2670 CPU's per node, 16 cores per node, Intel 15.01 with OpenMPI 1.8.4). Three benchmark cases have been chosen: the BOMEX moist convection case at grid dimensions of $64^3$, $128^3$, $256^3$ and $512^2 \times 384$ and the channel flow cases of \citet{Moser1998} at a Reynolds-$\tau$ number of 180 and 590.
+
+\begin{table}[t]
+	\caption{Speedup of GPU simulation compared to respective CPU simulation performed on $n$ cores.}\label{tab:gpu}
+	\begin{tabular}{rccccc}
+		\tophline
+		case & $n$=1 & $n$=16 & $n$=32 & $n$=64   \\
+		\middlehline
+		B64  & 18.49 & 1.93 & 1.14 & 0.95 \\
+		B128 & 28.01 & 2.98 & 1.51 & 0.92 \\
+		B256 & 27.76 & 3.02 & 1.59 & 0.91 \\
+		B512 & 29.88 & 3.03 & 1.56 & 0.86 \\
+		\middlehline
+		M180 & 21.57 & 2.17 & 1.13 & 0.69 \\
+		M600 & 22.55 & 2.25 & 1.06 & 0.60 \\
+		\bottomhline
+	\end{tabular}
+\end{table}
+
+The results shown in Table \ref{tab:gpu} show the great potential of GPU computing. For these cases, that all fit on a single GPU, it takes at least 32 cores to reach equal performance. Only at 64 cores, the CPU simulations are notably faster. Therefore, for simulations that fit into its memory, the GPU provides an excellent alternative for the CPU.
+\iffalse
+
+
 \section{Turbulent katabatic flow}
 \smallskip
 
@@ -929,6 +927,7 @@ Flux profiles shown in Fig.~\ref{katabatic_wu} and Fig.~\ref{katabatic_wb} indic
 \end{figure*}
 
 After the negative buoyancy flux is applied at the surface, the fluid, which was initially at rest, goes through the series of decaying oscillations until it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Computed steady-state profiles of along-slope velocity $u$ and buoyancy $b$ were averaged over $x$ and then normalized using scales \eqref{GrindEQ__11_} - \eqref{GrindEQ__13_}. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{prandtl}.
+\fi
 
 \section{How to get MicroHH} \label{sec:howto}
 
