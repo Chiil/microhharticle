@@ -647,33 +647,12 @@ The findings in the previous paragraph are further corroborated by the spectra s
 The final evaluation of the dynamical core without parametrizations enabled is based on a turbulent katabatic flow. Here, a buoyancy driven slope flow is simulated following the setup of \citet{Fedorovich2009} (\texttt{cases/drycblslope}).
 
 In short, a flow over a slope under an angle $\alpha$ of 60$^\circ$ is simulated and a fixed surface buoyancy flux of -0.5~m$^2$~s$^{-3}$ is applied. The simulation is done on a domain of 0.64 m $\times$ 0.64 m $\times$ 1.6 m using a uniform grid with a dimension of 256 $\times$ 256 $\times$ 640. The initial state is a linear buoyancy stratification $N$ of 1~$s^{-1}$. No-slip boundary conditions are applied at the bottom, free slip at the top.
-\subsubsection{Simulation settings}
-\begin{itemize}
-	\setlength{\itemsep}{0pt}
-	\setlength{\parskip}{0pt}
-	\setlength{\parsep}{0pt}  
-	\item Slope angle: $\alpha = 60^{\circ}$
-	\item Surface buoyancy flux: $B_{s} $ = $-0.5{\rm\, m}^{\rm 2}\, {\rm s}^{{\rm -3}} $
-	\item Brunt-V\"{a}is\"{a}l\"{a} (buoyancy) frequency: $N$ = $1\,{\rm s}^{{\rm -1}}$
-	\item Kinematic viscosity/thermal diffusivity:\\$\nu$ = $-0.0001{\rm\, m}^{\rm 2}\, {\rm s}^{{\rm -1}} $
-	\item Domain size: ($X{\times}Y{\times}Z$) = 0.64${\rm\, m}\times$0.64${\rm\, m}\times$1.6${\rm\, m}$
-	\item Numerical grid dimensions: \\($n_x{\times}n_y{\times}n_z$) = $256 \times 256 \times 640$
-	\item Grid structure: uniform (non-stretched) grid in all three directions, with $\Delta x = \Delta y = \Delta z$ = 0.0025${\rm\, m}$
-	\item Time step: adaptive
-	\item Initial condition: stratified fluid at rest above the slope with zero surface buoyancy flux
-	\item Lateral boundary conditions: periodic
-	\item Lower boundary conditions: no-slip and impermeability conditions for velocity, surface-flux condition for buoyancy
-	\item Upper boundary conditions: free-slip conditions for velocity, zero-gradient condition for buoyancy
-\end{itemize}
 
-\subsubsection{Flow description and simulation results}
-The final evaluation of the dynamical core without parametrizations enabled is based on a turbulent katabatic flow. Here, a buoyancy driven slope flow is simulated following the setup of \citet{Fedorovich2009} (\texttt{cases/drycblslope}).
+Turbulent motion starts quickly after the buoyancy flux is applied at the surface. It is characterized by random, large-amplitude fluctuations of velocity and buoyancy fields in the near-slope core region, and shows a quasi-periodic oscillatory behavior at larger distances from the slope. Mean profiles of along-slope velocity component and buoyancy, as well as profiles of second-order turbulence statistics, such as kinematic turbulent fluxes of momentum and buoyancy, and velocity-component and buoyancy fluctuation variances, were evaluated by averaging the simulated flow fields spatially over $xy$-planes and temporally over five oscillation periods beyond the transition stage.
 
-Turbulent motion starts quickly after the buoyancy flux is applied at the surface. It is characterized by random, large-amplitude fluctuations of velocity and buoyancy fields in the near-slope core region and shows a quasi-periodic oscillatory behavior at larger distances from the slope. Mean profiles of along-slope velocity component and buoyancy, as well as profiles of second-order turbulence statistics, such as kinematic turbulent fluxes of momentum and buoyancy, and velocity-component and buoyancy fluctuation variances, were evaluated by averaging the simulated flow fields spatially over $xy$-planes and temporally over five oscillation periods beyond the transition stage.
+For comparison, the same katabatic flow case was reproduced using the numerical code (hereafter referred to FS09) that was employed to simulate turbulent slope flows in \citet{Shapiro2008} and \citet{Fedorovich2009}. In the version of the code used in this comparison study, the time advancement was performed with an Asselin-filtered second-order leapfrog scheme \citep{Durran2013}. The spatial discretizations are identical to the second-order accurate ones of MicroHH. 
 
-For comparison, the same katabatic flow case was reproduced using the numerical code (hereafter referred to FS09) that was employed to simulate turbulent slope flows in \citet{Shapiro2008} and \citet{Fedorovich2009}. In the version of the code used in this comparison study, the time advancement was performed with an Asselin-filtered second-order leapfrog scheme \citep{Durran2013}. The spatial discretizations are identical to the second-order accurate ones of MicroHH. No-slip and impermeability conditions are applied on the velocity field at the slope surface. Normal gradients of prognostic variables (velocity components and buoyancy) are set to zero at the outer computational boundary, and periodic boundary conditions are imposed at the $xz$- and $yz$-boundaries of the computational domain.
-
-Numerical results obtained with both numerical codes testify that stable environmental stratification in combination with negative surface buoyancy forcing in the katabatic flow leads to an effective suppression of vertical turbulent exchange in the flow region adjacent to the slope. This suppression results in a shallow near-surface sublayer with strong buoyancy gradients (Figure~\ref{katabatic_b}) capped by a narrow mean-velocity jet with peak velocity located very close to the ground. (Figure~\ref{katabatic_u}).
+Numerical results obtained with both numerical codes testify that stable environmental stratification in combination with negative surface buoyancy forcing in the katabatic flow leads to an effective suppression of vertical turbulent exchange in the flow region adjacent to the slope. This suppression results in a shallow near-surface sublayer with strong buoyancy gradients (Figure~\ref{fig:katabatic}a) capped by a narrow mean-velocity jet with peak velocity located very close to the ground. (Figure~\ref{fig:katabatic}b). Further comparison has been performed on the slope-normal fluxes of momenum and buoyancy (not shown), where a nearly perfect match has been reproduced as well.
 
 \begin{figure}[t]
 	\vspace*{2mm}
@@ -684,69 +663,15 @@ Numerical results obtained with both numerical codes testify that stable environ
 	\label{fig:katabatic}
 \end{figure}
 
-\iffalse
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_b.pdf}}
-	\caption{Profile of the mean buoyancy as predicted by MicroHH and FS09.}
-	\label{katabatic_b}
+\subsection{Sullivan2011}
+\begin{figure}[t]
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=8.3cm]{figs/sullivan2011.pdf}
+	\end{center}
+	\caption{Sullivan2011.}
+	\label{fig:sullivan2011}
 \end{figure}
-
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_u.pdf}}
-	\caption{Profile of the mean along-slope velocity as predicted by MicroHH and FS09.}
-	\label{katabatic_u}
-\end{figure}
-\fi
-
-As revealed by the buoyancy variance profiles in (Fig.~\ref{katabatic_bb}), the buoyancy fluctuations in the simulated katabatic flow attain their maximum magnitude extremely close to the wall, roughly within the region where maximum gradients are observed in the mean buoyancy profiles (Fig.~\ref{katabatic_b}). The drop of $\overline{b'b'}$ beyond the maximum is also rather sharp which means that significant fluctuations of the buoyancy are restricted to a comparatively thin near-wall sublayer.
-
-\iffalse
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_bb.pdf}}
-	\caption{Profile of the buoyancy variance as predicted by MicroHH and FS09.}
-	\label{katabatic_bb}
-\end{figure}
-
-Along-slope velocity fluctuations of notable magnitudes are distributed over the layer that is about four times thicker than the layer which contains most of the buoyancy variance (compare Fig.~\ref{katabatic_uu} and Fig.~\ref{katabatic_bb}). While the two codes agree with respect to predicting the overall behavior of $\overline{u'u'}$, MicroHH predicts a smoother and stronger maximum of the velocity variance than FS09. The magnitudes of the maxima, though, are fairly close to each other in Fig.~\ref{katabatic_uu}.
-
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_uu.pdf}}
-	\caption{Profile of the along-slope velocity variance as predicted by MicroHH and FS09.}
-	\label{katabatic_uu}
-\end{figure}
-
-Comparisons of profiles of the cross-slope velocity component variance, $\overline{v'v'}$, and the slope-normal component variance, $\overline{w'w'}$, are presented in Fig.~\ref{katabatic_vv} and Fig.~\ref{katabatic_ww}, respectively.
-
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_vv.pdf}}
-	\caption{Profile of the cross-slope velocity variance as predicted by MicroHH and FS09.}
-	\label{katabatic_vv}
-\end{figure}
-
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_ww.pdf}}
-	\caption{Profile of the slope-normal velocity variance as predicted by MicroHH and FS09.}
-	\label{katabatic_ww}
-\end{figure}
-\fi
-
-Profiles of slope-normal fluxes of momentum, $\overline{w'u'}$ (Fig.~\ref{katabatic_wu}), and buoyancy, $\overline{w'b'}$ (Fig.~\ref{katabatic_wb}), indicate that zero crossings in the mean profiles of \textit{b} and \textit{u} are closely co-located with the minima and maxima of the fluxes $\overline{u'w'}$ and $\overline{b'w'}$ except for locations very close to the wall, where molecular effects are important. Typically, molecular fluxes in the simulated flows become negligible at distances from the surface that are significantly smaller than the elevation of the mean velocity maximum (jet elevation).
-
-\iffalse
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_wu.pdf}}
-	\caption{Profile of the slope-normal turbulent kinematic momentum flux as predicted by MicroHH and FS09.}
-	\label{katabatic_wu}
-\end{figure}
-
-\begin{figure}
-	\centerline{\includegraphics[width=8.3cm]{figs/katabatic_wb.pdf}}
-	\caption{Profile of the slope-normal turbulent kinematic buoyancy flux as predicted by MicroHH and FS09.}
-	\label{katabatic_wb}
-\end{figure}
-\fi
-
-Flux profiles shown in Fig.~\ref{katabatic_wu} and Fig.~\ref{katabatic_wb} indicate that there is no region in the flow domain with constancy (even approximate) of either flux with distance from the wall. In more conventional boundary-layer type flows, the existence of height intervals with slowly changing (in the first approximation, constant) momentum and buoyancy fluxes is used as a foundation for similarity analyses and scalings. Such a constant-flux formalism does not apply, at least in a straightforward manner, to the considered katabatic flow case.
 
 \subsection{BOMEX}
 
@@ -811,16 +736,16 @@ The GPU implementation of MicroHH allows for fast simulations on a single device
 The results shown in Table \ref{tab:gpu} show the great potential of GPU computing. For these cases, that all fit on a single GPU, it takes at least 32 cores to reach equal performance. Only at 64 cores, the CPU simulations are notably faster. Therefore, for simulations that fit into its memory, the GPU provides an excellent alternative for the CPU.
 
 \section{Future plans}
-Currently, there are several ongoing projects to extend the model. The physical processes at are currenlty being implemented are microphysics and an interactive land surface model. [BART] Furthermore, immersed boundaries are being implemented to allow for simulation of flow over obstacles and hills.
+Currently, there are several ongoing projects to extend the model. At the moment, parameterizations for microphysics and an interactive land surface model are under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills.
 
-Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) that enables the expression of complex finite difference operators in a simple syntax. The project has shown great potential, for two reasons. First, the DSL reduces the chances of making errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
+Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax. The project has shown great potential, for two reasons. First, the DSL prevents errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
 
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
 This paper has presented a full description MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
 
 \section{Availability of code and resources}
 MicroHH has its own website at \url{http://microhh.org}. Its code is hosted at GitHub and can be accessed either via the website, or directly from 
-\url{https://github.com/microhh/microhh}. A selection of visualizations can be viewed at the MicroHH channel at Vimeo \url{https://vimeo.com/channels/817195}.
+\url{https://github.com/microhh/microhh}. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/817195}.
 
 \iffalse
 \section{Appendix}
