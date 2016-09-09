@@ -665,13 +665,14 @@ Numerical results obtained with both numerical codes testify that stable environ
 
 \section{Validation of atmospheric large-eddy simulations}
 \subsection{Dry convective boundary layer with strong inversion}
-As a first test case of the LES mode of MicroHH we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into an initial potential temperature profile with a very strong inversion (see Figure \ref{fig:sullivan2011}a). The system is warmed from the bottom through a constant kinematic potential temperature flux 0.24~K~m~s$^{-1}$. Simulations have been run for three hours for three resolutions.
+As a first test case of the LES mode of MicroHH we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into an initial potential temperature profile with a very strong inversion (see Figure \ref{fig:sullivan2011}a). The system is warmed from the bottom through a constant kinematic potential temperature flux 0.24~K~m~s$^{-1}$. The domain size is 5120~m $\times$ 5120~m $\times$ 2048~m. Gravity wave damping has been applied in the top 25 percent of the domain. Simulations have been run for three hours for three resolutions, time-averaged profiles have been calculated over the last hour.
+
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
 		\includegraphics[width=8.3cm]{figs/sullivan2011.pdf}
 	\end{center}
-	\caption{Sullivan2011.}
+	\caption{Vertical profiles of horizontally-averaged potential temperature (a) and normalized kinematic heat flux (b). The boundary layer depth $z_i$ is the location of the maximum vertical gradient in the potential temperature profile shown in (a). }
 	\label{fig:sullivan2011}
 \end{figure}
 
