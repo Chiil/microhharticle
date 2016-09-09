@@ -663,7 +663,9 @@ Numerical results obtained with both numerical codes testify that stable environ
 	\label{fig:katabatic}
 \end{figure}
 
-\subsection{Sullivan2011}
+\section{Validation of atmospheric large-eddy simulations}
+\subsection{Dry convective boundary layer with strong inversion}
+As a first test case of the LES mode of MicroHH we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into an initial potential temperature profile with a very strong inversion (see Figure \ref{fig:sullivan2011}a). The system is warmed from the bottom through a constant kinematic potential temperature flux 0.24~K~m~s$^{-1}$. Simulations have been run for three hours for three resolutions.
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
@@ -672,6 +674,8 @@ Numerical results obtained with both numerical codes testify that stable environ
 	\caption{Sullivan2011.}
 	\label{fig:sullivan2011}
 \end{figure}
+
+The results show the formation of a well-mixed layer with an overlying capping inversion (see Figure \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative values in the entrainment zone (see Figure \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Figure \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
 
 \subsection{BOMEX}
 
