@@ -560,10 +560,10 @@ The code assigns one MPI task to each grid pencil using the MPI\_Cart\_create fu
 The input/output (IO) is entirely based on MPI-IO to ensure that three-dimensional fields and two-dimensional cross sections are stored as single files. We have chosen MPI-IO in order to limit the number of files resulting from simulations on a large number of processes and to allow for restarts on a different number of processes. In order to keep complexity of the IO as low as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write the fields.
 
 \subsection{External dependencies}
-MicroHH depends on several external software tools or libraries. It uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines save their output making use of netCDF software developed by UCAR/Unidata (\url{http://doi.org/10.5065/D6H70CW6}). In order to run the provided test cases and their output scripts, a Python installation including the Numpy and Matplotlib modules is required. Automatic documentation generation can be done using Doxygen, but this is optional.
+MicroHH depends on several external software tools or libraries. It uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines make use of netCDF software developed by UCAR/Unidata\footnote{\url{http://doi.org/10.5065/D6H70CW6}}. In order to run the provided test cases and their output scripts, a Python installation including the Numpy and Matplotlib modules is required. Automatic documentation generation can be done using Doxygen, but this is optional.
 
 \section{Validation of the dynamical core} \label{sec:tests}
-In this section we present a series of cases in order to validate MicroHH under a wide range of settings. Each of these test cases is available in the \texttt{cases/} directory in the MicroHH repository.
+In this section we present a series of cases in order to validate MicroHH under a wide range of settings. Each of these test cases is available in the \texttt{cases/} directory in the MicroHH repository, where all detailed settings can be found. This paper presents only the most relevant information per case.
 
 \subsection{Taylor-Green vortex}
 The two-dimensional Taylor-Green vortex (\texttt{cases/taylorgreen}) presents an ideal test case for a dynamical core as it has an analytical solution, even though it is nonlinear. This flow consists of two rotating vortices whose evolution on a domain $\left[0,1; 0,0.5 \right]$ can be described with
@@ -749,8 +749,8 @@ Furthermore, preliminary experiments have been performed to include a Domain-Spe
 This paper has presented a full description MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
 
 \section{Availability of code and resources}
-MicroHH has its own website at \url{http://microhh.org}. Its code is hosted at GitHub and can be accessed either via the website, or directly from 
-\url{https://github.com/microhh/microhh}. The GitHub website includes a wiki where several tutorials, including one to compile and run the code, are available. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/817195}.
+MicroHH has its own website at \url{http://microhh.org}. The code is hosted at GitHub and can be accessed either via the website, or directly from 
+\url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/817195}.
 
 \iffalse
 \section{Appendix}
