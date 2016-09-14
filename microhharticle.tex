@@ -544,8 +544,7 @@ With the equations above, the surface fluxes, surface values and near-surface gr
 \end{itemize}
 In cases of the latter two options, a lookup table is created  with $L$ as a function of Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit.
 
-\subsection{Thermodynamics}
-
+\subsection{Thermodynamics}\label{sec:thermo}
 MicroHH supports both the use the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature (Section \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} \equiv \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
 
 \begin{equation}
@@ -849,7 +848,7 @@ $N$ & Brunt-Vaissala frequency & s\\
 \fi
 
 \bibliographystyle{copernicus}
-\bibliography{../../misc/refs}
-%\bibliography{microhharticle}
+%\bibliography{../../misc/refs}
+\bibliography{microhharticle}
 
 \end{document}
