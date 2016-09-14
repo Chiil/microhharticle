@@ -133,6 +133,7 @@ The conservation equation of an arbitrary scalar $\phi$ can be written in flux f
 where $\kappa_\phi$ is the diffusivity of the scalar, and $S_\phi$ represents sources and sinks of the variable.
 
 \subsection{Conservation of energy}
+\label{sec:conservation_of_energy}
 MicroHH provides multiple options for the energy conservation equation. Two modes work with potential temperature $\theta$ (dry dynamics) or liquid water potential temperature $\theta_l$ (moist dynamics) with the following conservation equation
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\phi \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
@@ -537,6 +538,46 @@ In case of the two options that need to be solved by iteration, a lookup table i
 
 \subsection{Thermodynamics}
 
+MicroHH supports both the use the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature (Section \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} \equiv \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
+
+\begin{equation}
+\theta_\mathrm{l} \approx \theta - \frac{L_\mathrm{v}}{c_\mathrm{p} ~ \Pi} q_\mathrm{l}, 	
+\end{equation}
+
+\noindent where $L_\mathrm{v}$ is the latent heat of vaporization, $c_\mathrm{p}$ the specific heat of dry air at constant pressure, and $\Pi$ is the Exner fuction
+
+\begin{equation}
+	\Pi = \left( \frac{p}{p_{00}} \right)^{R_\mathrm{d} / c_\mathrm{p}},
+\end{equation}
+
+\noindent where $p$ is the hydrostatic pressure, $p_\mathrm{00}$ a constant reference pressure, and $R_\mathrm{d}$ the gas constant for dry air. The cloud liquid water content is calculated as
+
+\begin{equation}
+	q_\mathrm{l} = \mathrm{max}(0, ~q_\mathrm{t} - q_\mathrm{s}),
+\end{equation}
+
+\noindent where $q_\mathrm{s}$ is the saturation specific humidity
+
+\begin{equation}
+	q_\mathrm{s} = \frac{\epsilon ~ e_\mathrm{s}}{p - (1-\epsilon) ~ e_\mathrm{s}},
+\end{equation}
+
+\noindent with $\epsilon$ the ratio between the gas constant for dry air and the gas constant for water vapour ($R_\mathrm{d}/R_\mathrm{v}$), and $e_\mathrm{s}$ the saturation vapor pressure. The latter is approximated using a 10$\mathrm{th}$ order Taylor expansion at $T=T_0$ of the Arden Buck equation \citep{Buck1981}. $q_\mathrm{l}$ is adjusted iteratively to arrive at a consistent state where $q_\mathrm{v} = q_\mathrm{s}$. Finally, the virtual potential temperature (Eq. \ref{eq:consmoma}) is approximated as 
+
+\begin{equation}
+	\theta_\mathrm{v} \approx \theta \left(1-\left[1-\frac{R_\mathrm{v}}{R_\mathrm{d}}\right] q_\mathrm{t} - \frac{R_\mathrm{v}}{R_\mathrm{d}} q_\mathrm{l} \right)
+\end{equation}
+
+The base state pressure and density are calculated assuming a hydrostatic equilibrium: $\mathrm{d}p_0 = -\rho_0 g \mathrm{d}z$, with the density defined as $\rho_0 = p_0 / (R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0})$. Assuming a constant (virtual) potential temperature and density, integration with height results in
+
+\begin{equation}
+	p_{0;k+1} = p_{0;k} ~ \mathrm{exp}\left(\frac{-g (z_{k+1}-z_k)}{R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0}} \right )
+\end{equation}
+
+This equation is applied from a given surface pressure to the model top, alternating the calculations at the full and half model levels. That is, given the full thermodynamic state (pressure and density) at a full level $k$, the thermodynamic state can be advanced from the half level $k-\frac{1}{2}$ to $k+\frac{1}{2}$. Using the newly calculated state at $k+\frac{1}{2}$, pressure and density at $k+1$ can be calculated. 
+
+The base state density $\rho_0$, used in the dynamical core, is calculated using the input temperature (and moisture) profiles. The pressure used in the moist thermodynamics can optionally be updated every time step.
+
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
 MicroHH is written in C++ and uses elements of object-oriented programming. The model components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows model components and their extensions to reside in their own file, which increases code clarity and facilitates the merging of new code. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of restrict keywords to ensure the compiler that fields do not overlap in memory. Furthermore, compiler specific pragmas are used to aid vectorization.
@@ -797,6 +838,22 @@ This paper presents a full description MicroHH, an new Computational Fluid Dynam
 MicroHH has its own website at \url{http://microhh.org}. Its code is hosted at GitHub and can be accessed either via the website, or directly from 
 \url{https://github.com/microhh/microhh}. A selection of visualizations can be viewed at the MicroHH channel at Vimeo \url{https://vimeo.com/channels/817195}.
 
+\section{Appendix}
+\begin{table*}[t]
+\caption{Overview of used constants}\label{tab:constants}
+\begin{tabular}{clcl}
+\tophline
+Symbol & Description & Value & Units \\
+\middlehline
+$c_\mathrm{p}$ & Specific heat of dry air at constant pressure & 1005 & $\mathrm{J~kg^{-1}~K^{-1}}$\\
+$p_\mathrm{00}$ & Reference pressure & 1 $\cdot$ 10$^5$ & Pa\\
+$R_\mathrm{d}$ & Gas constant for dry air & 287.04 & $\mathrm{J~K^{-1}~kg^{-1}}$\\
+$R_\mathrm{v}$ & Gas constant for water vapor & 461.5 & $\mathrm{J~K^{-1}~kg^{-1}}$\\
+$L_\mathrm{v}$ & Latent heat of vaporization & 2.5 $\cdot$ 10$^6$ & $\mathrm{J~kg^{-1}}$\\
+\bottomhline
+\end{tabular}
+\end{table*}
+
 \iffalse
 \section{Appendix}
 \begin{table*}[t]
@@ -834,7 +891,7 @@ $N$ & Brunt-Vaissala frequency & s\\
 \fi
 
 \bibliographystyle{copernicus}
-\bibliography{../../misc/refs}
-%\bibliography{microhharticle}
+%\bibliography{../../misc/refs}
+\bibliography{microhharticle}
 
 \end{document}
