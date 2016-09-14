@@ -71,7 +71,7 @@ This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) 
 \introduction  %% \introduction[modified heading if necessary]
 In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH can simulate flows using the direct numerical simulation (DNS) and large-eddy simulation (LES) techniques, with applications ranging from neutral channel flows to cloud-covered atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers, which are mostly written in Fortran 90.
 
-This paper is built up as following: in Section \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Section \ref{sec:dyncorediscrete}. Subsequently, in Section \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on validity, accuracy, and performance in Section \ref{sec:tests}, and by a description of a series of test cases based on previously studied flow cases (Section \ref{sec:casestudies}). After a short instruction of downloading, compiling and running MicroHH (Section \ref{sec:howto}), concluding remarks and future plans close the paper (Section \ref{sec:conclusion}). In order to keep the explanations of mathematical expressions concise, we have included an Appendix with the symbols, their description, and units.
+This paper is built up as following: in Section \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Section \ref{sec:dyncorediscrete}. Subsequently, in Section \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Section \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previously studied flow cases (Section \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Section \ref{sec:performance}). After the  future plans (Section \ref{sec:future}) and the concluding remarks (Section \ref{sec:conclusion}), there is a short description where to find MicroHH, its tutorials and some animations (Section \ref{sec:howto}).
 
 \section{Dynamical core: governing equations}\label{sec:dyncore}
 The dynamical core of MicroHH solves the conservation equations of mass, momentum, and energy under the anelastic approximation \citep{Bannon1996}. Under this approximation, the state variables density, pressure, and temperature are described as small fluctuations (denoted with a prime in this paper) from corresponding vertical reference profiles (denoted with subscript zero) that are functions of height only. This form of the approximation directly simplifies to the Boussinesq approximation if the reference density $\rho_0$ is assumed to be constant with height $z$. To facilitate the subsequent discussion of the conservation equations, we define the scale height for density $H_\rho$ based on the reference density profile
@@ -663,7 +663,7 @@ Numerical results obtained with both numerical codes testify that stable environ
 	\label{fig:katabatic}
 \end{figure}
 
-\section{Validation of atmospheric large-eddy simulations}
+\section{Validation of atmospheric large-eddy simulations}\label{sec:validation_atmos}
 \subsection{Dry convective boundary layer with strong inversion}
 As a first test case of the LES mode of MicroHH we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into an initial potential temperature profile with a very strong inversion (see Figure \ref{fig:sullivan2011}a). The system is warmed from the bottom through a constant kinematic potential temperature flux 0.24~K~m~s$^{-1}$. The domain size is 5120~m $\times$ 5120~m $\times$ 2048~m. Gravity wave damping has been applied in the top 25 percent of the domain. Simulations have been run for three hours for three resolutions, time-averaged profiles have been calculated over the last hour.
 
@@ -679,17 +679,20 @@ As a first test case of the LES mode of MicroHH we present that of \citet{Sulliv
 The results show the formation of a well-mixed layer with an overlying capping inversion (see Figure \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative values in the entrainment zone (see Figure \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Figure \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
 
 \subsection{BOMEX}
+The BOMEX shallow cumulus case \citep{Siebesma2003} (\texttt{cases/bomex}) provides the opportunity to evaluate the moist thermodynamics (see Section \ref{sec:thermo}) and large-scale forcings. We have repeated the case as described in \citet{Siebesma2003} at the original resolution of the study (100 m $\times$ 100 m $\times$ 40 m) and at a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m) setup.
 
-To validate the moist thermodynamics (influence of phase changes on buoyancy) Fig. \ref{fig:bomex} shows the comparison of MicroHH for the BOMEX non-precipitating shallow cumulus LES intercomparison (SIEBESMA), using the resolution from the intercomparison setup (100 m $\times$ 100 m $\times$ 40 m) and a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m) setup. All mean and conditionally sampled statistics are predominantly within one standard deviation of the results from SIEBESMA, except for the cloud and cloud core vertical velocity in the higher resolution setup (STILL LOOKING INTO WHY, T.B.C...). 
+This case produces non-precipitating shallow cumulus. It has a large-scale cooling applied representing radiation, as well as a large-scale drying to allow the atmosphere to relax to steady state. In addition, a large-scale vertical velocity is applied over a certain height range to reproduce the approprate synoptic conditions. 
 
 \begin{figure*}[t]
-\vspace*{2mm}
-\begin{center}
-\includegraphics[width=16.6cm]{figs/gmd_bomex_profs.pdf}
-\end{center}
-\caption{BOMEX LES intercomparison (SIEBESMA). Shown are the domain mean, and conditionally sampled cloud ($q_\mathrm{l} > 0$) and cloud core ($q_\mathrm{l}>0 \ \mathrm{and} \ b-\langle b \rangle > 0$) vertical profiles of (a) area coverage, (b) liquid water potential temperature, (c) total specific humidity and (d) vertical velocity. The results are averaged over t=18000 s -- 21600 s. The shaded area denotes the mean $\pm$ one standard deviation of the participating models from SIEBESMA, the solid and dashed lines the results from MicroHH, using the original (solid) and a higher resolution (dashed) setup.}
-\label{fig:bomex}
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=16.6cm]{figs/gmd_bomex_profs.pdf}
+	\end{center}
+	\caption{BOMEX LES intercomparison (SIEBESMA). Shown are the domain mean, and conditionally sampled cloud ($q_\mathrm{l} > 0$) and cloud core ($q_\mathrm{l}>0 \ \mathrm{and} \ b-\langle b \rangle > 0$) vertical profiles of (a) area coverage, (b) liquid water potential temperature, (c) total specific humidity and (d) vertical velocity. The results are averaged over t=18000 s -- 21600 s. The shaded area denotes the mean $\pm$ one standard deviation of the participating models from SIEBESMA, the solid and dashed lines the results from MicroHH, using the original (solid) and a higher resolution (dashed) setup.}
+	\label{fig:bomex}
 \end{figure*}
+
+The simulation is run for 6 hours. Statistics are recorded during the final hour, including conditional statistics for the cloud-covered fields ($q_l > 0$) and for the cloud cores ($q_l > 0$ and $\theta_v > 0$). The vertical profile of area coverage, and those of horizontally-average liquid water potential temperature $\theta_l$, total water $q_t$ and vertical velocity $w$ are shown in Figure \ref{fig:bomex}. All mean and conditionally sampled statistics at the original resolution are predominantly within one standard deviation of the ensemble mean including all models that participated in \citet{Siebesma2003}. However, the horizontally-averaged vertical velocities in the cloud and cloud core decrease considerably with an increase in resolution.
 
 \subsection{GABLS1}
 To validate the Large-Eddy Simulation mode under stable conditions, results for the GABLS1 LES intercomparison case \citep{Beare2006} are shown (\texttt{cases/gabls1}). The result from MicroHH were obtained using the Boussinesq approximation, a centered advection scheme with 4th order accurate interpolations (SECOND ORDER ADVECTION WITH HIGHER ORDER INTERPOLATIONS IS NOT YET DESCRIBED...), and Smagorinsky diffusion using $C_\mathrm{s}$ = 0.XX and a turbulent Prandtl number of XX (JUST TO BE SURE I'LL RE-RUN THESE EXPERIMENTS, RESULTS ARE REALLY OLD...)
@@ -740,7 +743,7 @@ The GPU implementation of MicroHH allows for fast simulations on a single device
 
 The results shown in Table \ref{tab:gpu} show the great potential of GPU computing. For these cases, that all fit on a single GPU, it takes at least 32 cores to reach equal performance. Only at 64 cores, the CPU simulations are notably faster. Therefore, for simulations that fit into its memory, the GPU provides an excellent alternative for the CPU.
 
-\section{Future plans}
+\section{Future plans}\label{sec:future}
 Currently, there are several ongoing projects to extend the model. At the moment, parameterizations for microphysics and an interactive land surface model are under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills.
 
 Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax. The project has shown great potential, for two reasons. First, the DSL prevents errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system specific tuning, such as loop tiling or OpenMP.
@@ -748,7 +751,7 @@ Furthermore, preliminary experiments have been performed to include a Domain-Spe
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
 This paper has presented a full description MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
 
-\section{Availability of code and resources}
+\section{Availability of code and resources}\label{sec:howto}
 MicroHH has its own website at \url{http://microhh.org}. The code is hosted at GitHub and can be accessed either via the website, or directly from 
 \url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/817195}.
 
