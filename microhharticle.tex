@@ -585,6 +585,46 @@ This equation is applied from a given surface pressure to the model top, alterna
 
 The base state density $\rho_0$, used in the dynamical core, is calculated using the input temperature (and moisture) profiles. The pressure used in the moist thermodynamics can optionally be updated every time step.
 
+\subsection{Large-scale forcings}
+\subsubsection{Rotation}
+The effects of a rotating reference can be included through the Coriolis force. MicroHH can run on an $f$-plane, where the related tendencies of the two horizontal velocity components are calculated as
+\begin{eqnarray}
+\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k} & = & f_0 v_{i,j,k},\\
+\left. \dfrac{\partial v}{\partial t}\right|_{i,j,k} & = & -f_0 u_{i,j,k},
+\end{eqnarray}
+with $f_0$ as Coriolis parameter specified by the user.
+
+\subsubsection{Pressure force}
+MicroHH provides two options to introduce a large-scale pressure force into the model. The first is to enforce a constant massflux in the streamwise direction. It is set up such that the user can choose the mean velocity.
+
+The second option is to enforce a large-scale pressure force through the geostrophic wind components $u_g$ and $v_g$, in combination with rotation, with the tendencies of the two horizontal velocity components calculated as
+\begin{eqnarray}
+\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k} & = & -f_0 v_{g;k},\\
+\left. \dfrac{\partial v}{\partial t}\right|_{i,j,k} & = &  f_0 u_{g;k},
+\end{eqnarray}
+where $u_{g;k}$ and $v_{g;k}$ as user-specified vertical profiles of geostrophic wind components.
+
+\subsubsection{Large-scale sources and sinks}
+Large-scale sources and sinks, representing for instance large-scale adveciton or radiative cooling, can be prescribed for each variable separately. The user prescibes vertical profiles of large-scale tendencies $S_{\phi;ls}$ that are added to the total tendencies.
+
+\subsubsection{Large-scale vertical velocity}
+A second method of introducing large-scale thermodynamic effects is through the inclusion of a large-scale vertical velocity. In this case, each scalar gets an additional tendency term of the form
+\begin{eqnarray}
+\left. \dfrac{\partial \phi}{\partial t}\right|_{i,j,k} & = &  - w_{ls;k}\,\delta^{2x} \left( \left< \phi \right>_k \right),
+\end{eqnarray}
+where $\left< \phi \right>_k$ is the horizontally-averaged vertical profile at height $z_k$ for scalar $\phi$.
+
+\subsection{Buffer layer}
+MicroHH has the option to damp gravity waves in the top of the simulation domain in a so-called buffer layer.  The tendency associated with the damping at grid cell $i,j,k$ is calculated for an arbitrary variable $\phi$ as
+\begin{eqnarray}
+\left. \dfrac{\partial \phi}{\partial t}\right|_{i,j,k} = \dfrac{\phi_{i,j,k} - \phi_{0;k}}{\tau_{d;k}}
+\end{eqnarray}
+where $\phi_0$ is taken from a user-specified reference profile, and time scale $\tau_d$ is a measure for the strength of the damping. It varies with height and is calculated at height $z_k$ following
+\begin{eqnarray}
+\tau_{d;k}^{-1} = \sigma \left( \dfrac{z_k - z_{b;bot} }{z_{b;top} - z_{b;bot}} \right)^\beta,
+\end{eqnarray}
+where $\sigma$ is the damping frequency chosen by the user and $\beta$ an exponent that describes the shape of the vertical profile of the damping frequency, which is always zero at the bottom ($z_{b;bot}$) and $\sigma$ at the top ($z_{b;top}$)  of the layer.
+
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
 MicroHH is written in C++ and uses elements of object-oriented programming. The code components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows code components and their extensions to reside in their own file, which increases code clarity and facilitates the merging of new code extensions. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of the \texttt{restrict} keyword to notify the compiler that fields do not overlap in memory. Furthermore, compiler-specific pragmas are used to aid vectorization.
@@ -755,11 +795,11 @@ To validate the Large-Eddy Simulation mode under stable conditions, results for 
 	\end{center}
 	\caption{Bla?}\label{fig:scaling}
 \end{figure}
-The parallel performance of MicroHH has been evaluated in strong and weak scaling experiments. We have chosen a buoyancy driven direct numerical simulation as a reference case, based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experiment has been performed on LRZ's SuperMUC\footnote{\url{https://www.lrz.de/services/compute/supermuc/}} machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on Forschungszentrum J\"{u}lich's Juqueen\footnote{\url{http://www.fz-juelich.de/ias/jsc/EN/Expertise/Supercomputers/JUQUEEN/JUQUEEN_node.html}} machine. In this experiment, a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
+The parallel performance of MicroHH has been evaluated in strong ($\texttt{cases/strongscaling}$) and weak scaling ($\texttt{cases/weakscaling}$) experiments. The case used is a buoyancy driven direct numerical simulation, based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experiment has been performed on LRZ's SuperMUC\footnote{\url{https://www.lrz.de/services/compute/supermuc/}} machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on Forschungszentrum J\"{u}lich's Juqueen\footnote{\url{http://www.fz-juelich.de/ias/jsc/EN/Expertise/Supercomputers/JUQUEEN/JUQUEEN_node.html}} machine. In this experiment, a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
 
 The strong scaling experiment shows that increasing the number of processors leads to faster simulations. The speedup is following the linear line, but each consecutive increase in the number of cores makes the model less efficient. Based on these results, we conclude that for the chosen test case, a work load of approximately $2\cdot 10^6$ grid points per core is the best balance between speed and computational efficiency.
 
-The weak scaling shows almost 90 percent efficiency going from 512 to 8192 cores, beyond that the scaling falls off to 80 percent. This can be explained by physical properties of the machine;  beyond 8192 cores a simulation no longer fits on one midplane (with 8192 cores), leading to slower communication.
+The weak scaling shows almost 90 percent efficiency going from 512 to 8192 cores, beyond that the scaling falls off to 80 percent. This can be explained by physical properties of the machine;  beyond 8192 cores a simulation no longer fits on one midplane (a physical unit consisting of 8192 cores), leading to slower communication.
 
 \subsection{Performance GPU (CUDA) implementation}
 The GPU implementation of MicroHH allows for fast simulations on a single device. The current state-of-the-art GPUs feature 6~GB of memory, thus simulations of maximally $512 \times 512 \times 384$ grid points for a flow with three velocity components and a single scalar fit in memory. To test the performance of such simulations, the performance of MicroHH on an NVIDIA Quadro K6000 (using CUDA 6.5) has been compared against the Max Planck Institute for Meteorology's cluster Thunder (2 Intel Xeon E5-2670 CPU's per node, 16 cores per node, Intel 15.01 with OpenMPI 1.8.4). Three benchmark cases have been chosen: the BOMEX moist convection case at grid dimensions of $64^3$, $128^3$, $256^3$ and $512^2 \times 384$, and the channel flow cases of \citet{Moser1999} at a Reynolds-$\tau$ number of 180 and 590.
