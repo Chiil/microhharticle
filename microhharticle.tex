@@ -634,6 +634,17 @@ where $\phi_0$ is taken from a user-specified reference profile, and time scale 
 \end{eqnarray}
 where $\sigma$ is the damping frequency chosen by the user and $\beta$ an exponent that describes the shape of the vertical profile of the damping frequency, which is always zero at the bottom ($z_{b;bot}$) and $\sigma$ at the top ($z_{b;top}$)  of the layer.
 
+\section{Model output}
+\subsection{Statistics}
+A large set of output statistics is available to the user. The statistics module provides vertical profiles of means, second-, third- and fourth-order moments of all prognostic variables, as well as advection and diffusion fluxes. Furthermore, there are a range of diagnostic variables, such as the pressure, the pressure variance and its vertical flux. The thermodynamics generate their own statistics based on the chosen option. The moist thermodynamics provides a large set of cloud statistics.
+
+There is a separate module for budget statistics, which provides the second-order budgets of all components of the Reynolds stress tensor, and those of the variance and vertical flux of the thermodynamic variable.
+
+One of the key features of the MicroHH statistics is that an arbitrary mask can be passed into the statistics routine over which the statistics are computed. This allows, for instance, for a very simple way of computing conditional statistics in updrafts or clouds, which is demonstrated later in Section \ref{sec:bomex}.
+
+\subsection{Cross sections}
+It is possible to save cross sections in the $xy$, $xz$ and $yz$-plane at a user-specified interval. These cross sections can be made from prognostic variables as well as from derived diagnostic variables. The code can easily be extended with new options for cross sections.
+
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
 MicroHH is written in C++ and uses elements of object-oriented programming. The code components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows code components and their extensions to reside in their own file, which increases code clarity and facilitates the merging of new code extensions. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of the \texttt{restrict} keyword to notify the compiler that fields do not overlap in memory. Furthermore, compiler-specific pragmas are used to aid vectorization.
@@ -767,7 +778,7 @@ As a first test case of the LES mode of MicroHH we present that of \citet{Sulliv
 
 The results show the formation of a well-mixed layer with an overlying capping inversion (see Figure \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative values in the entrainment zone (see Figure \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Figure \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
 
-\subsection{BOMEX}
+\subsection{BOMEX}\label{sec:bomex}
 The BOMEX shallow cumulus case \citep{Siebesma2003} (\texttt{cases/bomex}) provides the opportunity to evaluate the moist thermodynamics (see Section \ref{sec:thermo}) and large-scale forcings. We have repeated the case as described in \citet{Siebesma2003} at the original resolution of the study (100 m $\times$ 100 m $\times$ 40 m) and at a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m) setup.
 
 This case produces non-precipitating shallow cumulus. It has a large-scale cooling applied representing radiation, as well as a large-scale drying to allow the atmosphere to relax to steady state. In addition, a large-scale vertical velocity is applied over a certain height range to reproduce the approprate synoptic conditions. 
