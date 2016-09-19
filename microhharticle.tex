@@ -595,7 +595,16 @@ The effects of a rotating reference can be included through the Coriolis force. 
 with $f_0$ as Coriolis parameter specified by the user.
 
 \subsubsection{Pressure force}
-MicroHH provides two options to introduce a large-scale pressure force into the model. The first is to enforce a constant massflux in the streamwise direction. It is set up such that the user can choose the mean velocity.
+MicroHH provides two options to introduce a large-scale pressure force into the model. The first is to enforce a constant massflux through the domain in the streamwise direction. In this approach the desired large-scale velocity $U_f$ is set, and the corresponding pressure gradient is computed. We follow here the approach of  \citet{vanReeuwijk2007}. In this approach, the $u$-component of the horizontal momentum equation (Eq. \ref{eq:consmoma}) is volume-averaged to acquire
+\begin{eqnarray}
+\dfrac{\left< u \right>^{n+1}  - \left< u \right>^{n}}{\Delta t} & = & \left< f_1 
+\right> - \left< \dfrac{\partial}{\partial x} \left( \dfrac{p}{\rho_0} \right) \right>
++ F_{p;ls}
+\end{eqnarray}
+where brackets indicate a volume average, $f_1$ contains all the righthand side terms of the $u$-component of the conservation of momentum, except for the dynamic pressure, which is contained in the second term. The large-scale pressure force $F_{p;ls}$, which is to be computed, is the last term. We can now set $\left< u \right>^{n+1} = U_f$ to explicitly set the volume-averaged velocity in the next time step. Furthermore, the volume-averaged horizontal pressure gradient vanishes, because of the periodic boundary condition, which makes $F_{p;ls}$ the only unknown. The acquired pressure force will be added following
+\begin{eqnarray}
+\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k} & = & F_{p;ls}
+\end{eqnarray}
 
 The second option is to enforce a large-scale pressure force through the geostrophic wind components $u_g$ and $v_g$, in combination with rotation, with the tendencies of the two horizontal velocity components calculated as
 \begin{eqnarray}
