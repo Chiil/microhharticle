@@ -815,7 +815,7 @@ Figure \ref{fig:gabls} shows the domain and time (t=28800 s - 32400 s) averaged 
 	\begin{center}
 		\includegraphics[width=8.3cm]{figs/scaling.pdf}
 	\end{center}
-	\caption{Bla?}\label{fig:scaling}
+	\caption{Strong scaling experiments (a) plotted in terms of speedup. The black line indicates perfect scaling. Weak scaling experiments (b) are plotted in terms of efficiency. The black line indicates here perfect efficiency. }\label{fig:scaling}
 \end{figure}
 The parallel performance of MicroHH has been evaluated in strong ($\texttt{cases/strongscaling}$) and weak scaling ($\texttt{cases/weakscaling}$) experiments. The case used is a buoyancy driven direct numerical simulation, based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed and the mean cost per step is calculated over the series. The strong scaling experiment has been performed on LRZ's SuperMUC\footnote{\url{https://www.lrz.de/services/compute/supermuc/}} machine. In this experiment simulations were done on grids of respectively $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, where the number of processes is increased throughout the scaling experiment. The weak scaling experiment has been performed on Forschungszentrum J\"{u}lich's Juqueen\footnote{\url{http://www.fz-juelich.de/ias/jsc/EN/Expertise/Supercomputers/JUQUEEN/JUQUEEN_node.html}} machine. In this experiment, a fixed grid size of $64 \times 32 \times 1024$ grid points is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
 
@@ -860,6 +860,7 @@ MicroHH has its own website at \url{http://microhh.org}. The code is hosted at G
 \url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/817195}.
 
 \section{Appendix}
+Table \ref{tab:constants} presents an overview of the chosen values for physical constants in the code.
 \begin{table*}[t]
 \caption{Overview of used constants}\label{tab:constants}
 \begin{tabular}{clcl}
