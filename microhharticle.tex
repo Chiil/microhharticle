@@ -663,7 +663,26 @@ The input/output (IO) is entirely based on MPI-IO to ensure that three-dimension
 \subsection{External dependencies}
 MicroHH depends on several external software tools or libraries. It uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines make use of netCDF software developed by UCAR/Unidata\footnote{\url{http://doi.org/10.5065/D6H70CW6}}. In order to run the provided test cases and their output scripts, a Python installation including the Numpy and Matplotlib modules is required. Automatic documentation generation can be done using Doxygen, but this is optional.
 
-\section{Validation of the dynamical core} \label{sec:tests}
+\section{Running simulations}
+In order to run a simulation with MicroHH a sequence of steps needs to be taken. Each simulation has an \texttt{.ini} file that contains the settings of the simulation, a \texttt{.prof} file that contains the (initial) vertical profiles of all required variables, and, if time-varying boundary conditions are desired, a file with the prescribed time evolution for all time-varying boundary conditions. To prepare a simulation with the name \texttt{test\_simulation}, MicroHH needs to be run in the following way
+\begin{verbatim}
+./microhh init test_simulation
+\end{verbatim}
+where it is assumed that \texttt{test\_simulation.ini} and \texttt{test\_simulation.prof} are available in the directory where the command is triggered. This procedure will create the initial fields of all prognostic variables and save the required fields for those model components that need to save their state to guarantee bitwise identical restarts. These are, for instance, the pressure solver and the surface model.
+
+Hereafter, the simulation is prepared and with
+\begin{verbatim}
+./microhh run test_simulation
+\end{verbatim}
+the actual simulation will start. Depending on the chosen output intervals, the simulation will create restart files, statistics, cross sections, and field dumps. MicroHH can restart from any time for which the restart files are saved.
+
+One other feature of the code is the post-processing mode. By running 
+\begin{verbatim}
+./microhh post test_simulation
+\end{verbatim}
+the code will read a saved restart file, compute the statistics and other output for that time instance. The code will do this for all specified restart files, allowing the user to create new statistics and apply this on the data, without having to rerun the simulation.
+
+ \section{Validation of the dynamical core} \label{sec:tests}
 In this section we present a series of cases in order to validate MicroHH under a wide range of settings. Each of these test cases is available in the \texttt{cases/} directory in the MicroHH repository, where all detailed settings can be found. This paper presents only the most relevant information per case.
 
 \subsection{Taylor-Green vortex}
