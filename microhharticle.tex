@@ -545,13 +545,14 @@ With the equations above, the surface fluxes, surface values and near-surface gr
 In cases of the latter two options, a lookup table is created  with $L$ as a function of Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit.
 
 \subsection{Thermodynamics}\label{sec:thermo}
-MicroHH supports both the use the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature (Section \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} \equiv \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
+
+MicroHH supports both the use the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature (Section \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} = \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
 
 \begin{equation}
 \theta_\mathrm{l} \approx \theta - \frac{L_\mathrm{v}}{c_\mathrm{p} ~ \Pi} q_\mathrm{l}, 	
 \end{equation}
 
-\noindent where $L_\mathrm{v}$ is the latent heat of vaporization, $c_\mathrm{p}$ the specific heat of dry air at constant pressure, and $\Pi$ is the Exner fuction
+\noindent where $L_\mathrm{v}$ is the latent heat of vaporization, $c_\mathrm{p}$ the specific heat of dry air at constant pressure, and $\Pi$ is the Exner function
 
 \begin{equation}
 	\Pi = \left( \frac{p}{p_{00}} \right)^{R_\mathrm{d} / c_\mathrm{p}},
@@ -575,15 +576,15 @@ MicroHH supports both the use the potential  ($\theta$) and liquid water potenti
 	\theta_\mathrm{v} \approx \theta \left(1-\left[1-\frac{R_\mathrm{v}}{R_\mathrm{d}}\right] q_\mathrm{t} - \frac{R_\mathrm{v}}{R_\mathrm{d}} q_\mathrm{l} \right)
 \end{equation}
 
-The base state pressure and density are calculated assuming a hydrostatic equilibrium: $\mathrm{d}p_0 = -\rho_0 g \mathrm{d}z$, with the density defined as $\rho_0 = p_0 / (R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0})$. Assuming a constant (virtual) potential temperature and density, integration with height results in
+The base state pressure and density are calculated assuming a hydrostatic equilibrium: $\mathrm{d}p_0 = -\rho_0 g \mathrm{d}z$, with the density defined as $\rho_0 = p_0 / (R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0})$. Integration with height results in
 
 \begin{equation}
 	p_{0;k+1} = p_{0;k} ~ \mathrm{exp}\left(\frac{-g (z_{k+1}-z_k)}{R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0}} \right )
 \end{equation}
 
-This equation is applied from a given surface pressure to the model top, alternating the calculations at the full and half model levels. That is, given the full thermodynamic state (pressure and density) at a full level $k$, the thermodynamic state can be advanced from the half level $k-\frac{1}{2}$ to $k+\frac{1}{2}$. Using the newly calculated state at $k+\frac{1}{2}$, pressure and density at $k+1$ can be calculated. 
+\noindent where $\theta_\mathrm{v0}$ is the average virtual potential temperature between $z_k$ and $z_{k+1}$. This equation is applied from a given surface pressure to the model top, alternating the calculations at the full and half model levels. That is, given the full thermodynamic state (pressure and density) at a full level $k$, the thermodynamic state can be advanced from the half level $k-\frac{1}{2}$ to $k+\frac{1}{2}$. Using the newly calculated state at $k+\frac{1}{2}$, pressure and density at $k+1$ can be calculated. 
 
-The base state density $\rho_0$, used in the dynamical core, is calculated using the input temperature (and moisture) profiles. The pressure used in the moist thermodynamics can optionally be updated every time step.
+The base state density $\rho_0$ that is used in the dynamical core (Section \ref{sec:dyncore}) is calculated using the initial virtual potential temperature profile, and is not updated during the experiment. The density and hydrostatic pressure used in the moist thermodynamics can optionally be updated every time step.
 
 \subsection{Large-scale forcings}
 \subsubsection{Rotation}
@@ -644,7 +645,7 @@ One of the key features of the MicroHH statistics is that an arbitrary mask can 
 
 \subsection{Two- and three-dimensional output}
 
-In addition to the three-dimensional output of the prognostic variables required to restart the model (Section MODEL-PROCEDURE), it is possible to save three-dimensional output of derived diagnostic variables. Furthermore, two-dimensional cross sections of both prognostic and derived diagnostic variables can be output in $xy$, $xz$ and $yz$-slices, at a user-specified location and interval. The code can easily be extended with new options for cross sections of user-defined diagnostic variables. 
+In addition to the three-dimensional output of the prognostic variables required to restart the model (Section \ref{sec:running_simulations}), it is possible to save three-dimensional output of derived diagnostic variables. Furthermore, two-dimensional cross sections of both prognostic and derived diagnostic variables can be output in $xy$, $xz$ and $yz$-slices, at a user-specified location and interval. The code can easily be extended with new options for cross sections of user-defined diagnostic variables. 
 
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
@@ -664,6 +665,7 @@ The input/output (IO) is entirely based on MPI-IO to ensure that three-dimension
 MicroHH depends on several external software tools or libraries. It uses the CMake build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines make use of netCDF software developed by UCAR/Unidata\footnote{\url{http://doi.org/10.5065/D6H70CW6}}. In order to run the provided test cases and their output scripts, a Python installation including the Numpy and Matplotlib modules is required. Automatic documentation generation can be done using Doxygen, but this is optional.
 
 \section{Running simulations}
+\label{sec:running_simulations}
 In order to run a simulation with MicroHH a sequence of steps needs to be taken. Each simulation has an \texttt{.ini} file that contains the settings of the simulation, a \texttt{.prof} file that contains the (initial) vertical profiles of all required variables, and, if time-varying boundary conditions are desired, a file with the prescribed time evolution for all time-varying boundary conditions. To prepare a simulation with the name \texttt{test\_simulation}, MicroHH needs to be run in the following way
 \begin{verbatim}
 ./microhh init test_simulation
