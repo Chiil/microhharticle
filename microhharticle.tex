@@ -638,12 +638,13 @@ where $\sigma$ is the damping frequency chosen by the user and $\beta$ an expone
 \subsection{Statistics}
 A large set of output statistics is available to the user. The statistics module provides vertical profiles of means, second-, third- and fourth-order moments of all prognostic variables, as well as advection and diffusion fluxes. Furthermore, there are a range of diagnostic variables, such as the pressure, the pressure variance and its vertical flux. The thermodynamics generate their own statistics based on the chosen option. The moist thermodynamics provides a large set of cloud statistics.
 
-There is a separate module for budget statistics, which provides the second-order budgets of all components of the Reynolds stress tensor, and those of the variance and vertical flux of the thermodynamic variable.
+There is a separate module for budget statistics, which provides the budgets of all components of the Reynolds stress tensor, and those of the variance and vertical flux of the thermodynamic variable.
 
 One of the key features of the MicroHH statistics is that an arbitrary mask can be passed into the statistics routine over which the statistics are computed. This allows, for instance, for a very simple way of computing conditional statistics in updrafts or clouds, which is demonstrated later in Section \ref{sec:bomex}.
 
-\subsection{Cross sections}
-It is possible to save cross sections in the $xy$, $xz$ and $yz$-plane at a user-specified interval. These cross sections can be made from prognostic variables as well as from derived diagnostic variables. The code can easily be extended with new options for cross sections.
+\subsection{Two- and three-dimensional output}
+
+In addition to the three-dimensional output of the prognostic variables required to restart the model (Section MODEL-PROCEDURE), it is possible to save three-dimensional output of derived diagnostic variables. Furthermore, two-dimensional cross sections of both prognostic and derived diagnostic variables can be output in $xy$, $xz$ and $yz$-slices, at a user-specified location and interval. The code can easily be extended with new options for cross sections of user-defined diagnostic variables. 
 
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
