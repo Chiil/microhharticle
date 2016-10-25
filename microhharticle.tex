@@ -294,7 +294,7 @@ Hereafter, we assume that operator notation is clear and only expand it where ne
 MicroHH has a fully energy-conserving fourth-order advection scheme \citep{Morinishi1998} available. This scheme is constructed by interpolation of two energy-conserving second-order schemes to eliminate the second-order error as illustrated below
 \begin{eqnarray}
 % \nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & = & \frac{9}{8} \delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} 
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \frac{9}{8} \delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} 
                                                              - \frac{1}{8} \delta^{2xL} \left( u \widehat{\phi}^{2xL} \right)_{i,j}%\\
 % \nonumber
 % & = & \frac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
@@ -304,10 +304,17 @@ MicroHH has a fully energy-conserving fourth-order advection scheme \citep{Morin
 \end{eqnarray}
 Velocity interpolations, such as those in Eq. \ref{eq:advec2u}, still need to be performed with fourth-order accuracy (Eq. \ref{eq:interp4}) in order to  be fourth-order accurate (see \citet{Morinishi1998} for details). The expression
 \begin{eqnarray}
-\dfrac{\partial v u}{\partial x} \approx \frac{9}{8} \delta^{2x} \left( \widehat{v}^{4y} \widehat{u}^{2x} \right)_{i,j} 
+\left. \dfrac{\partial v u}{\partial x}\right|_{i,j} \approx \frac{9}{8} \delta^{2x} \left( \widehat{v}^{4y} \widehat{u}^{2x} \right)_{i,j} 
                                        - \frac{1}{8} \delta^{2xL} \left( \widehat{v}^{4y} \widehat{u}^{2xL} \right)_{i,j}
 \end{eqnarray}
 includes, for instance, a combination of second- and fourth-order interpolations.
+
+To increase the overall accuracy of the second-order advection operator, there is an option available to only increase the interpolation part to fourth order
+\begin{eqnarray}
+\left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j}
+& \approx & 
+\delta^{2x} \left( u \widehat{\phi}^{4x} \right)_{i,j}.
+\end{eqnarray}
 
 \subsection{Diffusion}
 We apply a mimetic discretization for the diffusion that can be written as the divergence of a gradient, using the building blocks defined earlier in this section. As this operator is identical in all directions, we present it in one direction only
@@ -817,7 +824,7 @@ This case produces non-precipitating shallow cumulus. It has a large-scale cooli
 The simulation is run for 6 hours. Statistics are recorded during the final hour, including conditional statistics for the cloud-covered fields ($q_l > 0$) and for the cloud cores ($q_l > 0$ and $\theta_v > 0$). The vertical profile of area coverage, and those of horizontally-average liquid water potential temperature $\theta_l$, total water $q_t$ and vertical velocity $w$ are shown in Figure \ref{fig:bomex}. All mean and conditionally sampled statistics at the original resolution are predominantly within one standard deviation of the ensemble mean including all models that participated in \citet{Siebesma2003}. However, the horizontally-averaged vertical velocities in the cloud and cloud core decrease considerably with an increase in resolution.
 
 \subsection{GABLS1}
-To evaluate the LES mode for stable atmospheric conditions, the GABLS1 LES intercomparison case \citep{Beare2006} (\texttt{cases/gabls1}) is reproduced. The GABLS1 case develops from a shallow well-mixed layer into a weakly stable boundary layer, driven by a prescribed negative tendency of the surface temperature, over a total integration time of 9 hours. Given the small vertical extent of the domain, the Boussinesq approximation is used. The advection scheme uses fourth order accurate interpolations (Eq. \ref{eq:interp4}), and the Smagorinsky diffusion was set up with a Smagorinsky constant equal to 0.12, and a turbulent Prandtl number of $1/3$. The experiments are performed at two different resolutions of $2^3$ m and $6.25^3$ m, and compared to the models which participated in the study of \cite{Beare2006}. 
+To evaluate the LES mode for stable atmospheric conditions, the GABLS1 LES intercomparison case \citep{Beare2006} (\texttt{cases/gabls1}) is reproduced. The GABLS1 case develops from a shallow well-mixed layer into a weakly stable boundary layer, driven by a prescribed negative tendency of the surface temperature, over a total integration time of 9 hours. Given the small vertical extent of the domain, the Boussinesq approximation is used. The advection scheme uses fourth-order accurate interpolations (Eq. \ref{eq:interp4}), and the Smagorinsky diffusion was set up with a Smagorinsky constant equal to 0.12, and a turbulent Prandtl number of $1/3$. The experiments are performed at two different resolutions of $2^3$ m and $6.25^3$ m, and compared to the models which participated in the study of \cite{Beare2006}. 
 
 Figure \ref{fig:gabls} shows the domain and time (t=28800 s - 32400 s) averaged vertical profiles of potential temperature ($\langle \theta \rangle$) and the u-velocity component ($\langle u \rangle$), and time series of the boundary layer depth ($z_\mathrm{ABL}$) and surface friction velocity ($u_*$). At the lowest grid spacing of $6.25$ m, the model takes approximately 2 hours for the flow to become turbulent, as is evident from the delayed boundary layer growth and abrupt changes in $u_*$. Nonetheless, typical features like the low-level jet (Fig. \ref{fig:gabls}b) are well reproduced, and all statistics are predominantly within the range of results from \cite{Beare2006}. At a grid spacing reduced to 2 m, the flow becomes turbulent nearly instantaneously, but the resulting boundary layer depth and surface friction velocity are on the low side compared to the 5 models from \cite{Beare2006} which performed experiments at this resolution. 
 
@@ -884,11 +891,12 @@ MicroHH has its own website at \url{http://microhh.org}. The code is hosted at G
 \section{Appendix}
 Table \ref{tab:constants} presents an overview of the chosen values for physical constants in the code.
 \begin{table*}[t]
-\caption{Overview of used constants}\label{tab:constants}
+\caption{Overview of used constants.}\label{tab:constants}
 \begin{tabular}{clcl}
 \tophline
 Symbol & Description & Value & Units \\
 \middlehline
+$g$ & Gravitational acceleration & 9.81 & $\mathrm{m~s^{-2}}$\\
 $c_\mathrm{p}$ & Specific heat of dry air at constant pressure & 1005 & $\mathrm{J~kg^{-1}~K^{-1}}$\\
 $p_\mathrm{00}$ & Reference pressure & 1 $\cdot$ 10$^5$ & Pa\\
 $R_\mathrm{d}$ & Gas constant for dry air & 287.04 & $\mathrm{J~K^{-1}~kg^{-1}}$\\
