@@ -193,7 +193,9 @@ The reduced truncation error of the fourth-order scheme makes the scheme prefera
 \subsection{Grid}
 MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
 
-MicroHH can work with stretched grids in the vertical dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
+The code can work with stretched grids in the vertical dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
+
+There is the option to apply a uniform translation velocity to the grid, thus to let the grid move with the flow. This so-called Galilean transformation is allowed as the Navier-Stokes equations are invariant under translation. It has the potential to allow for larger time steps and to increase the accuracy of simulations.
 
 \subsection{Building blocks of the spatial discretization}
 The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series spatial operators can be derived that constitute the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the elementary operators and the composite operators that can be derived from them. We use only two dimensions for brevity.
@@ -673,7 +675,7 @@ MicroHH depends on several external software tools or libraries. It uses the CMa
 
 \section{Running simulations}
 \label{sec:running_simulations}
-In order to run a simulation with MicroHH a sequence of steps needs to be taken. Each simulation has an \texttt{.ini} file that contains the settings of the simulation, a \texttt{.prof} file that contains the (initial) vertical profiles of all required variables, and, if time-varying boundary conditions are desired, a file with the prescribed time evolution for all time-varying boundary conditions. To prepare a simulation with the name \texttt{test\_simulation}, MicroHH needs to be run in the following way
+In order to run a simulation with MicroHH, a sequence of steps needs to be taken. Each simulation has an \texttt{.ini} file that contains the settings of the simulation, a \texttt{.prof} file that contains the (initial) vertical profiles of all required variables, and, if time-varying boundary conditions are desired, a file with the prescribed time evolution for all time-varying boundary conditions. To prepare a simulation with the name \texttt{test\_simulation}, MicroHH needs to be run in the following way
 \begin{verbatim}
 ./microhh init test_simulation
 \end{verbatim}
@@ -805,7 +807,7 @@ As a first test case of the LES mode of MicroHH we present that of \citet{Sulliv
 	\label{fig:sullivan2011}
 \end{figure}
 
-The results show the formation of a well-mixed layer with an overlying capping inversion (see Figure \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative values in the entrainment zone (see Figure \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Figure \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
+The results show the formation of a well-mixed layer with an overlying capping inversion (see Figure \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative values in the entrainment zone (see Figure \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Figure \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. %MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
 
 \subsection{BOMEX}\label{sec:bomex}
 The BOMEX shallow cumulus case \citep{Siebesma2003} (\texttt{cases/bomex}) provides the opportunity to evaluate the moist thermodynamics (see Section \ref{sec:thermo}) and large-scale forcings. We have repeated the case as described in \citet{Siebesma2003} at the original resolution of the study (100 m $\times$ 100 m $\times$ 40 m) and at a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m) setup.
@@ -886,7 +888,7 @@ This paper has presented a full description MicroHH, a new computational fluid d
 
 \section{Availability of code and resources}\label{sec:howto}
 MicroHH has its own website at \url{http://microhh.org}. The code is hosted at GitHub and can be accessed either via the website, or directly from 
-\url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/817195}.
+\url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/microhh/}.
 
 \section{Appendix}
 Table \ref{tab:constants} presents an overview of the chosen values for physical constants in the code.
