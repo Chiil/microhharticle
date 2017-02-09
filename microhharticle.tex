@@ -71,7 +71,7 @@ This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) 
 \introduction  %% \introduction[modified heading if necessary]
 In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but the supports large-eddy simulation (LES) technique as well, with applications ranging from neutral channel flows to cloud-covered atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers, which are mostly written in Fortran 90.
 
-This paper is built up as following: in Section \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Section \ref{sec:dyncorediscrete}. Subsequently, in Section \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Section \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previously studied flow cases (Section \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Section \ref{sec:performance}). After the  future plans (Section \ref{sec:future}) and the concluding remarks (Section \ref{sec:conclusion}), there is a short description where to find MicroHH, its tutorials and some animations (Section \ref{sec:howto}).
+This paper is built up as following: in Sect. \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Sect. \ref{sec:dyncorediscrete}. Subsequently, in Sect. \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Sect. \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previously studied flow cases (Sect. \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Sect. \ref{sec:performance}). After the  future plans (Sect. \ref{sec:future}) and the concluding remarks (Sect. \ref{sec:conclusion}), there is a short description where to find MicroHH, its tutorials and some animations (Sect. \ref{sec:howto}).
 
 \section{Dynamical core: governing equations}\label{sec:dyncore}
 The dynamical core of MicroHH solves the conservation equations of mass, momentum, and energy under the anelastic approximation \citep{Bannon1996}. Under this approximation, the state variables density, pressure, and temperature are described as small fluctuations (denoted with a prime in this paper) from corresponding vertical reference profiles (denoted with subscript zero) that are functions of height only. This form of the approximation directly simplifies to the Boussinesq approximation if the reference density $\rho_0$ is assumed to be constant with height $z$. To facilitate the subsequent discussion of the conservation equations, we define the scale height for density $H_\rho$ based on the reference density profile
@@ -123,7 +123,7 @@ Under the Boussinesq approximation the equation simplifies to
 \dfrac{\partial^2}{\partial x_i^2} \left( \dfrac{p'}{\rho_0} \right) & = &
 \dfrac{\partial f \left( u_i \right)}{\partial x_i}.\label{eq:presb}
 \end{eqnarray}
-In Section \ref{sec:dyncorediscrete} we explain how these equations are solved.
+In Sect. \ref{sec:dyncorediscrete} we explain how these equations are solved.
 
 \subsection{Conservation of an arbitrary scalar}
 The conservation equation of an arbitrary scalar $\phi$ is written in flux form
@@ -139,7 +139,7 @@ MicroHH provides multiple options for the energy conservation equation. The cons
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\phi \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
 \end{eqnarray}
-where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ as sources or sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see THERMODYNAMICS section for details).
+where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ as sources or sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
 
 A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv (g/\theta_0)\theta^\prime$ as
 \begin{eqnarray}
@@ -188,7 +188,7 @@ For the fourth-order scheme the vectors $a$ and $b$ are
 \frac{2277821191437}{14882151754819} \right\}
 \end{eqnarray}
 
-The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Section \ref{sec:validationtime}).
+The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}).
 
 \subsection{Grid}
 MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
@@ -426,7 +426,7 @@ whereas in case of a Neumann boundary condition we find
 \section{Physical parameterizations}\label{sec:parametrizations}
 
 \subsection{Subfilter-scale model for large-eddy simulation}
-With the governing equations described in Section \ref{sec:dyncore} it is possible to resolve the flow down to the finest scales. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
+With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the finest scales. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
 \begin{eqnarray}
 \nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
 - \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
@@ -459,7 +459,7 @@ The subfilter eddy diffusivity thus takes into account the local stratification 
 \end{eqnarray}
 which is an arbitrary ($n$ is a free parameter) matching function between the mixing length following wall scaling to the subfilter length scale (filter size) $\Delta \equiv (\Delta x \Delta y \Delta z)^\frac{1}{3}$, related to the grid spacing. In case of a high-Reynolds number atmospheric LES with an unresolved near-wall flow, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$  in the strain tensor are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory. Evaluation of these gradients is explained in detail in Section \ref{sec:surface_model}.
 
-The same approach is followed for all scalars, including the thermodynamic variables discussed in Section \ref{sec:dyncore_energy}:
+The same approach is followed for all scalars, including the thermodynamic variables discussed in Sect. \ref{sec:dyncore_energy}:
 \begin{eqnarray}
 \dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_{\phi,j}}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal_filter}
 \end{eqnarray}
@@ -555,7 +555,7 @@ In cases of the latter two options, a lookup table is created  with $L$ as a fun
 
 \subsection{Thermodynamics}\label{sec:thermo}
 
-MicroHH supports both the use the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature (Section \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} = \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
+MicroHH supports the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature as thermodynamic variables (Sect. \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} = \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
 
 \begin{equation}
 \theta_\mathrm{l} \approx \theta - \frac{L_\mathrm{v}}{c_\mathrm{p} ~ \Pi} q_\mathrm{l}, 	
@@ -593,7 +593,7 @@ The base state pressure and density are calculated assuming a hydrostatic equili
 
 \noindent where $\theta_\mathrm{v0}$ is the average virtual potential temperature between $z_k$ and $z_{k+1}$. This equation is applied from a given surface pressure to the model top, alternating the calculations at the full and half model levels. That is, given the full thermodynamic state (pressure and density) at a full level $k$, the thermodynamic state can be advanced from the half level $k-\frac{1}{2}$ to $k+\frac{1}{2}$. Using the newly calculated state at $k+\frac{1}{2}$, pressure and density at $k+1$ can be calculated. 
 
-The base state density $\rho_0$ that is used in the dynamical core (Section \ref{sec:dyncore}) is calculated using the initial virtual potential temperature profile, and is not updated during the experiment. The density and hydrostatic pressure used in the moist thermodynamics can optionally be updated every time step.
+The base state density $\rho_0$ that is used in the dynamical core (Sect. \ref{sec:dyncore}) is calculated using the initial virtual potential temperature profile, and is not updated during the experiment. The density and hydrostatic pressure used in the moist thermodynamics can optionally be updated every time step.
 
 \subsection{Large-scale forcings}
 \subsubsection{Rotation}
@@ -653,7 +653,7 @@ There is a separate module for budget statistics, which provides the budgets of 
 One of the key features of the MicroHH statistics is that an arbitrary mask can be passed into the statistics routine over which the statistics are computed. This allows, for instance, for a very simple way of computing conditional statistics in updrafts or clouds, which is demonstrated later in Section \ref{sec:bomex}.
 
 \subsection{Two- and three-dimensional output}
-In addition to the three-dimensional output of the prognostic variables required to restart the model (Section \ref{sec:running_simulations}), it is possible to save three-dimensional output of derived diagnostic variables. Furthermore, two-dimensional cross sections of both prognostic and derived diagnostic variables can be output in $xy$-, $xz$- and $yz$-slices, at a user-specified location and interval. The code can easily be extended with new options for cross sections of user-defined diagnostic variables. 
+In addition to the three-dimensional output of the prognostic variables required to restart the model (Sect. \ref{sec:running_simulations}), it is possible to save three-dimensional output of derived diagnostic variables. Furthermore, two-dimensional cross sections of both prognostic and derived diagnostic variables can be output in $xy$-, $xz$- and $yz$-slices, at a user-specified location and interval. The code can easily be extended with new options for cross sections of user-defined diagnostic variables. 
 
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
@@ -725,7 +725,7 @@ The second test of the dynamical core consists of combined evaluation of energy 
 \caption{Time evolution of the energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes with three different time steps (a). Error convergence of the temporal discretization for the RK3 and RK4 scheme (b).}\label{fig:timeconvergence}
 \end{figure}
 
-The loss of energy as a function of time is shown in Figure \ref{fig:timeconvergence}a. The fourth-order scheme results in a smaller energy loss for the same time step and an a faster convergence. The error-convergence plot (Figure \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the order of the respective scheme. Furthermore, it illustrates the fact that, if high accuracy in time is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the error of the fourth-order scheme is approximately equal to the error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy, the fourth-order scheme needs only 5 steps per 10 time units, whereas the third-order scheme needs 12 steps.
+The loss of energy as a function of time is shown in Fig. \ref{fig:timeconvergence}a. The fourth-order scheme results in a smaller energy loss for the same time step and an a faster convergence. The error-convergence plot (Fig. \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the order of the respective scheme. Furthermore, it illustrates the fact that, if high accuracy in time is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the error of the fourth-order scheme is approximately equal to the error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy, the fourth-order scheme needs only 5 steps per 10 time units, whereas the third-order scheme needs 12 steps.
 
 \subsection{Laminar katabatic flow} \label{sec:laminarkatabatic}
 To test the buoyancy routine and the option to put the domain on a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942} (\texttt{cases/prandtl}) . In this test case, the surface is inclined at angle of $30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$) is cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~$s^{-3}$.
@@ -739,7 +739,7 @@ To test the buoyancy routine and the option to put the domain on a slope, a lami
 	\label{fig:prandtl}
 \end{figure}
 
-The fluid, which was initially at rest, goes through a series of decaying oscillations after the negative buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Figure~\ref{fig:prandtl}.
+The fluid, which was initially at rest, goes through a series of decaying oscillations after the negative buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{fig:prandtl}.
 
 \subsection{Turbulent channel flow}
 For fully turbulent flows, the solutions cannot be compared against any analytical testcases. Therefore, we validate our results against a channel flow at a Reynolds-$\tau$  number of 590 \citep{Moser1999} for means, variances, spectra, and second-order budget statistics (\texttt{cases/moser590}) .
@@ -751,9 +751,9 @@ For fully turbulent flows, the solutions cannot be compared against any analytic
 	\caption{Velocity means and variances for \citet{Moser1999} channel flow case at Reynolds-$\tau$ 590. The dashed vertical lines marks the spectra locations. Height $z$ is normalized with $u_\tau / \nu$, velocities with $u_\tau^{-1}$.}\label{fig:moser_velocity}
 \end{figure}
 
-Figure \ref{fig:moser_velocity}a shows the normalized horizontally-averaged streamwise velocity. The normalized rms of all three velocity components are presented in Figure \ref{fig:moser_velocity}b. All plotted variables show a perfect match with the data and are indistinguishable from Moser's data. In order to further assess the accuracy of the data, we show the second-order budgets of the variances in Figure \ref{fig:moser_budget}. Also here, the match with the reference data is excellent, which indicates that the whole range of spatial scales in the flow is represented well and that the fourth-order scheme is well able to pick up the small scale details of the flow.
+Figure \ref{fig:moser_velocity}a shows the normalized horizontally-averaged streamwise velocity. The normalized rms of all three velocity components are presented in Fig. \ref{fig:moser_velocity}b. All plotted variables show a perfect match with the data and are indistinguishable from Moser's data. In order to further assess the accuracy of the data, we show the second-order budgets of the variances in Fig. \ref{fig:moser_budget}. Also here, the match with the reference data is excellent, which indicates that the whole range of spatial scales in the flow is represented well and that the fourth-order scheme is well able to pick up the small scale details of the flow.
 
-The findings in the previous paragraph are further corroborated by the spectra shown in Figure \ref{fig:moser_spectra}.  Over the whole range of scales, the match between our simulation and that of Moser is excellent.
+The findings in the previous paragraph are further corroborated by the spectra shown in Fig. \ref{fig:moser_spectra}.  Over the whole range of scales, the match between our simulation and that of Moser is excellent.
 
 %% TWO-COLUMN FIGURES
 \begin{figure*}[t]
@@ -782,7 +782,7 @@ Turbulent motion starts quickly after the buoyancy flux is applied at the surfac
 
 For comparison, the same katabatic flow case was reproduced using the numerical code (hereafter referred to FS09) that was employed to simulate turbulent slope flows in \citet{Shapiro2008} and \citet{Fedorovich2009}. In that code, the time advancement was performed with an Asselin-filtered second-order leapfrog scheme \citep{Durran2013}. The spatial discretizations are identical to the second-order accurate ones of MicroHH. 
 
-Numerical results obtained with both numerical codes testify that stable environmental stratification in combination with negative surface buoyancy forcing in the katabatic flow leads to an effective suppression of vertical turbulent exchange in the flow region adjacent to the slope. This suppression results in a shallow near-surface sublayer with strong buoyancy gradients (Figure~\ref{fig:katabatic}a) capped by a narrow jet with peak velocity located very close to the ground (Figure~\ref{fig:katabatic}b). Further comparison has been performed on the slope-normal fluxes of momenum and buoyancy (not shown), where a nearly perfect match has been reproduced as well.
+Numerical results obtained with both numerical codes testify that stable environmental stratification in combination with negative surface buoyancy forcing in the katabatic flow leads to an effective suppression of vertical turbulent exchange in the flow region adjacent to the slope. This suppression results in a shallow near-surface sublayer with strong buoyancy gradients (Fig.~\ref{fig:katabatic}a) capped by a narrow jet with peak velocity located very close to the ground (Fig.~\ref{fig:katabatic}b). Further comparison has been performed on the slope-normal fluxes of momenum and buoyancy (not shown), where a nearly perfect match has been reproduced as well.
 
 \begin{figure}[t]
 	\vspace*{2mm}
@@ -795,7 +795,7 @@ Numerical results obtained with both numerical codes testify that stable environ
 
 \section{Validation of atmospheric large-eddy simulations}\label{sec:validation_atmos}
 \subsection{Dry convective boundary layer with strong inversion}
-As a first test case of MicroHH in LES mode, we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into a linearly stratified atmosphere with a very strong capping inversion (see Figure \ref{fig:sullivan2011}a). The system is heated from the bottom by applying a constant kinematic potential temperature flux of 0.24~K~m~s$^{-1}$. The domain size is 5120~m $\times$ 5120~m $\times$ 2048~m. Gravity wave damping has been applied in the top 25 percent of the domain. Simulations have been run for three hours with three spatial resolutions. The time-averaged profiles have been calculated over the last hour.
+As a first test case of MicroHH in LES mode, we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into a linearly stratified atmosphere with a very strong capping inversion (see Fig. \ref{fig:sullivan2011}a). The system is heated from the bottom by applying a constant kinematic potential temperature flux of 0.24~K~m~s$^{-1}$. The domain size is 5120~m $\times$ 5120~m $\times$ 2048~m. Gravity wave damping has been applied in the top 25 percent of the domain. Simulations have been run for three hours with three spatial resolutions. The time-averaged profiles have been calculated over the last hour.
 
 \begin{figure}[t]
 	\vspace*{2mm}
@@ -806,10 +806,10 @@ As a first test case of MicroHH in LES mode, we present that of \citet{Sullivan2
 	\label{fig:sullivan2011}
 \end{figure}
 
-The results show the formation of a well-mixed layer with an overlying capping inversion (see Figure \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative flux values in the entrainment zone (see Figure \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Figure \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. %MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
+The results show the formation of a well-mixed layer with an overlying capping inversion (see Fig. \ref{fig:sullivan2011}a) and the associated linear heat-flux profile with negative flux values in the entrainment zone (see Fig. \ref{fig:sullivan2011}b). The change of both quantities with resolution highlights the intrinsic challenge in resolving a boundary layer with an inversion layer that is stronger than the numerical schemes can accurately resolve. At coarse resolution, the strong inversion leads to an unphysical overshoot of the potential temperature flux above the boundary layer top (see Fig. \ref{fig:sullivan2011}b). This overshoot leads to a numerical mixed layer on top of the entrainment zone  that disappears with increasing resolution. %MicroHH provides the option to use a third-order upwind scheme \citep{Wicker2002}. Such schemes remove the overshoot, and present better convergence in the mean profiles, but at the same time their associated dissipation sacrifices energy conservation.
 
 \subsection{BOMEX}\label{sec:bomex}
-The BOMEX shallow cumulus case \citep{Siebesma2003} (\texttt{cases/bomex}), S03 hereafter, provides the opportunity to evaluate the moist thermodynamics (see Section \ref{sec:thermo}) and large-scale forcings. We have repeated the case as described in S03 at the original resolution of the study (100 m $\times$ 100 m $\times$ 40 m) and at a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m).
+The BOMEX shallow cumulus case \citep{Siebesma2003} (\texttt{cases/bomex}), S03 hereafter, provides the opportunity to evaluate the moist thermodynamics (see Sect. \ref{sec:thermo}) and large-scale forcings. We have repeated the case as described in S03 at the original resolution of the study (100 m $\times$ 100 m $\times$ 40 m) and at a higher resolution (10 m $\times$ 10 m $\times$ 9.375 m).
 
 This case produces non-precipitating shallow cumulus. It has a large-scale cooling applied that represents radiation, as well as a large-scale drying to allow the atmosphere to relax to a steady state. In addition, a large-scale vertical velocity is applied over a certain height range to reproduce the appropriate synoptic conditions. 
 
@@ -822,12 +822,12 @@ This case produces non-precipitating shallow cumulus. It has a large-scale cooli
 	\label{fig:bomex}
 \end{figure*}
 
-The simulation is run for 6 hours. Statistics are recorded during the final hour, including conditional statistics for the cloud-covered fields ($q_l > 0$) and for the cloud cores ($q_l > 0$ and $\theta_v > 0$). The vertical profile of area coverage and profiles of horizontally-average liquid water potential temperature $\theta_l$, total water $q_t$, and vertical velocity $w$ are shown in Figure \ref{fig:bomex}. All mean and conditionally sampled statistics at the original resolution are predominantly within one standard deviation of the ensemble mean of data from all models that participated in S03. The horizontally-averaged vertical velocities in the cloud and cloud core decrease considerably with an increase in resolution.
+The simulation is run for 6 hours. Statistics are recorded during the final hour, including conditional statistics for the cloud-covered fields ($q_l > 0$) and for the cloud cores ($q_l > 0$ and $\theta_v > 0$). The vertical profile of area coverage and profiles of horizontally-average liquid water potential temperature $\theta_l$, total water $q_t$, and vertical velocity $w$ are shown in Fig. \ref{fig:bomex}. All mean and conditionally sampled statistics at the original resolution are predominantly within one standard deviation of the ensemble mean of data from all models that participated in S03. The horizontally-averaged vertical velocities in the cloud and cloud core decrease considerably with an increase in resolution.
 
 \subsection{GABLS1}
 To evaluate the LES mode for stable atmospheric conditions, the GABLS1 LES intercomparison case \citep{Beare2006} (\texttt{cases/gabls1}) was reproduced. The GABLS1 boundary layer case develops from a shallow well-mixed layer into a weakly stable boundary layer, driven by a prescribed negative tendency of the surface temperature over a total integration time of 9 hours. The Boussinesq approximation is used, the advection scheme uses fourth-order accurate interpolations (Eq. \ref{eq:interp4}), and the Smagorinsky subgrid turbulence scheme is set up with a Smagorinsky constant equal to 0.12, and a subgrid turbulent Prandtl number of $1$. The experiments are performed at two different resolutions with grid cells of $2$ m and $6.25$ m, and compared to the models which participated in the study of \cite{Beare2006}. 
 
-Figure \ref{fig:gabls} shows the domain and time-averaged (over a period from 28800 to 32400~s) vertical profiles of potential temperature ($\langle \theta \rangle$) and the velocity component ($\langle u \rangle$), and also time series of the boundary layer depth ($z_\mathrm{ABL}$) and friction velocity ($u_*$). At the largest grid spacing of $6.25$ m, it takes approximately 2 hours for the flow to become turbulent, as is evident from the delayed boundary layer growth and abrupt changes in $u_*$. Nonetheless, typical features like the low-level jet (Figure \ref{fig:gabls}b) are well reproduced, and all statistics are predominantly within the range of results from \cite{Beare2006}. With the grid spacing reduced to 2 m, the flow becomes turbulent nearly instantaneously, but the resulting boundary layer depth and surface friction velocity are on the low side compared to the 5 models from \cite{Beare2006} which were run at this resolution. 
+Figure \ref{fig:gabls} shows the domain and time-averaged (over a period from 28800 to 32400~s) vertical profiles of potential temperature ($\langle \theta \rangle$) and the velocity component ($\langle u \rangle$), and also time series of the boundary layer depth ($z_\mathrm{ABL}$) and friction velocity ($u_*$). At the largest grid spacing of $6.25$ m, it takes approximately 2 hours for the flow to become turbulent, as is evident from the delayed boundary layer growth and abrupt changes in $u_*$. Nonetheless, typical features like the low-level jet (Fig. \ref{fig:gabls}b) are well reproduced, and all statistics are predominantly within the range of results from \cite{Beare2006}. With the grid spacing reduced to 2 m, the flow becomes turbulent nearly instantaneously, but the resulting boundary layer depth and surface friction velocity are on the low side compared to the 5 models from \cite{Beare2006} which were run at this resolution. 
 
 \begin{figure*}[t]
 \vspace*{2mm}
@@ -881,15 +881,11 @@ Currently, there are several ongoing projects to extend the model. At the moment
 Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax. This development has shown great potential, for two reasons. First, the DSL prevents discretization errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system-specific tuning, such as loop tiling or OpenMP.
 
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
-This paper has presented a full description MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
+This paper has presented a full description of MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
 
 \section{Availability of code and resources}\label{sec:howto}
 MicroHH has its own website at \url{http://microhh.org}. The code is hosted at GitHub and can be accessed either via the website, or directly from 
 \url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/microhh/}.
-
-\begin{acknowledgements}
-MicroHH has only become possible thanks to extensive discussions and exchange of code with the developers of DALES, PALM, UCLA-LES and ICON. We thank Juan-Pedro Mellado for sharing his insights and his seven-banded matrix solver, and Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven cases.
-\end{acknowledgements}
 
 \section{Appendix}
 Table \ref{tab:constants} presents an overview of the chosen values for physical constants in the code.
@@ -944,6 +940,10 @@ $N$ & Brunt-Vaissala frequency & s\\
 \end{tabular}
 \end{table*}
 \fi
+
+\begin{acknowledgements}
+Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with the developers of DALES, PALM, UCLA-LES and ICON. We thank Juan-Pedro Mellado for sharing his insights and his seven-banded matrix solver, and Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven cases.
+\end{acknowledgements}
 
 \bibliographystyle{copernicus}
 %\bibliography{../../misc/refs}
