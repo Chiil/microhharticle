@@ -24,7 +24,7 @@
 \linenumbers
 \raggedbottom
 
-\title{MicroHH 1.0: a computational fluid dynamics code for direct and large-eddy simulation of atmospheric boundary layer flows}
+\title{MicroHH 1.0: a computational fluid dynamics code for direct numerical simulation and large-eddy simulation of atmospheric boundary layer flows}
 
 
 \author[1,2]{Chiel C. van Heerwaarden}
@@ -65,13 +65,13 @@
 \maketitle  %% Please note that for the copernicus2.cls this command needs to be inserted after \abstract{TEXT}
 
 \begin{abstract}
-This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) computational fluid dynamics code for the simulation of wall-bounded turbulent flows in the atmosphere. It is primarily made for direct numerical simulation, but also supports large-eddy simulation (LES). The paper covers the description of the governing equations, their numerical implementation, and the parametrizations involved in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence tests and conservation tests and comparison of simulations of channel flows and slope flows against well-established test cases. The full numerical model, including the associated parametrizations for LES, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation, and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,768 processes. The Graphical Processing Unit-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
+This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) computational fluid dynamics code for the simulation of wall-bounded turbulent flows in the atmosphere. It is primarily made for direct numerical simulation, but also supports large-eddy simulation (LES). The paper covers the description of the governing equations, their numerical implementation, and the parametrizations included in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence and conservation tests, and comparison of simulations of channel flows and slope flows against well-established test cases. The full numerical model, including the associated parametrizations for LES, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation, and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,768 processes. The Graphical Processing Unit-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but the supports large-eddy simulation (LES) technique as well, with applications ranging from neutral channel flows to cloud-covered atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the aim of creating a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers, which are mostly written in Fortran 90.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the goal to create a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques. This is a key requirement for the code to be able to do DNS at very high Reynolds numbers. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers, which are mostly written in Fortran 90.
 
-This paper is built up as following: in Sect. \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Sect. \ref{sec:dyncorediscrete}. Subsequently, in Sect. \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Sect. \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previously studied flow cases (Sect. \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Sect. \ref{sec:performance}). After the  future plans (Sect. \ref{sec:future}) and the concluding remarks (Sect. \ref{sec:conclusion}), there is a short description where to find MicroHH, its tutorials and some animations (Sect. \ref{sec:howto}).
+This paper is built up as following: in Sect. \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Sect. \ref{sec:dyncorediscrete}. Subsequently, in Sect. \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Sect. \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previous studies (Sect. \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Sect. \ref{sec:performance}). After the  future plans (Sect. \ref{sec:future}) and the concluding remarks (Sect. \ref{sec:conclusion}), there is a short description where to get MicroHH, and where to find its tutorials and a selection of visualisations (Sect. \ref{sec:howto}).
 
 \section{Dynamical core: governing equations}\label{sec:dyncore}
 The dynamical core of MicroHH solves the conservation equations of mass, momentum, and energy under the anelastic approximation \citep{Bannon1996}. Under this approximation, the state variables density, pressure, and temperature are described as small fluctuations (denoted with a prime in this paper) from corresponding vertical reference profiles (denoted with subscript zero) that are functions of height only. This form of the approximation directly simplifies to the Boussinesq approximation if the reference density $\rho_0$ is assumed to be constant with height $z$. To facilitate the subsequent discussion of the conservation equations, we define the scale height for density $H_\rho$ based on the reference density profile
@@ -99,7 +99,7 @@ The momentum equation is written in the flux form, in order to assure the best p
 \end{eqnarray}
 where $p^\prime$ is the perturbation pressure, $\delta$ is the Kronecker delta, $g$ is the gravity acceleration, $\theta_v^\prime$ is the perturbation virtual potential temperature,  $\theta_{v0}$ the reference virtual potential temperature, $\nu$ the kinematic viscosity, and vector $F_i$ represents external forces resulting from parameterizations or large-scale forcings.
 
-The corresponding equation of state is (see \citet{Bannon1996} for the derivation)
+The corresponding equation of state is (see \citet{Bannon1996} for its derivation)
 \begin{eqnarray}
 \dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho_0 g H_{\rho}} - \dfrac{\rho'}{\rho_0}.\label{eq:statea}
 \end{eqnarray}
@@ -112,7 +112,7 @@ Under the Boussinesq approximation, the two equations simplify to
 \end{eqnarray}
 
 \subsection{Pressure equation}
-The equation to acquire the pressure is diagnostic, because density fluctuations are neglected in the conservation of mass in the anelastic equations (Eq. \ref{eq:consmassa}). To simplify the notation, we define a function $f \left( u_i \right)$ that contains all right-hand side terms of Eq. \ref{eq:consmoma}, except the pressure gradient. To arrive at the equation that allows us to solve for the pressure, we multiply the equation with the base density $\rho_0$ and take its divergence. Conservation of mass ensures that the tendency term vanishes, and an elliptic equation for pressure remains
+The equation to acquire the pressure is diagnostic, because density fluctuations are neglected in the mass conservation equation under the anelastic approximation (Eq. \ref{eq:consmassa}). To simplify the notation, we define a function $f \left( u_i \right)$ that contains all right-hand side terms of Eq. \ref{eq:consmoma}, except the pressure gradient. To arrive at the equation that allows us to solve for the pressure, we multiply the equation with the base density $\rho_0$ and take its divergence. Conservation of mass ensures that the tendency term vanishes, and an elliptic equation for pressure remains
 \begin{eqnarray}
 \dfrac{\partial}{\partial x_i} 
 \left[ \rho_0 \dfrac{\partial}{\partial x_i} \left( \dfrac{p'}{\rho_0} \right) \right] & = &
@@ -135,11 +135,11 @@ where $\kappa_\phi$ is the diffusivity of the scalar, and $S_\phi$ represents so
 
 \subsection{Conservation of energy}\label{sec:dyncore_energy}
 \label{sec:conservation_of_energy}
-MicroHH provides multiple options for the energy conservation equation. The conservation equation for  potential temperature for dry dynamics can be written as
+MicroHH provides multiple options for the energy conservation equation. The conservation equation for  potential temperature for dry dynamics $\theta$ can be written as
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\phi \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
 \end{eqnarray}
-where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ as sources or sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
+where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
 
 A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv (g/\theta_0)\theta^\prime$ as
 \begin{eqnarray}
@@ -172,8 +172,8 @@ where $f$ is a function that represents the computation of all right-hand side t
 
 For the third-order scheme the vectors $a_n$ and $b_n$ are
 \begin{eqnarray}
-a_n & = & \left\{0, -\frac{5}{9}, -\frac{153}{128} \right\}\\
-b_n & = & \left\{\frac{1}{3}, \frac{15}{16}, \frac{8}{15} \right\}
+a_n & = & \left\{0, -\frac{5}{9}, -\frac{153}{128} \right\},\\
+b_n & = & \left\{\frac{1}{3}, \frac{15}{16}, \frac{8}{15} \right\}.
 \end{eqnarray}
 
 For the fourth-order scheme the vectors $a$ and $b$ are
@@ -188,24 +188,24 @@ For the fourth-order scheme the vectors $a$ and $b$ are
 \frac{2277821191437}{14882151754819} \right\}
 \end{eqnarray}
 
-The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}).
+The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}). The code can be run with a fixed $\Delta t$, as well as an adaptive time step based on the local flow velocities.
 
 \subsection{Grid}
 MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
 
-The code can work with stretched grids in the vertical dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
+The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
 
 There is the option to apply a uniform translation velocity to the grid, thus to let the grid move with the flow. This so-called Galilean transformation is allowed as the Navier-Stokes equations are invariant under translation. It has the potential to allow for larger time steps and to increase the accuracy of simulations.
 
 \subsection{Building blocks of the spatial discretization}
-The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series spatial operators can be derived that constitute the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the elementary operators and the composite operators that can be derived from them. We use only two dimensions for brevity.
+The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series, spatial operators can be derived that constitute the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the elementary operators and the composite operators that can be derived from them. We use only two dimensions for brevity.
 
-We define two second-order interpolation operators, the former with a small stencil and the latter with a wide stencil, as
+We define two second-order interpolation operators, one with a small stencil and one with a wide stencil, as
 \begin{eqnarray}
 \phi_{i,j} \approx \widehat{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
 \phi_{i,j} \approx \widehat{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
 \end{eqnarray}
-Interpolations are marked with a hat. The superscript indicates the spatial order (2), and the direction ($x$) and has an extra qualifier $L$ when it is taken over a greater distance. The subscript indicates the position on the grid ($i,j$).
+Interpolations are marked with a hat. The superscript indicates the spatial order (2), and the direction ($x$) and has an extra qualifier $L$ when it is taken using the wide stencil. The subscript indicates the position on the grid ($i,j$).
 
 The gradient operators, denoted with letter $\delta$, are defined in a similar way
 \begin{eqnarray}
@@ -269,7 +269,8 @@ We use the previously introduced notation to describe the more complex operators
 \begin{eqnarray}
 \nonumber
 \left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j} + \left. \dfrac{\partial v \phi}{\partial y} \right|_{i,j} & \approx & 
-\delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} + \delta^{2y} \left( u \widehat{\phi}^{2y} \right)_{i,j} \\ 
+\delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} + \delta^{2y} \left( v \widehat{\phi}^{2y} \right)_{i,j} \\ 
+\nonumber
 & = & \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^{2x}_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^{2x}_{i-\frac{1}{2},j} }
             { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
 & + & \dfrac{ v_{i,j+\frac{1}{2}} \widehat{\phi}^{2y}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \widehat{\phi}^{2y}_{i,j-\frac{1}{2}} }
@@ -277,6 +278,7 @@ We use the previously introduced notation to describe the more complex operators
 \end{eqnarray}
 The discretization of the advection of the velocity components (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) involves extra interpolations as the following example illustrates:
 \begin{eqnarray}
+\nonumber
 \left. \dfrac{\partial v u}{\partial x} \right|_{i,j} & = & \delta^{2x} \left( \widehat{v}^{2y} \widehat{u}^{2x} \right)_{i,j} \\
 & = & \dfrac{ \widehat{v}^{2y}_{i+\frac{1}{2},j} \widehat{u}^{2x}_{i+\frac{1}{2},j} - \widehat{v}^{2y}_{i-\frac{1}{2},j} \widehat{u}^{2x}_{i-\frac{1}{2},j} }
       { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
@@ -319,7 +321,7 @@ To increase the overall accuracy of the second-order advection operator, there i
 \end{eqnarray}
 
 \subsection{Diffusion}
-We apply a mimetic discretization for the diffusion that can be written as the divergence of a gradient, using the building blocks defined earlier in this section. As this operator is identical in all directions, we present it in one direction only
+We apply a discretization for diffusion that can be written as the divergence of a gradient, using the building blocks defined earlier in this section. As this operator is identical in all directions, we present it in one direction only
 \begin{eqnarray}
 \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
 \kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j}\\
@@ -369,9 +371,9 @@ In order to compute the pressure, we multiply the previous equation with the ref
 \begin{eqnarray}
 \nonumber \left. \delta^{nx_i} \left( \rho_0 u_i\right) \right|^{t+1}_{i,j,k} & = & 
 \left. \delta^{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}\\
-& - &  \Delta t \left.\delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k}
+& - &  \Delta t \left.\delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k},
 \end{eqnarray}
-The left hand side equals zero due to mass conservation at the next time step (Eq. \ref{eq:consmassa}). The resulting equation is the Poisson equation that is the discrete equivalent of Eq. \ref{eq:presa}. Rewriting this equation leads to
+where $n$ indicates the spatial order, and the subscript $i$ in superscript $x_i$ indicates that $\delta^{nx_i}$ is a divergence operator. The left hand side equals zero due to mass conservation at the next time step (Eq. \ref{eq:consmassa}). The resulting equation is the Poisson equation that is the discrete equivalent of Eq. \ref{eq:presa}. Rewriting this equation leads to
 \begin{eqnarray}
 \dfrac{\left. \delta^{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}}{\Delta t}
 & = &  \left. \delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k}.
@@ -395,7 +397,7 @@ and
 where the former is the modified wave number for the second-order accurate solver and the latter is the wave number for the fourth-order one. Both expressions satisfy the limit
 $\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2$, where $n$ is the order of the scheme.
 
-Solving Eq. \ref{eq:presfourier} for $\widehat{\pi}$ requires solving a banded matrix, which is tridiagonal for the second-order solver and hepta-diagonal for the fourth-order solver. For this a standard Thomas algorithm is used. After the pressure is acquired, inverse Fourier transforms are applied and subsequently the pressure gradient term (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) is computed for all three components of the velocity tendency. Note that the computation of the corrected velocity components does not require a boundary condition for pressure (see \citet{Vreman2014} for details).
+Solving Eq. \ref{eq:presfourier} for $\widehat{\pi}$ requires solving a banded matrix, which is tridiagonal for the second-order solver and hepta-diagonal for the fourth-order solver. For this, a standard Thomas algorithm is used. After the pressure is acquired, inverse Fourier transforms are applied and subsequently the pressure gradient term (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) is computed for all three components of the velocity tendency. Note that the computation of the corrected velocity components does not require a boundary condition for pressure (see \citet{Vreman2014} for details).
 
 \subsection{Boundary conditions}
 The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form as the Robin boundary condition
@@ -410,23 +412,23 @@ MicroHH makes use of ghost cells in order to avoid the need of biased schemes fo
 \end{eqnarray}
 whereas those for the Neumann boundary condition are
 \begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & -c \left( - z_{-\frac{1}{2}} + z_{\frac{1}{2}} \right) + \phi_{\frac{1}{2}}
+\phi_{-\frac{1}{2}} & = & -c \left( - z_{-\frac{1}{2}} + z_{\frac{1}{2}} \right) + \phi_{\frac{1}{2}}.
 \end{eqnarray}
-In case of the fourth-order scheme, we have two ghost cells, and therefore a second boundary condition is required. Here we set the third-order derivative equal to zero (see \citet{Morinishi1998}). For the Dirichlet boundary condition we then acquire the following expressions for the ghost cells
+In case of the fourth-order scheme, we have two ghost cells, and therefore a second boundary condition is required. Here we set the third derivative equal to zero following \citep{Morinishi1998}. For the Dirichlet boundary condition we then acquire the following expressions for the ghost cells
 \begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & \dfrac{8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}}}{3} \\
+\phi_{-\frac{1}{2}} & = & \dfrac{8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}}}{3},\\
 \phi_{-\frac{3}{2}} & = & 8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}},
 \end{eqnarray}
 whereas in case of a Neumann boundary condition we find
 \begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{1}{2}} \\
-\phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}
+\phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{1}{2}},\\
+\phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}.
 \end{eqnarray}
 
 \section{Physical parameterizations}\label{sec:parametrizations}
 
 \subsection{Subfilter-scale model for large-eddy simulation}
-With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the finest scales. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
+With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the scales where molecular viscosity acts. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
 \begin{eqnarray}
 \nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
 - \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
@@ -453,32 +455,31 @@ and is proportional to the magnitude of $S$ of the strain tensor
 \begin{eqnarray}
 S_{ij} & \equiv & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right).
 \end{eqnarray}
-The subfilter eddy diffusivity thus takes into account the local stratification $N^2 \equiv (g/\theta_{v0})/(\partial \thetaf_v / \partial z)$. The length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}, as
+The subfilter eddy diffusivity thus takes into account the local stratification $N^2 \equiv (g/\theta_{v0})/(\partial \thetaf_v / \partial z)$ and the turbulent Prandtl number $Pr_t$. The latter is set to $\frac{1}{3}$ by default, but can be overridden in the settings. The length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}, as
 \begin{eqnarray}
-\dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\left( c_s \Delta \right)^n}
+\dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\left( c_s \Delta \right)^n},
 \end{eqnarray}
-which is an arbitrary ($n$ is a free parameter) matching function between the mixing length following wall scaling to the subfilter length scale (filter size) $\Delta \equiv (\Delta x \Delta y \Delta z)^\frac{1}{3}$, related to the grid spacing. In case of a high-Reynolds number atmospheric LES with an unresolved near-wall flow, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$  in the strain tensor are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory. Evaluation of these gradients is explained in detail in Section \ref{sec:surface_model}.
+which is an arbitrary ($n$ is a free parameter, set to 2 in MicroHH) matching function between the mixing length following wall scaling to the subfilter length scale (filter size) $\Delta \equiv (\Delta x \Delta y \Delta z)^\frac{1}{3}$, related to the grid spacing. In case of a high-Reynolds number atmospheric LES with an unresolved near-wall flow, the vertical gradients of the horizontal velocity components $\partial \uf_{i,j}/\partial z$  in the strain tensor are replaced with the theoretical gradients predicted from Monin-Obukhov similarity theory. Evaluation of these gradients is explained in detail in Section \ref{sec:surface_model}.
 
 The same approach is followed for all scalars, including the thermodynamic variables discussed in Sect. \ref{sec:dyncore_energy}:
 \begin{eqnarray}
-\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_{\phi,j}}{\partial x_j} + \widetilde{S}_\phi, \label{eq:consscal_filter}
+\dfrac{\partial \phif}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_j \phif}{\partial x_j} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 R_{\phi,j}}{\partial x_j} + \widetilde{S}_\phi. \label{eq:consscal_filter}
 \end{eqnarray}
-The term $R{\phi,j}$ refers to the subfilter flux of $\phif$ and is defined as
+The term $R_{\phi,j}$ refers to the subfilter flux of $\phif$ and is defined as
 \begin{eqnarray}
-R_{\phi,j} = \widetilde{u_j \phi} - \uf_j \phif
+R_{\phi,j} = \widetilde{u_j \phi} - \uf_j \phif.
 \end{eqnarray}
 The subfilter-scale flux is parameterized in terms of the gradient
 \begin{eqnarray}
-R_{\phi,j} = - \dfrac{K_m}{Pr_t} \dfrac{\partial \phif}{\partial x_j},
+R_{\phi,j} = - \dfrac{K_m}{Pr_t} \dfrac{\partial \phif}{\partial x_j}.
 \end{eqnarray}
-with the turbulent Prandtl number $Pr_t$ set to $\frac{1}{3}$ by default, but with the option to override it.
 
 \subsection{Surface model}\label{sec:surface_model}
-MicroHH uses a surface model to compute the surface fluxes of the horizontal momentum components and the scalars (including thermodynamic variables) in flows over rough surfaces at high Reynolds numbers, which is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that depend on the height of the first model level $z_1$ divided by the Obukhov length $L$ as an argument. Length $L$ is defined as
+MicroHH uses a surface model to compute the surface fluxes of the horizontal momentum components and the scalars (including thermodynamic variables) in flows over rough surfaces at high Reynolds numbers. This is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that depend on the height of the first model level $z_1$ divided by the Obukhov length $L$ as an argument. Length $L$ is defined as
 \begin{eqnarray}
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0},
 \end{eqnarray}
-$u_*$ is the friction velocity, $\kappa$ is the Von Karman constant and $B_0$ as the surface buoyancy flux. $L$ represents the height at which the buoyancy production/destruction of turbulence kinetic energy equals the shear production.
+where $u_*$ is the friction velocity, $\kappa$ is the Von Karman constant and $B_0$ is the surface buoyancy flux. $L$ represents the height at which the buoyancy production/destruction of turbulence kinetic energy equals the shear production.
 
 Following MOST, the friction velocity $u_*$ and the momentum fluxes may be related to the near-surface wind gradient as
 \begin{eqnarray}
@@ -498,7 +499,7 @@ with $f_m$ defined as:
 f_m & \equiv & \dfrac{\kappa}
 { \ln{\left( \dfrac{z_1}{z_{0m}} \right)}
 	- \varPsi_m \left( \dfrac{z_1}{L} \right)
-	+ \varPsi_m \left( \dfrac{z_{0m}}{L} \right) }
+	+ \varPsi_m \left( \dfrac{z_{0m}}{L} \right) },
 \end{eqnarray}
 with $\varPsi_m$ desribed in Eqs. \ref{eq:psiu} and \ref{eq:psis}.
 
@@ -517,7 +518,7 @@ f_h & \equiv &
 \dfrac{\kappa}
 { \ln{\left( \dfrac{z_1}{z_{0h}} \right)}
 	- \varPsi_h \left( \dfrac{z_1}{L} \right)
-	+ \varPsi_h \left( \dfrac{z_{0h}}{L} \right) }
+	+ \varPsi_h \left( \dfrac{z_{0h}}{L} \right) },
 \end{eqnarray}
 with $\varPsi_h$ desribed in Eqs. \ref{eq:psiu} and \ref{eq:psis}.
 
@@ -536,9 +537,9 @@ where $\zeta$ is the ratio of a height and the Obukhov length $L$, $\gamma_m = 3
 \end{eqnarray}
 where $\lambda_m = 4.8$ and $\lambda_h = 7.8$.
 
-With the equations above, the surface fluxes, surface values and near-surface gradients can be computed, but only when the Obukhov length $L$ is know. The surface model calculates the Obukhov length by relating the dimensionless parameter $z_1/ L$ to a Richardson number. The employed formulation of the Richardson number depends on the chosen boundary condition in the model. Three possible options are available:
+With the equations above, the surface fluxes, surface values and near-surface gradients can be computed, but only if the Obukhov length $L$ is known. The surface model calculates the Obukhov length by relating the dimensionless parameter $z_1/ L$ to a Richardson number. The employed formulation of the Richardson number depends on the chosen boundary condition in the model. Three possible options are available:
 \begin{itemize}
-	\item fixed momentum fluxes and a fixed surface buoyancy flux. Both the friction velocity $u_*$ and the surface buoyancy flux $B_0$ are specified. Under these conditions we define the Richardson number $Ri_a$ equal to $z_1/L$; $L$ can be computed directly from expression
+	\item fixed momentum fluxes and a fixed surface buoyancy flux. Both the friction velocity $u_*$ and the surface buoyancy flux $B_0$ are specified. Under these conditions we define the Richardson number $Ri_a$ equal to $z_1/L$; $L$ can be computed directly from the expression
 	\begin{equation}
 	Ri_a \equiv \dfrac{z_1}{L} = - \dfrac{\kappa z_1 B_0}{u_*^3}.
 	\end{equation}
