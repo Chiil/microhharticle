@@ -32,6 +32,7 @@
 \author[3]{Thijs Heus}
 \author[4]{Jeremy A. Gibbs}
 \author[5]{Evgeni Fedorovich}
+\author[2]{Juan-Pedro Mellado}
 
 \affil[1]{Meteorology and Air Quality Group, Wageningen University, Wageningen, The Netherlands}
 \affil[2]{Max Planck Institute for Meteorology, Hamburg, Germany}
@@ -41,15 +42,11 @@
 
 %% The [] brackets identify the author to the corresponding affiliation, 1, 2, 3, etc. should be inserted.
 
-
-
 \runningtitle{MicroHH 1.0}
 
 \runningauthor{van Heerwaarden et al.}
 
 \correspondence{Chiel van Heerwaarden\\ (chiel.vanheerwaarden@wur.nl)}
-
-
 
 \received{}
 \pubdiscuss{} %% only important for two-stage journals
@@ -58,7 +55,6 @@
 \published{}
 
 %% These dates will be inserted by the Publication Production Office during the typesetting process.
-
 
 \firstpage{1}
 
@@ -69,7 +65,7 @@ This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) 
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the goal to create a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques that are hard to implement into existing codes. This is a key requirement for the code to be able to do DNS at very high Reynolds numbers, or to do LES in domains that approach the synoptic scales. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers, which are mostly written in Fortran 90.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the goal to create a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques that are hard to implement into existing codes. This is a key requirement for the code to be able to do DNS at very high Reynolds numbers, or to do LES in domains that approach the synoptic scales. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers (e.g. PALM \citep{Maronga2017}, UCLA-LES , and DALES \citep{Heus2010}), which are mostly written in Fortran 90. 
 
 This paper is built up as following: in Sect. \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Sect. \ref{sec:dyncorediscrete}. Subsequently, in Sect. \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Sect. \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previous studies (Sect. \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Sect. \ref{sec:performance}). After the  future plans (Sect. \ref{sec:future}) and the concluding remarks (Sect. \ref{sec:conclusion}), there is a short description where to get MicroHH, and where to find its tutorials and a selection of visualisations (Sect. \ref{sec:howto}).
 
@@ -943,7 +939,7 @@ $N$ & Brunt-Vaissala frequency & s\\
 \fi
 
 \begin{acknowledgements}
-Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with many of the developers of DALES (Huug Ouwersloot, Stephan de Roode, Arnold Moene and Jordi Vil\`{a}-Guerau de Arellano), PALM (Bj\"{o}rn Maronga and Siegfried Raasch), UCLA-LES (Linda Schlemmer and Bjorn Stevens) and ICON (Leonidas Linardakis). We thank Juan-Pedro Mellado for sharing his insights and his seven-banded matrix solver, and Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven flows.
+Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with many of the developers of DALES (Huug Ouwersloot, Stephan de Roode, Arnold Moene and Jordi Vil\`{a}-Guerau de Arellano), PALM (Bj\"{o}rn Maronga and Siegfried Raasch), UCLA-LES (Linda Schlemmer and Bjorn Stevens) and ICON (Leonidas Linardakis). We thank Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven flows. The authors gratefully acknowledge the Gauss Centre for Supercomputing (GCS) for providing computing time for a GCS Large-Scale Project on the GCS share of the supercomputer JUQUEEN at Jülich Supercomputing Centre (JSC). 
 \end{acknowledgements}
 
 \bibliographystyle{copernicus}
