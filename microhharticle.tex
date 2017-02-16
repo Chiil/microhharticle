@@ -61,11 +61,11 @@
 \maketitle  %% Please note that for the copernicus2.cls this command needs to be inserted after \abstract{TEXT}
 
 \begin{abstract}
-This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) computational fluid dynamics code for the simulation of wall-bounded turbulent flows in the atmosphere. It is primarily made for direct numerical simulation, but also supports large-eddy simulation (LES). The paper covers the description of the governing equations, their numerical implementation, and the parametrizations included in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence and conservation tests, and comparison of simulations of channel flows and slope flows against well-established test cases. The full numerical model, including the associated parametrizations for LES, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation, and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,768 processes. The Graphical Processing Unit-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
+This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) computational fluid dynamics code for the simulation of turbulent flows in the atmosphere. It is primarily made for direct numerical simulation, but also supports large-eddy simulation (LES). The paper covers the description of the governing equations, their numerical implementation, and the parametrizations included in the code. Furthermore, the paper presents the validation of the dynamical core in the form of convergence and conservation tests, and comparison of simulations of channel flows and slope flows against well-established test cases. The full numerical model, including the associated parametrizations for LES, has been tested for a set of cases under stable and unstable conditions, under the Boussinesq and anelastic approximation, and with dry and moist convection under stationary and time-varying boundary conditions. The paper presents performance tests showing good scaling from 256 to 32,768 processes. The Graphical Processing Unit-enabled version of the code reaches speedups of more than an order of magnitude with respect to the conventional code for a variety of cases.
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of wall-bounded turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. The simulation algorithms have been designed and written from scratch with the goal to create a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques that are hard to implement into existing codes. This is a key requirement for the code to be able to do DNS at very high Reynolds numbers, or to do LES in domains that approach the synoptic scales. MicroHH has been written in C++ and CUDA, in contrast to the majority of its peers (e.g. PALM \citep{Maronga2017}, UCLA-LES , and DALES \citep{Heus2010}), which are mostly written in Fortran 90. 
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. MicroHH is written in C++ and the Graphical Processing Units-enabled parts of the code in CUDA. The simulation algorithms have been designed and are written from scratch with the goal to create a highly parallel code that is able to run on more than 10,000 processes with the support of modern techniques that are hard to implement into existing codes. This is a key requirement for the code to be able to do DNS at very high Reynolds numbers, or to do LES in domains that approach the synoptic scales. 
 
 This paper is built up as following: in Sect. \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Sect. \ref{sec:dyncorediscrete}. Subsequently, in Sect. \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Sect. \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previous studies (Sect. \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Sect. \ref{sec:performance}). After the  future plans (Sect. \ref{sec:future}) and the concluding remarks (Sect. \ref{sec:conclusion}), there is a short description where to get MicroHH, and where to find its tutorials and a selection of visualisations (Sect. \ref{sec:howto}).
 
@@ -76,7 +76,7 @@ H_{\rho} & \equiv & \left( \dfrac{1}{\rho_0} \dfrac{d \rho_0}{dz} \right)^{-1}.
 \end{eqnarray}
 
 \subsection{Conservation of mass}
-The conservation of mass is formulated as
+The conservation of mass is formulated using Einstein summation as
 \begin{eqnarray}
 \dfrac{\partial \rho_0 u_i}{\partial x_i} & = & \rho_0 \dfrac{\partial u_i}{\partial x_i} + \rho_0 w H_{\rho}^{-1} = 0, \label{eq:consmassa}
 \end{eqnarray}
@@ -133,11 +133,11 @@ where $\kappa_\phi$ is the diffusivity of the scalar, and $S_\phi$ represents so
 \label{sec:conservation_of_energy}
 MicroHH provides multiple options for the energy conservation equation. The conservation equation for  potential temperature for dry dynamics $\theta$ can be written as
 \begin{eqnarray}
-\dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\phi \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
+\dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\theta \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
 \end{eqnarray}
 where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
 
-A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv (g/\theta_0)\theta^\prime$ as
+A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv (g/\rho_0)\rho^\prime$ as
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} + \dfrac{\partial u_i u_j}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x_i} + \delta_{i3} b + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmombsimp},\\
@@ -421,6 +421,54 @@ whereas in case of a Neumann boundary condition we find
 \phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}.
 \end{eqnarray}
 
+\subsection{Thermodynamics}\label{sec:thermo}
+MicroHH supports the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature as thermodynamic variables (Sect. \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} = \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
+
+\begin{equation}
+\theta_\mathrm{l} \approx \theta - \frac{L_\mathrm{v}}{c_\mathrm{p} ~ \Pi} q_\mathrm{l}, 	
+\end{equation}
+
+\noindent where $L_\mathrm{v}$ is the latent heat of vaporization, $c_\mathrm{p}$ the specific heat of dry air at constant pressure, and $\Pi$ is the Exner function
+
+\begin{equation}
+\Pi = \left( \frac{p}{p_{00}} \right)^{R_\mathrm{d} / c_\mathrm{p}},
+\end{equation}
+
+\noindent where $p$ is the hydrostatic pressure, $p_\mathrm{00}$ a constant reference pressure, and $R_\mathrm{d}$ the gas constant for dry air. The cloud liquid water content is calculated as
+
+\begin{equation}
+q_\mathrm{l} = \mathrm{max}(0, ~q_\mathrm{t} - q_\mathrm{s}),
+\end{equation}
+
+\noindent where $q_\mathrm{s}$ is the saturation specific humidity
+
+\begin{equation}
+q_\mathrm{s} = \frac{\epsilon ~ e_\mathrm{s}}{p - (1-\epsilon) ~ e_\mathrm{s}},
+\end{equation}
+
+\noindent with $\epsilon$ the ratio between the gas constant for dry air and the gas constant for water vapour ($R_\mathrm{d}/R_\mathrm{v}$), and $e_\mathrm{s}$ the saturation vapor pressure. The latter is approximated using a 10$^\mathrm{th}$ order Taylor expansion at $T=$ 0 degree Celsius of the Arden Buck equation \citep{Buck1981}. $q_\mathrm{l}$ is adjusted iteratively to arrive at a consistent state where $q_\mathrm{v} = q_\mathrm{s}$. Finally, the virtual potential temperature (Eq. \ref{eq:consmoma}) is defined in MicroHH as 
+
+\begin{equation}
+\theta_\mathrm{v} \equiv  \theta \left(1-\left[1-\frac{R_\mathrm{v}}{R_\mathrm{d}}\right] q_\mathrm{t} - \frac{R_\mathrm{v}}{R_\mathrm{d}} q_\mathrm{l} \right)
+\end{equation}
+The base state pressure and density are calculated assuming a hydrostatic equilibrium: $\mathrm{d}p_0 = -\rho_0 g \mathrm{d}z$, with the density defined as $\rho_0 = p_0 / (R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0})$. Integration with height results in
+
+\begin{equation}
+p_{0;k+1} = p_{0;k} ~ \mathrm{exp}\left(\frac{-g (z_{k+1}-z_k)}{R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0}} \right )
+\end{equation}
+
+\noindent where $\theta_\mathrm{v0}$ is the average virtual potential temperature between $z_k$ and $z_{k+1}$. This equation is applied from a given surface pressure to the model top, alternating the calculations at the full and half model levels. That is, given the full thermodynamic state (pressure and density) at a full level $k$, the thermodynamic state can be advanced from the half level $k-\frac{1}{2}$ to $k+\frac{1}{2}$. Using the newly calculated state at $k+\frac{1}{2}$, pressure and density at $k+1$ can be calculated. 
+
+The base state density $\rho_0$ that is used in the dynamical core (Sect. \ref{sec:dyncore}) is calculated using the initial virtual potential temperature profile, and is not updated during the experiment. The density and hydrostatic pressure used in the moist thermodynamics can optionally be updated every time step.
+
+\subsection{Rotation}
+The effects of a rotating reference can be included through the Coriolis force. MicroHH can run on an $f$-plane, where the related tendencies of the two horizontal velocity components are calculated as
+\begin{eqnarray}
+\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k,F_\textrm{cor}} & = & f_0 v_{i,j,k},\\
+\left. \dfrac{\partial v}{\partial t}\right|_{i,j,k,F_\textrm{cor}} & = & -f_0 u_{i,j,k},
+\end{eqnarray}
+with $f_0$ as Coriolis parameter specified by the user.
+
 \section{Physical parameterizations}\label{sec:parametrizations}
 
 \subsection{Subfilter-scale model for large-eddy simulation}
@@ -471,7 +519,7 @@ R_{\phi,j} = - \dfrac{K_m}{Pr_t} \dfrac{\partial \phif}{\partial x_j}.
 \end{eqnarray}
 
 \subsection{Surface model}\label{sec:surface_model}
-MicroHH uses a surface model to compute the surface fluxes of the horizontal momentum components and the scalars (including thermodynamic variables) in flows over rough surfaces at high Reynolds numbers. This is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) that relates surface fluxes of variables to their near-surface gradients using empirical functions that depend on the height of the first model level $z_1$ divided by the Obukhov length $L$ as an argument. Length $L$ is defined as
+MicroHH uses a surface model to compute the surface fluxes of the horizontal momentum components and the scalars (including thermodynamic variables) in flows over rough surfaces at high Reynolds numbers. This is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) (see \citet{Wyngaard2010}) that relates surface fluxes of variables to their near-surface gradients using empirical functions that depend on the height of the first model level $z_1$ divided by the Obukhov length $L$ as an argument. Length $L$ is defined as
 \begin{eqnarray}
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0},
 \end{eqnarray}
@@ -518,7 +566,7 @@ f_h & \equiv &
 \end{eqnarray}
 with $\varPsi_h$ desribed in Eqs. \ref{eq:psiu} and \ref{eq:psis}.
 
-The functions $\phi_m$, $\phi_h$, $\varPsi_m$, and $\varPsi_h$ are empirical and depend on the static stability of the atmosphere. Under unstable conditions we follow \citet{Wilson2001, Wyngaard2010} 
+The functions $\phi_m$, $\phi_h$, $\varPsi_m$, and $\varPsi_h$ are empirical and depend on the static stability of the atmosphere. Under unstable conditions we follow \citep{Wilson2001, Wyngaard2010} 
 \begin{eqnarray}
 \phi_{m,h} & = & \left( 1 + \gamma_{m,h} \left| \zeta \right|^{2/3} \right)^{-1/2},\label{eq:phiu}\\
 %\phi_h & = & \left( 1 + \gamma_h \left| \zeta \right|^{2/3} \right)^{-1/2}\\
@@ -526,7 +574,7 @@ The functions $\phi_m$, $\phi_h$, $\varPsi_m$, and $\varPsi_h$ are empirical and
 %\Psi_m & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
 %\Psi_h & = & \left( 1 + (3.6 \frac{z}{L})^{2/3} \right)^{-\frac{1}{2}} \\
 \end{eqnarray}
-where $\zeta$ is the ratio of a height and the Obukhov length $L$, $\gamma_m = 3.6$ and $\gamma_h = 7.9$. Under stable conditions we use \citet{Hogstrom1988, Wyngaard2010}
+where $\zeta$ is the ratio of a height and the Obukhov length $L$, $\gamma_m = 3.6$ and $\gamma_h = 7.9$. Under stable conditions we use \citep{Hogstrom1988, Wyngaard2010}
 \begin{eqnarray}
 \phi_{m,h} & = & 1 + \lambda_{m,h} \zeta, \label{eq:phis}\\
 \varPsi_{m,h} & = & - \lambda_{m,h} \zeta, \label{eq:psis}
@@ -550,57 +598,7 @@ With the equations above, the surface fluxes, surface values and near-surface gr
 \end{itemize}
 In cases of the latter two options, a lookup table is created  with $L$ as a function of Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit.
 
-\subsection{Thermodynamics}\label{sec:thermo}
-
-MicroHH supports the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature as thermodynamic variables (Sect. \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} = \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
-
-\begin{equation}
-\theta_\mathrm{l} \approx \theta - \frac{L_\mathrm{v}}{c_\mathrm{p} ~ \Pi} q_\mathrm{l}, 	
-\end{equation}
-
-\noindent where $L_\mathrm{v}$ is the latent heat of vaporization, $c_\mathrm{p}$ the specific heat of dry air at constant pressure, and $\Pi$ is the Exner function
-
-\begin{equation}
-	\Pi = \left( \frac{p}{p_{00}} \right)^{R_\mathrm{d} / c_\mathrm{p}},
-\end{equation}
-
-\noindent where $p$ is the hydrostatic pressure, $p_\mathrm{00}$ a constant reference pressure, and $R_\mathrm{d}$ the gas constant for dry air. The cloud liquid water content is calculated as
-
-\begin{equation}
-	q_\mathrm{l} = \mathrm{max}(0, ~q_\mathrm{t} - q_\mathrm{s}),
-\end{equation}
-
-\noindent where $q_\mathrm{s}$ is the saturation specific humidity
-
-\begin{equation}
-	q_\mathrm{s} = \frac{\epsilon ~ e_\mathrm{s}}{p - (1-\epsilon) ~ e_\mathrm{s}},
-\end{equation}
-
-\noindent with $\epsilon$ the ratio between the gas constant for dry air and the gas constant for water vapour ($R_\mathrm{d}/R_\mathrm{v}$), and $e_\mathrm{s}$ the saturation vapor pressure. The latter is approximated using a 10$^\mathrm{th}$ order Taylor expansion at $T=$ 0 degree Celsius of the Arden Buck equation \citep{Buck1981}. $q_\mathrm{l}$ is adjusted iteratively to arrive at a consistent state where $q_\mathrm{v} = q_\mathrm{s}$. Finally, the virtual potential temperature (Eq. \ref{eq:consmoma}) is approximated as 
-
-\begin{equation}
-	\theta_\mathrm{v} \approx \theta \left(1-\left[1-\frac{R_\mathrm{v}}{R_\mathrm{d}}\right] q_\mathrm{t} - \frac{R_\mathrm{v}}{R_\mathrm{d}} q_\mathrm{l} \right)
-\end{equation}
-
-The base state pressure and density are calculated assuming a hydrostatic equilibrium: $\mathrm{d}p_0 = -\rho_0 g \mathrm{d}z$, with the density defined as $\rho_0 = p_0 / (R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0})$. Integration with height results in
-
-\begin{equation}
-	p_{0;k+1} = p_{0;k} ~ \mathrm{exp}\left(\frac{-g (z_{k+1}-z_k)}{R_\mathrm{d} ~ \Pi ~ \theta_\mathrm{v0}} \right )
-\end{equation}
-
-\noindent where $\theta_\mathrm{v0}$ is the average virtual potential temperature between $z_k$ and $z_{k+1}$. This equation is applied from a given surface pressure to the model top, alternating the calculations at the full and half model levels. That is, given the full thermodynamic state (pressure and density) at a full level $k$, the thermodynamic state can be advanced from the half level $k-\frac{1}{2}$ to $k+\frac{1}{2}$. Using the newly calculated state at $k+\frac{1}{2}$, pressure and density at $k+1$ can be calculated. 
-
-The base state density $\rho_0$ that is used in the dynamical core (Sect. \ref{sec:dyncore}) is calculated using the initial virtual potential temperature profile, and is not updated during the experiment. The density and hydrostatic pressure used in the moist thermodynamics can optionally be updated every time step.
-
 \subsection{Large-scale forcings}
-\subsubsection{Rotation}
-The effects of a rotating reference can be included through the Coriolis force. MicroHH can run on an $f$-plane, where the related tendencies of the two horizontal velocity components are calculated as
-\begin{eqnarray}
-\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k,F_\textrm{cor}} & = & f_0 v_{i,j,k},\\
-\left. \dfrac{\partial v}{\partial t}\right|_{i,j,k,F_\textrm{cor}} & = & -f_0 u_{i,j,k},
-\end{eqnarray}
-with $f_0$ as Coriolis parameter specified by the user.
-
 \subsubsection{Pressure force}
 MicroHH provides two options to introduce a large-scale pressure force into the model. The first is to enforce a constant massflux through the domain in the streamwise direction. In this approach the desired large-scale velocity $U_f$ is set, and the corresponding pressure gradient is computed. We follow here the approach of  \citet{vanReeuwijk2007}. In this approach, the $u$-component of the horizontal momentum equation (Eq. \ref{eq:consmoma}) is volume-averaged to acquire
 \begin{eqnarray}
@@ -654,7 +652,7 @@ It is possible to save two-dimensional cross sections and three-dimensional fiel
 
 \section{Technical details of the code}\label{sec:technical}
 \subsection{Code structure}
-MicroHH is written in C++ and uses elements of object-oriented programming. The code components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows code components and their extensions to reside in their own file, which increases code clarity and facilitates the merging of new code extensions. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of the \texttt{restrict} keyword to notify the compiler that fields do not overlap in memory. Furthermore, compiler-specific pragmas are used to aid vectorization on Intel compilers.
+MicroHH is written in C++ and uses elements of object-oriented programming and template metaprogramming. The code components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows code components and their extensions to reside in their own file, which increases code clarity and facilitates the merging of new code extensions. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of the \texttt{restrict} keyword to notify the compiler that fields do not overlap in memory. Furthermore, compiler-specific pragmas are used to aid vectorization on Intel compilers.
 
 \subsection{GPU}
 MicroHH is enabled to run on fast and energy-efficient Graphical Processing Units (GPU). This promising technique has been pioneered in atmospheric flows by \citet{Schalkwijk2012} and has shown its potential in weather forecasting \citep{Schalkwijk2015}. The implementation is based on NVIDIA's CUDA. The CPU and GPU version reside in the same code base, where the GPU implementation is activated with the help of precompiler statements. The philosophy is that the entire model is initialized on the CPU and that the GPU implementation is only activated right before starting the main time loop. At that stage the required fields are copied in double precision accuracy to the GPU, and the entire time integration is done there. Synchronization only happens when statistics have to be computed or when restart files or cross sections of flow fields are saved to disk, to ensure high performance.
@@ -739,7 +737,7 @@ To test the buoyancy routine and the option to put the domain on a slope, a lami
 The fluid, which was initially at rest, goes through a series of decaying oscillations after the negative buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{fig:prandtl}.
 
 \subsection{Turbulent channel flow}
-For fully turbulent flows, the solutions cannot be compared against any analytical testcases. Therefore, we validate our results against a channel flow at a Reynolds-$\tau$  number of 590 \citep{Moser1999} for means, variances, spectra, and second-order budget statistics (\texttt{cases/moser590}) .
+For fully turbulent flows, the numerical solutions cannot be compared against any analytical testcases. Therefore, we validate our results against a channel flow at a Reynolds-$\tau$  number of 590 \citep{Moser1999} for means, variances, spectra, and second-order budget statistics (\texttt{cases/moser590}). The case is run at a resolution of 768 $\times$ 384 $\times$ 256 grid points.
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
@@ -767,7 +765,7 @@ The findings in the previous paragraph are further corroborated by the spectra s
 \begin{center}
 \includegraphics[width=16.6cm]{figs/gmd_m590_spectra_4x1.pdf}\label{fig:moser_spectra}
 \end{center}
-\caption{Spectra of all velocity components and pressure compared against \citet{Moser1999}'s reference data at Reynolds-$\tau$ of 590. The velocity spectra are normalized with $u_\tau^{-2}$, the pressure spectra with $u_\tau^{-4}$}
+\caption{Spectra of all velocity components and pressure compared against \citet{Moser1999}'s reference data at Reynolds-$\tau$ of 590. The velocity spectra are normalized with $u_\tau^{-2}$, the pressure spectra with $u_\tau^{-4}$}\label{fig:moser_spectra}
 \end{figure*}
 
 \subsection{Turbulent katabatic flow}
@@ -842,7 +840,7 @@ Figure \ref{fig:gabls} shows the domain and time-averaged (over a period from 28
 	\begin{center}
 		\includegraphics[width=8.3cm]{figs/scaling.pdf}
 	\end{center}
-	\caption{Speed-up from a strong-scaling experiment (a). Efficiency from a weak-scaling experiments (b). Black lines indicate perfect speed-up and efficiency. }\label{fig:scaling}
+	\caption{Speed-up from a strong-scaling experiment (a). Efficiency from a weak-scaling experiments (b). Black lines indicate perfect speed-up and efficiency. The dashed red lines show the efficiency change relative to the previous measurement.}\label{fig:scaling}
 \end{figure}
 The parallel performance of MicroHH has been evaluated in strong- ($\texttt{cases/strongscaling}$) and weak-scaling ($\texttt{cases/weakscaling}$) experiments. The case used is direct numerical simulation of a buoyancy driven atmospheric boundary layer based on \citet{vanHeerwaarden2014}. For each simulation in the scaling experiments, a series of time steps is performed, and the mean cost per step is calculated over the series. The strong-scaling experiment has been performed on LRZ's SuperMUC\footnote{\url{https://www.lrz.de/services/compute/supermuc/}} machine. In this experiment simulations were performed on $1024 \times 1024 \times 1024$ and $2048 \times 2048 \times 1024$ grid points, with the number of processes increased throughout the scaling experiment. The weak-scaling experiment has been performed on Forschungszentrum J\"{u}lich's Juqueen\footnote{\url{http://www.fz-juelich.de/ias/jsc/EN/Expertise/Supercomputers/JUQUEEN/JUQUEEN_node.html}} machine. In this experiment, a fixed $64 \times 32 \times 1024$ grid is assigned to each processor and throughout the experiment the domain size is increased. The results of both experiments are shown in Figure \ref{fig:scaling}.
 
@@ -873,9 +871,9 @@ The GPU implementation of MicroHH allows for fast simulations on a single device
 The results shown in Table \ref{tab:gpu} point to the great potential of GPU computing. For the considered cases, which all fit on a single GPU, it takes at least 32 cores to reach equal performance. Only at 64 cores, the CPU simulations are notably faster. Therefore, for simulations that fit into its memory, the GPU provides an excellent alternative for the CPU, especially as the GPU is very energy efficient.
 
 \section{Future plans}\label{sec:future}
-Currently, there are several ongoing projects to extend the model. Currently, a parameterizations for microphysics has been developed, and an interactive land surface model is under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills.
+There are several ongoing projects to extend the model. Currently, a parameterizations for microphysics has been developed, and an interactive land surface model is under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills.
 
-Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax (\url{https://github.com/Chiil/stencilbuilder/}). This development has shown great potential, for two reasons. First, the DSL prevents discretization errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system-specific tuning, such as loop tiling or OpenMP.
+Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax (\url{https://github.com/Chiil/stencilbuilder/}). This development has shown great potential, for two reasons. First, the DSL prevents implementation errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system-specific tuning, such as loop tiling or OpenMP.
 
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
 This paper has presented a full description of MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown.
@@ -892,6 +890,7 @@ Table \ref{tab:constants} presents an overview of the chosen values for physical
 \tophline
 Symbol & Description & Value & Units \\
 \middlehline
+$\kappa$ & Von Karman constant & 0.4 & -\\
 $g$ & Gravitational acceleration & 9.81 & $\mathrm{m~s^{-2}}$\\
 $c_\mathrm{p}$ & Specific heat of dry air at constant pressure & 1005 & $\mathrm{J~kg^{-1}~K^{-1}}$\\
 $p_\mathrm{00}$ & Reference pressure & 1 $\cdot$ 10$^5$ & Pa\\
