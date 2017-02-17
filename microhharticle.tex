@@ -11,7 +11,8 @@
 
 
 %% copernicus.cls
-\documentclass[gmd]{copernicus}
+\documentclass[gmd,manuscript]{copernicus}
+%\documentclass[gmdd, hvmath, online]{copernicus_discussions}
 
 % A few handy shortcuts
 \newcommand{\uf}{\ensuremath{\widetilde{u}}}
@@ -22,10 +23,9 @@
 \begin{document}
 
 \linenumbers
-\raggedbottom
+%\raggedbottom
 
 \title{MicroHH 1.0: a computational fluid dynamics code for direct numerical simulation and large-eddy simulation of atmospheric boundary layer flows}
-
 
 \author[1,2]{Chiel C. van Heerwaarden}
 \author[1,2]{Bart J. H. van Stratum}
@@ -884,7 +884,7 @@ This paper has presented a full description of MicroHH, a new computational flui
 MicroHH has its own website at \url{http://microhh.org}. The code is hosted at GitHub and can be accessed either via the website, or directly from 
 \url{https://github.com/microhh/microhh}. The GitHub website includes a wiki with several tutorials, including one to compile and run the code. A selection of visualizations can be viewed at the MicroHH channel on Vimeo \url{https://vimeo.com/channels/microhh/}.
 
-\section{Appendix}
+\appendix \section{Appendix}
 Table \ref{tab:constants} presents an overview of the chosen values for physical constants in the code.
 \begin{table*}[t]
 \caption{Overview of used constants.}\label{tab:constants}
