@@ -88,19 +88,20 @@ Under the Boussinesq approximation ($H_{\rho}~\rightarrow~\infty$), Eq. \ref{eq:
 \dfrac{\partial u_i}{\partial x_i} & = & 0. \label{eq:consmassb}
 \end{eqnarray}
 
-\subsection{Conservation of momentum and the equation of state}
-The momentum equation is written in the flux form, in order to assure the best possible mass and momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted to arrive at the perturbation form
+\subsection{The equation of state and conservation of momentum}
+The equation of state under the anelastic approximation is (see \citet{Bannon1996} for its derivation)
+\begin{eqnarray}
+\dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho_0 g H_{\rho}} - \dfrac{\rho'}{\rho_0},\label{eq:statea}
+\end{eqnarray}
+where $\theta_v^\prime$ is the perturbation virtual potential temperature, $\theta_{v0}$ the reference virtual potential temperature, $p^\prime$ is the perturbation pressure, $g$ is the gravity acceleration, and $\rho^\prime$ is the perturbation density.
+
+The corresponding momentum equation is written in the flux form, in order to assure mass and momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted and Eq. \ref{eq:statea} has been used to introduce potential temperature as the buoyancy variable to formulate the conservation of momentum as
 \begin{eqnarray}
 \nonumber \dfrac{\partial u_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_i u_j}{\partial x_j} 
 - \dfrac{\partial}{\partial x_i}\left(\dfrac{p'}{\rho_0}\right) \\
 & + & \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + F_i,\label{eq:consmoma}
 \end{eqnarray}
-where $p^\prime$ is the perturbation pressure, $\delta$ is the Kronecker delta, $g$ is the gravity acceleration, $\theta_v^\prime$ is the perturbation virtual potential temperature,  $\theta_{v0}$ the reference virtual potential temperature, $\nu$ the kinematic viscosity, and vector $F_i$ represents external forces resulting from parameterizations or large-scale forcings.
-
-The corresponding equation of state is (see \citet{Bannon1996} for its derivation)
-\begin{eqnarray}
-\dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho_0 g H_{\rho}} - \dfrac{\rho'}{\rho_0}.\label{eq:statea}
-\end{eqnarray}
+where $\delta$ is the Kronecker delta, $\nu$ the kinematic viscosity, and vector $F_i$ represents external forces resulting from parameterizations or large-scale forcings.
 
 Under the Boussinesq approximation, the two equations simplify to
 \begin{eqnarray}
