@@ -138,7 +138,7 @@ MicroHH provides multiple options for the energy conservation equation. The cons
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\theta \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
 \end{eqnarray}
-where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
+where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details). In the dry mode, the Brunt-Vaissala frequency $N$ is defined as $N^2 \equiv \left(g/\theta_0\right) \left( \partial \theta/\partial z \right)$, whereas in the moist dynamics $N^2 \equiv \left(g/\theta_{v0}\right) \left( \partial \theta_v/\partial z \right)$.
 
 A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv -(g/\rho_0)\rho^\prime$ as
 \begin{eqnarray}
@@ -147,18 +147,18 @@ A third, more simplified mode, is available for dry dynamics under the Boussines
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
 \kappa_b \dfrac{\partial^2 b}{\partial x_j^2} + Q_b \label{eq:consenbsimp}.
 \end{eqnarray}
-with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ are external sources of buoyancy.
+with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. In this mode, $N$ is defined as $N^2 \equiv \partial b/\partial z$.
 
-With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ (positive anticlockwise) in the $x$-direction, take the proper gravity vector, and subtract the background buoyancy profile $N^2 z$ from the buoyancy value, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consenbsimp} becomes
+With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ (positive anticlockwise) in the $x$-direction, take the proper gravity vector, and define the buoyancy as $b \equiv -(g/\rho_0)\rho^\prime - N_0^2 z$, with $N_0^2$ as a prescribed background buoyancy profile, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consenbsimp} becomes
 \begin{eqnarray}
 \dfrac{\partial u}{\partial t} + \dfrac{\partial u_j u}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + \sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
 \dfrac{\partial w}{\partial t} + \dfrac{\partial u_j w}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial z} + \cos(\alpha) b + \nu \dfrac{\partial^2 w}{\partial x_j^2}\label{eq:conswslope},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
-\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N^2\label{eq:consbslope}
+\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N_0^2\label{eq:consbslope}
 \end{eqnarray}
-where the evolution equation of $v$ is omitted as it contains no changes.
+where the evolution equation of $v$ is omitted as it contains no changes. In this formulation, $N$ is defined as $N^2 \equiv \partial b/\partial z + N_0^2$.
 
 \section{Dynamical core: numerical implementation}\label{sec:dyncorediscrete}
 \subsection{Time integration}
