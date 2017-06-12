@@ -330,7 +330,7 @@ We apply a discretization for diffusion that can be written as the divergence of
 On an equidistant grid, this provides the well-known second-order accurate operator for the second derivative
 \begin{eqnarray}
 \kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j} =
-\kappa_\phi \dfrac{ \phi_{i-1,j} - 2 \phi_{i,j} + \phi_{i+1,j} }{\left( \Delta x \right)^2},
+\kappa_\phi \dfrac{ \phi_{i-1,j} - 2 \phi_{i,j} + \phi_{i+1,j} }{\left( \Delta x \right)^2},\label{eq:diff_2nd}
 \end{eqnarray}
 where $\Delta x$ is the uniform grid spacing.
 
@@ -340,7 +340,7 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 && \kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}\\
 \nonumber
 && = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
-&&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right).
+&&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right).\label{eq:diff_4th}
 \end{eqnarray}
 The seven point wide stencil and its properties has been discussed in detail in \citet{Castillo1995}.
 % \begin{eqnarray}
@@ -391,8 +391,7 @@ and
 {576 \left( \Delta x \right)^2}\\
 & - & \dfrac{1460}{576 \left( \Delta x \right)^2},
 \end{eqnarray}
-where the former is the modified wave number for the second-order accurate solver and the latter is the wave number for the fourth-order one. Both expressions satisfy the limit
-$\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2$, where $n$ is the order of the scheme.
+where the former is the modified wave number for the second-order accurate solver and the latter is the wave number for the fourth-order one. Note that the coeffecients correspond to those in Eqs. \ref{eq:diff_2nd} and \ref{eq:diff_4th}. Both expressions satisfy the limit $\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2$, where $n$ is the order of the scheme.
 
 Solving Eq. \ref{eq:presfourier} for $\widehat{\pi}$ requires solving a banded matrix for the vertical direction in which the walls are located. This matrix is tridiagonal for the second-order solver and hepta-diagonal for the fourth-order solver. For this, a standard Thomas algorithm \citep{Thomas1949} is used. After the pressure is acquired, inverse Fourier transforms are applied and subsequently the pressure gradient term (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) is computed for all three components of the velocity tendency. Note that the computation of the corrected velocity components does not require a boundary condition for pressure (see \citet{Vreman2014} for details).
 
@@ -473,7 +472,7 @@ with $f_0$ as Coriolis parameter specified by the user.
 \section{Physical parameterizations}\label{sec:parametrizations}
 
 \subsection{Subfilter-scale model for large-eddy simulation}
-With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the scales where molecular viscosity acts. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
+With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the scales where molecular viscosity acts. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. MicroHH uses the grid scale as an implicit filter, rather than applying explicit filtering. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
 \begin{eqnarray}
 \nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
 - \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
@@ -493,14 +492,14 @@ As $\tau_{ij}$ contains the filtered product of unfiltered velocity components, 
 \end{eqnarray}
 with $K_m$ interpreted as the subfilter eddy-diffusivity. This quantity is modeled as 
 \begin{eqnarray}
-K_m    & = & \lambda^2 \left( 2 S_{ij} S{ij} \right)^\frac{1}{2}
+K_m    & = & \lambda^2 \left( 2 S_{ij} S_{ij} \right)^\frac{1}{2}
 \left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2},
 \end{eqnarray}
 and is proportional to the magnitude of $S$ of the strain tensor
 \begin{eqnarray}
 S_{ij} & \equiv & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right).
 \end{eqnarray}
-The subfilter eddy diffusivity thus takes into account the local stratification $N^2 \equiv (g/\theta_{v0})/(\partial \thetaf_v / \partial z)$ and the turbulent Prandtl number $Pr_t$. The latter is set to $\frac{1}{3}$ by default, but can be overridden in the settings. The length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}, as
+The subfilter eddy diffusivity thus takes into account the local stratification $N^2$ and the turbulent Prandtl number $Pr_t$. The latter is set to $\frac{1}{3}$ by default, but can be overridden in the settings. The length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}, as
 \begin{eqnarray}
 \dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\left( c_s \Delta \right)^n},
 \end{eqnarray}
@@ -655,7 +654,7 @@ The code assigns one MPI task to each grid column using the MPI\_Cart\_create fu
 The input/output (IO) is entirely based on MPI-IO to ensure that three-dimensional fields and two-dimensional cross sections are stored as single files. We have chosen MPI-IO in order to limit the number of files resulting from simulations on a large number of processes and to allow for restarts on a different number of processes. In order to keep complexity of the IO as low as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write the fields.
 
 \subsection{External dependencies}
-MicroHH depends on several external software tools or libraries. It uses the CMake (\url{https://cmake.org}) build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines make use of netCDF software developed by UCAR/Unidata\footnote{\url{http://doi.org/10.5065/D6H70CW6}}. In order to run the provided test cases and their output scripts, a Python (\url{https://www.python.org}) installation including the NumPy (\url{http://www.numpy.org}) and Matplotlib (\url{https://matplotlib.org}) modules is required. Automatic documentation generation can be done using Doxygen (\url{http://doxygen.org}), but this is optional.
+MicroHH depends on several external software tools or libraries. It uses the CMake (\url{https://cmake.org}) build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines make use of netCDF software developed by UCAR/Unidata (\url{http://doi.org/10.5065/D6H70CW6}). In order to run the provided test cases and their output scripts, a Python (\url{https://www.python.org}) installation including the NumPy (\url{http://www.numpy.org}) and Matplotlib (\url{https://matplotlib.org}) modules is required. Automatic documentation generation can be done using Doxygen (\url{http://doxygen.org}), but this is optional.
 
 \section{Running simulations}\label{sec:running}
 \label{sec:running_simulations}
@@ -697,7 +696,7 @@ The two-dimensional Taylor-Green vortex (\texttt{cases/taylorgreen}) presents an
 \begin{eqnarray}
 u(x,z,t) & = & \sin(2\pi x) \cos(\pi z) f(t),\\
 w(x,z,t) & = & \cos(2\pi x) \sin(\pi z) f(t),\\
-p(x,z,t) & = & \tfrac{1}{4} \left(\sin(4 \pi x) + \sin(4 \pi y) \right) f(t)^2,
+p(x,z,t) & = & \tfrac{1}{4} \left(\sin(4 \pi x) + \sin(4 \pi z) \right) f(t)^2,
 \end{eqnarray}
 where $f(t) = 8 \pi^2 \nu t$.
 
@@ -707,7 +706,7 @@ We use the analytical form at $t=0$ as the initial condition and run this case f
 	\begin{center}
 		\includegraphics[width=8.3cm]{figs/taylorgreen.pdf}
 	\end{center}
-	\caption{Convergence of the spatial discretization error in the two-dimensional Taylor-Green vortex. Subscript $2$ indicates the second-order scheme, $4$ the most accurate fourth-order scheme, and $4M$ the fully energy-conserving fourth-order scheme. The dashed black line is the reference for second-order convergence, the dotted black line for fourth-order convergence.}\label{fig:taylorgreen}
+	\caption{Convergence of the spatial discretization error in the two-dimensional Taylor-Green vortex. Subscript $2$ indicates the second-order scheme, $4$ the most accurate fourth-order scheme, and $4M$ the fully energy-conserving fourth-order scheme. The dashed black line is the reference for second-order convergence, the dotted black lines indicate fourth-order convergence.}\label{fig:taylorgreen}
 \end{figure}
 
 Figure \ref{fig:taylorgreen} shows the error convergence of the simulations. The error for a variable $\phi$ is computed as $\sum \Delta x \Delta z \left| \phi_{i,k} - \phi_{\textrm{ref},i,k}, \right|$ over the two-dimensional domain, where $\Delta x$ and $\Delta z$ are the uniform grid spacings used in this case and $\phi_{\textrm{ref}}$ is the analytical solution. All variables converge according to the order of the numerical scheme. The fourth-order dynamical core loses accuracy at fine grid spacings. This is due to the boundary condition for the vertical velocity that sacrifies an order of accuracy to ensure global mass conservation \citep{Morinishi1998}.
@@ -872,7 +871,7 @@ The GPU implementation of MicroHH allows for fast simulations on a single device
 The results shown in Table \ref{tab:gpu} point to the great potential of GPU computing. For the considered cases, which all fit on a single GPU, it takes at least 32 cores to reach equal performance. Only at 64 cores, the CPU simulations are notably faster. Therefore, for simulations that fit into its memory, the GPU provides an excellent alternative for the CPU, especially as the GPU is very energy efficient.
 
 \section{Future plans}\label{sec:future}
-There are several ongoing projects to extend the model. Currently, a parameterizations for microphysics has been developed, and an interactive land surface model is under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills.
+There are several ongoing projects to extend the model. Currently, a parameterization for microphysics has been developed, and an interactive land surface model is under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills.
 
 Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax (\url{https://github.com/Chiil/stencilbuilder/}). This development has shown great potential, for two reasons. First, the DSL prevents implementation errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system-specific tuning, such as loop tiling or OpenMP.
 
