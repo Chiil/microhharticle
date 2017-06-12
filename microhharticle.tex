@@ -65,7 +65,7 @@ This paper describes MicroHH 1.0, a new and open source (\url{www.microhh.org}) 
 \end{abstract}
 
 \introduction  %% \introduction[modified heading if necessary]
-In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of turbulent flows, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. MicroHH is written in C++ and the Graphical Processing Units-enabled parts of the code in CUDA. The simulation algorithms have been designed and are written from scratch with the goal to create a fast and highly parallel code that is able to run on machines with more than 10,000 cores. This is a key requirement for the code to be able to perform DNS at very high Reynolds numbers, or to do LES in domains that approach the synoptic scales. We decided to start from scratch, in order to be able to use C++ and its extensive possibilities in object oriented- and metaprogramming. Furthermore, the implementation of a dynamical core that is fully fourth-order in space, which is very beneficial for DNS, but to retain the option to switch to second-order accuracy for LES, required a new code design.
+In this paper we present a description of MicroHH 1.0, a new Computational Fluid Dynamics code for the simulation of turbulent flows in doubly periodic domains, with a focus on those in the atmosphere. MicroHH is designed for the direct numerical simulation (DNS) technique, but also supports the large-eddy simulation (LES) technique. Its applications range from neutral channel flows to cloudy atmospheric boundary layers in large domains. MicroHH is written in C++ and the Graphical Processing Units-enabled parts of the code in CUDA. The simulation algorithms have been designed and are written from scratch with the goal to create a fast and highly parallel code that is able to run on machines with more than 10,000 cores. This is a key requirement for the code to be able to perform DNS at very high Reynolds numbers, or to do LES in domains that approach the synoptic scales. We decided to start from scratch, in order to be able to use C++ and its extensive possibilities in object oriented- and metaprogramming. Furthermore, the implementation of a dynamical core that is fully fourth-order in space, which is very beneficial for DNS, but to retain the option to switch to second-order accuracy for LES, required a new code design.
 
 Even though we started from scratch, many of the ideas are the results of our experiences with order codes. Here, DALES \citep{Heus2010}, UCLA-LES \citep{Stevens2005}, and PALM \citep{Maronga2015}, deserve a reference as MicroHH could not have been possible without those.
 
@@ -137,16 +137,16 @@ MicroHH provides multiple options for the energy conservation equation. The cons
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\theta \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
 \end{eqnarray}
-where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
+where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details).
 
 A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv -(g/\rho_0)\rho^\prime$ as
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} + \dfrac{\partial u_i u_j}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x_i} + \delta_{i3} b + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmombsimp},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
-\kappa_b \dfrac{\partial^2 b}{\partial x_j^2}\label{eq:consenbsimp}.
+\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} + Q_b \label{eq:consenbsimp}.
 \end{eqnarray}
-with $\kappa_b$ being the diffusivity for buoyancy.
+with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ are external sources of buoyancy.
 
 With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ (positive anticlockwise) in the $x$-direction, take the proper gravity vector, and subtract the background buoyancy profile $N^2 z$ from the buoyancy value, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consenbsimp} becomes
 \begin{eqnarray}
@@ -189,9 +189,7 @@ For the fourth-order scheme the vectors $a$ and $b$ are
 The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}). The code can be run with a fixed $\Delta t$, as well as an adaptive time step based on the local flow velocities.
 
 \subsection{Grid}
-MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces.
-
-The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
+MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces. The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
 
 There is the option to apply a uniform translation velocity to the grid, thus to let the grid move with the flow. This so-called Galilean transformation is allowed as the Navier-Stokes equations are invariant under translation. It has the potential to allow for larger time steps and to increase the accuracy of simulations.
 
@@ -357,23 +355,23 @@ The seven point wide stencil and its properties has been discussed in detail in 
 \subsection{Pressure}
 Eqs. \ref{eq:presa} and \ref{eq:presb} are solved following the method of \citet{Chorin1968}. This is a fractional step method that first computes intermediate values of the velocity components for the next time step, based on all right hand side terms of the momentum conservation equation Eq. \ref{eq:consmoma}
 \begin{eqnarray}
-\left. \widetilde{u_i} \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k},
+\left. u_i^* \right|^{t+1}_{i,j,k} & = & \left. u_i \right|^{t}_{i,j,k} + \Delta t \left. f_i \right|^{t}_{i,j,k},
 \end{eqnarray}
-with the intermediate velocity components denoted with a tilde.
+with the intermediate velocity components denoted with an asterix.
 
 The velocity values at the next time step can be computed as soon as the pressure is known, using
 \begin{eqnarray}
-\left. u_i\right|^{t+1}_{i,j,k} & = & \left. \widetilde{u_i} \right|^{t+1}_{i,j,k} - \Delta t \left. \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right)\right|^t_{i,j,k}.
+\left. u_i\right|^{t+1}_{i,j,k} & = & \left. u_i^* \right|^{t+1}_{i,j,k} - \Delta t \left. \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right)\right|^t_{i,j,k}.
 \end{eqnarray}
 In order to compute the pressure, we multiply the previous equation with the reference density and take its gradient, arriving at
 \begin{eqnarray}
 \nonumber \left. \delta^{nx_i} \left( \rho_0 u_i\right) \right|^{t+1}_{i,j,k} & = & 
-\left. \delta^{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}\\
+\left. \delta^{nx_i} \left( \rho_0 u_i^* \right) \right|^{t+1}_{i,j,k}\\
 & - &  \Delta t \left.\delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k},
 \end{eqnarray}
 where $n$ indicates the spatial order, and the subscript $i$ in superscript $x_i$ indicates that $\delta^{nx_i}$ is a divergence operator. The left hand side equals zero due to mass conservation at the next time step (Eq. \ref{eq:consmassa}). The resulting equation is the Poisson equation that is the discrete equivalent of Eq. \ref{eq:presa}. Rewriting this equation leads to
 \begin{eqnarray}
-\dfrac{\left. \delta^{nx_i} \left( \rho_0 \widetilde{u_i} \right) \right|^{t+1}_{i,j,k}}{\Delta t}
+\dfrac{\left. \delta^{nx_i} \left( \rho_0 u_i^* \right) \right|^{t+1}_{i,j,k}}{\Delta t}
 & = &  \left. \delta^{nx_i} \left[ \rho_0 \delta^{nx_i}\left( \dfrac{p}{\rho_0}\right) \right] \right|^t_{i,j,k}.
 \end{eqnarray}
 To simplify the notation, we denote the left-hand side term as $\psi$ and the $p / \rho_0$ term on the right hand side as $\pi$. Solving a Poisson equation is a global operation. Because the computed fields are periodic in the horizontal directions on an equidistant grid, and a Poisson equation is linear, we can perform a Fourier transform in the two horizontal directions
@@ -525,7 +523,7 @@ MicroHH uses a surface model to compute the surface fluxes of the horizontal mom
 \begin{eqnarray}
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0},
 \end{eqnarray}
-where $u_*$ is the friction velocity, $\kappa$ is the Von Karman constant and $B_0$ is the surface buoyancy flux. $L$ represents the height at which the buoyancy production/destruction of turbulence kinetic energy equals the shear production.
+where $u_*$ is the friction velocity, $\kappa$ is the Von Karman constant and $B_0$ is the surface kinematic buoyancy flux. $L$ represents the height at which the buoyancy production/destruction of turbulence kinetic energy equals the shear production.
 
 Following MOST, the friction velocity $u_*$ and the momentum fluxes may be related to the near-surface wind gradient as
 \begin{eqnarray}
