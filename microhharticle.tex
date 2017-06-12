@@ -199,10 +199,10 @@ The spatial operators are based on finite differences. The code supports second-
 
 We define two second-order interpolation operators, one with a small stencil and one with a wide stencil, as
 \begin{eqnarray}
-\phi_{i,j} \approx \widehat{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
-\phi_{i,j} \approx \widehat{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
+\phi_{i,j} \approx \overline{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
+\phi_{i,j} \approx \overline{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
 \end{eqnarray}
-Interpolations are marked with a hat. The superscript indicates the spatial order (2), and the direction ($x$) and has an extra qualifier $L$ when it is taken using the wide stencil. The subscript indicates the position on the grid ($i,j$).
+Interpolations are marked with a bar. The superscript indicates the spatial order (2), and the direction ($x$) and has an extra qualifier $L$ when it is taken using the wide stencil. The subscript indicates the position on the grid ($i,j$).
 
 The gradient operators, denoted with letter $\delta$, are defined in a similar way
 \begin{eqnarray}
@@ -224,11 +224,11 @@ We use the Einstein summation in the operators. For instance, the divergence of 
 
 The fourth-order operators, written down in the same notation, are defined as
 \begin{eqnarray}
-\phi_{i,j} \approx \widehat{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}.\label{eq:interp4}
+\phi_{i,j} \approx \overline{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}.\label{eq:interp4}
 \end{eqnarray}
 The biased version of this operator (subscript $b$) can be applied in the vicinity of the boundaries 
 \begin{eqnarray}
-\phi_{i,j} \approx \widehat{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}.
+\phi_{i,j} \approx \overline{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}.
 \end{eqnarray}
 Note that we only write down the bottom boundary for brevity.
 
@@ -266,28 +266,28 @@ We use the previously introduced notation to describe the more complex operators
 \begin{eqnarray}
 \nonumber
 \left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j} + \left. \dfrac{\partial v \phi}{\partial y} \right|_{i,j} & \approx & 
-\delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} + \delta^{2y} \left( v \widehat{\phi}^{2y} \right)_{i,j} \\ 
+\delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j} + \delta^{2y} \left( v \overline{\phi}^{2y} \right)_{i,j} \\ 
 \nonumber
-& = & \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^{2x}_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^{2x}_{i-\frac{1}{2},j} }
+& = & \dfrac{ u_{i+\frac{1}{2},j} \overline{\phi}^{2x}_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \overline{\phi}^{2x}_{i-\frac{1}{2},j} }
             { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
-& + & \dfrac{ v_{i,j+\frac{1}{2}} \widehat{\phi}^{2y}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \widehat{\phi}^{2y}_{i,j-\frac{1}{2}} }
+& + & \dfrac{ v_{i,j+\frac{1}{2}} \overline{\phi}^{2y}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \overline{\phi}^{2y}_{i,j-\frac{1}{2}} }
             { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }
 \end{eqnarray}
 The discretization of the advection of the velocity components (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) involves extra interpolations as the following example illustrates:
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial v u}{\partial x} \right|_{i,j} & = & \delta^{2x} \left( \widehat{v}^{2y} \widehat{u}^{2x} \right)_{i,j} \\
-& = & \dfrac{ \widehat{v}^{2y}_{i+\frac{1}{2},j} \widehat{u}^{2x}_{i+\frac{1}{2},j} - \widehat{v}^{2y}_{i-\frac{1}{2},j} \widehat{u}^{2x}_{i-\frac{1}{2},j} }
+\left. \dfrac{\partial v u}{\partial x} \right|_{i,j} & = & \delta^{2x} \left( \overline{v}^{2y} \overline{u}^{2x} \right)_{i,j} \\
+& = & \dfrac{ \overline{v}^{2y}_{i+\frac{1}{2},j} \overline{u}^{2x}_{i+\frac{1}{2},j} - \overline{v}^{2y}_{i-\frac{1}{2},j} \overline{u}^{2x}_{i-\frac{1}{2},j} }
       { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
 \end{eqnarray}
 In the standard fourth-order scheme, the scalar advection in flux form is represented by
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \delta^{4x} \left( u \widehat{\phi}^{4x} \right)_{i,j} \\
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \delta^{4x} \left( u \overline{\phi}^{4x} \right)_{i,j} \\
 \nonumber
-& = & \left( u_{i-\frac{3}{2},j} \widehat{\phi}^{4x}_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \widehat{\phi}^{4x}_{i-\frac{1}{2},j} \right.\\
+& = & \left( u_{i-\frac{3}{2},j} \overline{\phi}^{4x}_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \overline{\phi}^{4x}_{i-\frac{1}{2},j} \right.\\
 \nonumber
-&   &\left. + 27 u_{i+\frac{1}{2},j} \widehat{\phi}^{4x}_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \widehat{\phi}^{4x}_{i+\frac{3}{2},j} \right)\\
+&   &\left. + 27 u_{i+\frac{1}{2},j} \overline{\phi}^{4x}_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \overline{\phi}^{4x}_{i+\frac{3}{2},j} \right)\\
 &   &\slash \left( x_{i-\frac{3}{2}} - 27 x_{i-\frac{1}{2}} + 27 x_{i+\frac{1}{2}} - x_{i+\frac{3}{2}} \right).
 \end{eqnarray}
 Hereafter, we assume that operator notation is clear and only expand it where necessary.
@@ -305,8 +305,8 @@ MicroHH has a fully energy-conserving fourth-order advection scheme \citep{Morin
 \end{eqnarray}
 Velocity interpolations, such as those in Eq. \ref{eq:advec2u}, still need to be performed with fourth-order accuracy (Eq. \ref{eq:interp4}) in order to  be fourth-order accurate (see \citet{Morinishi1998} for details). The expression
 \begin{eqnarray}
-\left. \dfrac{\partial v u}{\partial x}\right|_{i,j} \approx \frac{9}{8} \delta^{2x} \left( \widehat{v}^{4y} \widehat{u}^{2x} \right)_{i,j} 
-                                       - \frac{1}{8} \delta^{2xL} \left( \widehat{v}^{4y} \widehat{u}^{2xL} \right)_{i,j}
+\left. \dfrac{\partial v u}{\partial x}\right|_{i,j} \approx \frac{9}{8} \delta^{2x} \left( \overline{v}^{4y} \overline{u}^{2x} \right)_{i,j} 
+                                       - \frac{1}{8} \delta^{2xL} \left( \overline{v}^{4y} \overline{u}^{2xL} \right)_{i,j}
 \end{eqnarray}
 includes, for instance, a combination of second- and fourth-order interpolations.
 
@@ -314,7 +314,7 @@ To increase the overall accuracy of the second-order advection operator, there i
 \begin{eqnarray}
 \left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j}
 & \approx & 
-\delta^{2x} \left( u \widehat{\phi}^{4x} \right)_{i,j}.
+\delta^{2x} \left( u \overline{\phi}^{4x} \right)_{i,j}.
 \end{eqnarray}
 
 \subsection{Diffusion}
