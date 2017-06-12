@@ -295,12 +295,12 @@ Hereafter, we assume that operator notation is clear and only expand it where ne
 MicroHH has a fully energy-conserving fourth-order advection scheme \citep{Morinishi1998} available. This scheme is constructed by interpolation of two energy-conserving second-order schemes to eliminate the second-order error as illustrated below
 \begin{eqnarray}
 % \nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \frac{9}{8} \delta^{2x} \left( u \widehat{\phi}^{2x} \right)_{i,j} 
-                                                             - \frac{1}{8} \delta^{2xL} \left( u \widehat{\phi}^{2xL} \right)_{i,j}%\\
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \frac{9}{8} \delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j} 
+                                                             - \frac{1}{8} \delta^{2xL} \left( u \overline{\phi}^{2xL} \right)_{i,j}%\\
 % \nonumber
-% & = & \frac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \widehat{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \widehat{\phi}^x_{i-\frac{1}{2},j} }
+% & = & \frac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \overline{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \overline{\phi}^x_{i-\frac{1}{2},j} }
 %                           { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
-% & - & \frac{1}{16} \dfrac{ u_{i+\frac{3}{2},j} \widehat{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \widehat{\phi}^{3x}_{i-\frac{3}{2},j} }
+% & - & \frac{1}{16} \dfrac{ u_{i+\frac{3}{2},j} \overline{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \overline{\phi}^{3x}_{i-\frac{3}{2},j} }
 %                           { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }
 \end{eqnarray}
 Velocity interpolations, such as those in Eq. \ref{eq:advec2u}, still need to be performed with fourth-order accuracy (Eq. \ref{eq:interp4}) in order to  be fourth-order accurate (see \citet{Morinishi1998} for details). The expression
