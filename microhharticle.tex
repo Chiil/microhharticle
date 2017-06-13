@@ -342,7 +342,7 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 && = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
 &&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right).\label{eq:diff_4th}
 \end{eqnarray}
-The seven point wide stencil and its properties has been discussed in detail in \citet{Castillo1995}.
+Whereas diffusion can be fourth-order accurate computed using a five-point stencil, we have chosen for a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
 % \begin{eqnarray}
 % \nonumber
 % \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & = & \kappa_\phi
@@ -492,10 +492,10 @@ As $\tau_{ij}$ contains the filtered product of unfiltered velocity components, 
 \end{eqnarray}
 with $K_m$ interpreted as the subfilter eddy-diffusivity. This quantity is modeled as 
 \begin{eqnarray}
-K_m    & = & \lambda^2 \left( 2 S_{ij} S_{ij} \right)^\frac{1}{2}
+K_m    & = & \lambda^2 S
 \left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2},
 \end{eqnarray}
-and is proportional to the magnitude of $S$ of the strain tensor
+and is proportional to the magnitude $S \equiv \left( 2 S_{ij} S_{ij} \right)^\frac{1}{2}$ of the strain tensor $S_{ij}$, which is defined as
 \begin{eqnarray}
 S_{ij} & \equiv & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right).
 \end{eqnarray}
@@ -543,7 +543,7 @@ with $f_m$ defined as:
 f_m & \equiv & \dfrac{\kappa}
 { \ln{\left( \dfrac{z_1}{z_{0m}} \right)}
 	- \varPsi_m \left( \dfrac{z_1}{L} \right)
-	+ \varPsi_m \left( \dfrac{z_{0m}}{L} \right) },
+	+ \varPsi_m \left( \dfrac{z_{0m}}{L} \right) }, \label{eq:fm}
 \end{eqnarray}
 with $\varPsi_m$ desribed in Eqs. \ref{eq:psiu} and \ref{eq:psis}.
 
@@ -562,7 +562,7 @@ f_h & \equiv &
 \dfrac{\kappa}
 { \ln{\left( \dfrac{z_1}{z_{0h}} \right)}
 	- \varPsi_h \left( \dfrac{z_1}{L} \right)
-	+ \varPsi_h \left( \dfrac{z_{0h}}{L} \right) },
+	+ \varPsi_h \left( \dfrac{z_{0h}}{L} \right) }, \label{eq:fh}
 \end{eqnarray}
 with $\varPsi_h$ desribed in Eqs. \ref{eq:psiu} and \ref{eq:psis}.
 
@@ -596,7 +596,7 @@ With the equations above, the surface fluxes, surface values and near-surface gr
 	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(\widetilde{b}_1 - \widetilde{b}_0 \right)}{ \left(U_1 - U_0 \right)^2}.
 	\end{equation}
 \end{itemize}
-In cases of the latter two options, a lookup table is created  with $L$ as a function of Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit.
+In cases of the latter two options, a solver is required to find the $L$ that satisfies the equation, as $f_m$ (Eq. \ref{eq:fm}) and $f_h$ (Eq.  \ref{eq:fh}) both depend on $L$ as well. For performance reasons, we have chosen for a lookup table that relates $L$ to the Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit. 
 
 \subsection{Large-scale forcings}
 \subsubsection{Pressure force}
@@ -619,7 +619,7 @@ The second option is to enforce a large-scale pressure force through the geostro
 where $u_{g;k}$ and $v_{g;k}$ as user-specified vertical profiles of geostrophic wind components.
 
 \subsubsection{Large-scale sources and sinks}
-Large-scale sources and sinks, representing for instance large-scale adveciton or radiative cooling, can be prescribed for each variable separately. The user has to provide vertical profiles of large-scale tendencies $S_{\phi;ls}$ that are added to the total tendencies.
+Large-scale sources and sinks, representing for instance large-scale advection or radiative cooling, can be prescribed for each variable separately. The user has to provide vertical profiles of large-scale tendencies $S_{\phi;ls}$ that are added to the total tendencies.
 
 \subsubsection{Large-scale vertical velocity}
 A second method of introducing large-scale thermodynamic effects is through the inclusion of a large-scale vertical velocity. In this case, each scalar gets an additional tendency term of the form
@@ -644,14 +644,12 @@ where $\sigma$ is the damping frequency chosen by the user and $\beta$ an expone
 MicroHH is written in C++ and uses elements of object-oriented programming and template metaprogramming. The code components are written in classes that define the interface. Inheritance is used to allow for specializations of classes. This way of organizing the code has two advantages: it minimizes switches and it allows code components and their extensions to reside in their own file, which increases code clarity and facilitates the merging of new code extensions. High performance of computational kernels is achieved by executing kernels in their own function, with explicit inclusions of the \texttt{restrict} keyword to notify the compiler that fields do not overlap in memory. Furthermore, compiler-specific pragmas are used to aid vectorization on Intel compilers.
 
 \subsection{GPU}
-MicroHH is enabled to run on fast and energy-efficient Graphical Processing Units (GPU). This promising technique has been pioneered in atmospheric flows by \citet{Schalkwijk2012} and has shown its potential in weather forecasting \citep{Schalkwijk2015}. The implementation is based on NVIDIA's CUDA. The CPU and GPU version reside in the same code base, where the GPU implementation is activated with the help of precompiler statements. The philosophy is that the entire model is initialized on the CPU and that the GPU implementation is only activated right before starting the main time loop. At that stage the required fields are copied in double precision accuracy to the GPU, and the entire time integration is done there. Synchronization only happens when statistics have to be computed or when restart files or cross sections of flow fields are saved to disk, to ensure high performance.
+MicroHH is enabled to run on fast and energy-efficient Graphical Processing Units (GPU). This promising technique has been pioneered in atmospheric flows by \citet{Schalkwijk2012} and has shown its potential in weather forecasting \citep{Schalkwijk2015}. The implementation is based on NVIDIA's CUDA. The CPU and GPU version reside in the same code base, where the GPU implementation is activated with the help of precompiler statements. The philosophy is that the entire model is initialized on the CPU and that the GPU implementation is only activated right before starting the main time loop.  At that moment, the required fields are copied in double precision accuracy to the GPU, and the entire time integration is done there. Synchronization only happens when statistics have to be computed or when restart files or cross sections of flow fields are saved to disk, to ensure high performance. The design choice to do the entire initialization on the GPU minimizes the amount of GPU code, and therefore allows for maintaining a single code base for the CPU and GPU code.
 
 \subsection{Parallelization}
-The code uses the Message Passing Interface (MPI) in order to run on a large number of cores. The three-dimensional simulation domain is split into vertically-oriented columns standing on a two-dimensional grid.
+The code uses the Message Passing Interface (MPI) in order to run on a large number of cores. The three-dimensional simulation domain is split into vertically-oriented columns standing on a two-dimensional grid. The code assigns one MPI task to each grid column using the MPI\_Cart\_create function, and uses this grid to detect the IDs of neighboring processes. In order to avoid complex packing routines, we make use of MPI datatypes wherever possible. The MPI calls are hidden in an interface to avoid the need to manually write MPI calls.
 
-The code assigns one MPI task to each grid column using the MPI\_Cart\_create function, and uses this grid to detect the IDs of neighboring processes. In order to avoid complex packing routines, we make use of MPI datatypes wherever possible. The MPI calls are hidden in an interface to avoid the need to manually write MPI calls.
-
-The input/output (IO) is entirely based on MPI-IO to ensure that three-dimensional fields and two-dimensional cross sections are stored as single files. We have chosen MPI-IO in order to limit the number of files resulting from simulations on a large number of processes and to allow for restarts on a different number of processes. In order to keep complexity of the IO as low as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write the fields.
+The input/output (IO) is entirely based on MPI-IO, the parallel writing framework that comes with MPI, to ensure that three-dimensional fields and two-dimensional cross sections are stored as single files. We have chosen MPI-IO in order to limit the number of files resulting from simulations on a large number of processes and to allow for restarts on a different number of processes. In order to keep complexity of the IO as low as possible, we make use of the MPI\_Sub\_array function in combination with MPI\_File\_write\_all in order to write the fields.
 
 \subsection{External dependencies}
 MicroHH depends on several external software tools or libraries. It uses the CMake (\url{https://cmake.org}) build system for the generation of Makefiles. CMake allows for parallel builds, which minimizes the compilation time, and it is easy to add configurations for different machines. Furthermore, the FFTW3 library \citep{Frigo2005} is used for the computation of fast-Fourier transforms. The statistical routines make use of netCDF software developed by UCAR/Unidata (\url{http://doi.org/10.5065/D6H70CW6}). In order to run the provided test cases and their output scripts, a Python (\url{https://www.python.org}) installation including the NumPy (\url{http://www.numpy.org}) and Matplotlib (\url{https://matplotlib.org}) modules is required. Automatic documentation generation can be done using Doxygen (\url{http://doxygen.org}), but this is optional.
