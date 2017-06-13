@@ -472,7 +472,7 @@ with $f_0$ as Coriolis parameter specified by the user.
 \section{Physical parameterizations}\label{sec:parametrizations}
 
 \subsection{Subfilter-scale model for large-eddy simulation}
-With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the scales where molecular viscosity acts. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. MicroHH uses the grid scale as an implicit filter, rather than applying explicit filtering. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
+With the governing equations described in Sect. \ref{sec:dyncore} it is possible to resolve the flow down to the scales where molecular viscosity acts. In many applications, however, such simulations are too costly. In that case, one may opt for large-eddy simulation (LES), where filtered equations are used to describe the largest scales of the flow, and the subfilter-scale motions are modeled. The LES implementation in MicroHH assumes very high Reynolds numbers in which the molecular viscosity is neglected. MicroHH uses the grid scale as an implicit filter, rather than applying explicit filtering. Filtering of the anelastic conservation of momentum equation (Eq. \ref{eq:consmoma}), with a tilde applied to denote filtered variables, leads to 
 \begin{eqnarray}
 \nonumber \dfrac{\partial \uf_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \uf_i \uf_j}{\partial x_j} 
 - \dfrac{\partial \pi}{\partial x_i} - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 \tau_{ij}}{\partial x_j}\\
@@ -519,17 +519,17 @@ R_{\phi,j} = - \dfrac{K_m}{Pr_t} \dfrac{\partial \phif}{\partial x_j}.
 \end{eqnarray}
 
 \subsection{Surface model}\label{sec:surface_model}
-MicroHH uses a surface model to compute the surface fluxes of the horizontal momentum components and the scalars (including thermodynamic variables) in flows over rough surfaces at high Reynolds numbers. This is a typical configuration for atmospheric flows. The surface model is entirely built on Monin-Obukhov Similarity Theory (MOST) (see \citet{Wyngaard2010}) that relates surface fluxes of variables to their near-surface gradients using empirical functions that depend on the height of the first model level $z_1$ divided by the Obukhov length $L$ as an argument. Length $L$ is defined as
+The LES implementation of MicroHH uses a surface model that is constrained to rough surfaces and high Reynold numbers, which is a typical configuration for atmospheric flows. This model computes the surface fluxes of the horizontal momentum components and the scalars (including thermodynamic variables) using Monin-Obukhov Similarity Theory (MOST) (\citet[][his Sect. 10.2]{Wyngaard2010}). MOST relates surface fluxes of variables to their near-surface gradients using empirical functions that depend on the height of the first model level $z_1$ divided by the Obukhov length $L$ as an argument. Length $L$ is defined as
 \begin{eqnarray}
 L   & \equiv & - \dfrac{u_*^3}{\kappa B_0},
 \end{eqnarray}
-where $u_*$ is the friction velocity, $\kappa$ is the Von Karman constant and $B_0$ is the surface kinematic buoyancy flux. $L$ represents the height at which the buoyancy production/destruction of turbulence kinetic energy equals the shear production.
+where $u_*$ is the friction velocity, $\kappa$ is the Von Karman constant and $B_0$ is the surface kinematic buoyancy flux. $L$ represents the height at which the buoyancy production/destruction of turbulence kinetic energy equals the shear production. In MicroHH, we use a local implementation of MOST, i.e., each grid point has its own value of $L$. This choice can lead to a overestimation of near-surface wind due to violation of the MOST assumption of horizontal homogeneity \citep[][their Fig. 18]{Bouzeid2005}, but it allows for a more straightforward extension to heterogeneous land surfaces.
 
 Following MOST, the friction velocity $u_*$ and the momentum fluxes may be related to the near-surface wind gradient as
 \begin{eqnarray}
-\dfrac{\kappa z_1}{u_*} \dfrac{\partial U}{\partial z}  = 
-- \dfrac{\kappa z_1 u_*}{\overline{u^\prime w^\prime}} \dfrac{\partial \uf}{\partial z} =
-- \dfrac{\kappa z_1 u_*}{\overline{v^\prime w^\prime}} \dfrac{\partial \vf}{\partial z} =
+\dfrac{\kappa z_1}{u_*} \dfrac{\partial U}{\partial z}  \approx 
+- \dfrac{\kappa z_1 u_*}{\overline{u^\prime w^\prime}} \dfrac{\partial \uf}{\partial z} \approx
+- \dfrac{\kappa z_1 u_*}{\overline{v^\prime w^\prime}} \dfrac{\partial \vf}{\partial z} \approx
 \phi_m \left( \dfrac{z_1}{L} \right),\label{eq:surf_grad}
 \end{eqnarray}
 where $U$ is defined as $\sqrt{\uf^2 + \vf^2}$, and $\overline{u^\prime w^\prime}$ and $\overline{v^\prime w^\prime}$ as the surface momentum fluxes for the two wind components. These relationships can be integrated from the roughness length $z_{0m}$ to $z_1$ resulting in 
@@ -596,7 +596,7 @@ With the equations above, the surface fluxes, surface values and near-surface gr
 	Ri_c \equiv \dfrac{z_1}{L} \dfrac{f_m^2}{f_h} = \dfrac{\kappa z_1 \left(\widetilde{b}_1 - \widetilde{b}_0 \right)}{ \left(U_1 - U_0 \right)^2}.
 	\end{equation}
 \end{itemize}
-In cases of the latter two options, a solver is required to find the $L$ that satisfies the equation, as $f_m$ (Eq. \ref{eq:fm}) and $f_h$ (Eq.  \ref{eq:fh}) both depend on $L$ as well. For performance reasons, we have chosen for a lookup table that relates $L$ to the Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit. 
+In cases of the latter two options, a solver is required to find the $L$ that satisfies the equation, as $f_m$ (Eq. \ref{eq:fm}) and $f_h$ (Eq.  \ref{eq:fh}) both depend on $L$ as well. For performance reasons, we have created a lookup table-based approach that relates $L$ to the Richardson number. The lookup table has $10^4$ entries, of which 90 percent is spaced uniformly between $z_1/L = -5$ to $5$. The remaining 10 percent are used to stretch the negative range up to $z_1/L = -10^4$ to allow for the correct free convection limit. 
 
 \subsection{Large-scale forcings}
 \subsubsection{Pressure force}
@@ -711,7 +711,7 @@ Figure \ref{fig:taylorgreen} shows the error convergence of the simulations. The
 
 \subsection{Kinetic energy conservation and time accuracy} \label{sec:validationtime}
 The second test of the dynamical core consists of combined evaluation of kinetic energy ($u^2 + v^2 + w^2$) conservation and time accuracy 
-(\texttt{cases/conservation}). In this experiment, we run the model with only the advection and pressure solver enabled and advect random noise through the domain for 1000 seconds. These tests have been conducted with the third- and fourth-order Runge-Kutta schemes. We have chosen for the fourth-order spatial discretization in order to demonstrate its energy conservation.
+(\texttt{cases/conservation}). In this experiment, we run the model with only the advection and pressure solver enabled and advect random noise through the domain for 1000 seconds. These tests have been conducted with the third- and fourth-order Runge-Kutta schemes. We have chosen the fourth-order spatial discretization in order to demonstrate its energy conservation.
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
@@ -788,7 +788,7 @@ Numerical results obtained with both numerical codes testify that stable environ
 
 \section{Validation of atmospheric large-eddy simulations}\label{sec:validation_atmos}
 \subsection{Dry convective boundary layer with strong inversion}
-As a first test case of MicroHH in LES mode, we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into a linearly stratified atmosphere with a very strong capping inversion (see Fig. \ref{fig:sullivan2011}a). The system is heated from the bottom by applying a constant kinematic potential temperature flux of 0.24~K~m~s$^{-1}$. The domain size is 5120~m $\times$ 5120~m $\times$ 2048~m. Gravity wave damping has been applied in the top 25 percent of the domain. Simulations have been run for three hours with three spatial resolutions. The time-averaged profiles have been calculated over the last hour.
+As a first test case of MicroHH in LES mode, we present that of \citet{Sullivan2011} (\texttt{cases/sullivan2011}). This is a dry clear convective boundary layer that grows into a linearly stratified atmosphere with a very strong capping inversion (see Fig. \ref{fig:sullivan2011}a). The system is heated from the bottom by applying a constant kinematic heat flux of 0.24~K~m~s$^{-1}$. The domain size is 5120~m $\times$ 5120~m $\times$ 2048~m. Gravity wave damping has been applied in the top 25 percent of the domain. Simulations have been run for three hours with three spatial resolutions. The time-averaged profiles have been calculated over the last hour.
 
 \begin{figure}[t]
 	\vspace*{2mm}
