@@ -656,7 +656,9 @@ MicroHH depends on several external software tools or libraries. It uses the CMa
 
 \section{Running simulations}\label{sec:running}
 \label{sec:running_simulations}
-In order to run a simulation with MicroHH, a sequence of steps needs to be taken. Each simulation has an \texttt{.ini} file that contains the settings of the simulation, a \texttt{.prof} file that contains the (initial) vertical profiles of all required variables, and, if time-varying boundary conditions are desired, a file with the prescribed time evolution for all time-varying boundary conditions. To prepare a simulation with the name \texttt{test\_simulation}, MicroHH needs to be run in the following way
+In order to run a simulation with MicroHH, a sequence of steps needs to be taken. Each simulation has an \texttt{.ini} file that contains the settings of the simulation, a \texttt{.prof} file that contains the (initial) vertical profiles of all required variables, and, if time-varying boundary conditions are desired, a file with the prescribed time evolution for all time-varying boundary conditions. MicroHH provides a document (\texttt{doc/input.pdf}) that contains an overview of all possible options that can be specified in the \texttt{.ini} file.
+
+To prepare a simulation with the name \texttt{test\_simulation}, MicroHH needs to be run in the following way
 \begin{verbatim}
 ./microhh init test_simulation
 \end{verbatim}
