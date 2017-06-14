@@ -137,7 +137,7 @@ where $\kappa_\phi$ is the diffusivity of the scalar, and $S_\phi$ represents so
 \label{sec:conservation_of_energy}
 MicroHH provides multiple options for the energy conservation equation. The conservation equation for  potential temperature for dry dynamics $\theta$ can be written as
 \begin{eqnarray}
-\dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\theta \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,
+\dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\theta \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,\label{eq:consthermo}
 \end{eqnarray}
 where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details). In the dry mode, the Brunt-Vaissala frequency $N$ is defined as $N^2 \equiv \left(g/\theta_0\right) \left( \partial \theta/\partial z \right)$, whereas in the moist dynamics $N^2 \equiv \left(g/\theta_{v0}\right) \left( \partial \theta_v/\partial z \right)$.
 
@@ -146,7 +146,7 @@ A third, more simplified mode, is available for dry dynamics under the Boussines
 \dfrac{\partial u_i}{\partial t} + \dfrac{\partial u_i u_j}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x_i} + \delta_{i3} b + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmombsimp},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
-\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} + Q_b \label{eq:consenbsimp}.
+\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} + Q_b \label{eq:consbsimp}.
 \end{eqnarray}
 with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. In this mode, $N$ is defined as $N^2 \equiv \partial b/\partial z$.
 
@@ -162,7 +162,7 @@ With a slight modification to the previous set of equations, it is possible to s
 where the evolution equation of $v$ is omitted as it contains no changes. In this formulation, $N$ is defined as $N^2 \equiv \partial b/\partial z + N_0^2$.
 
 \section{Dynamical core: numerical implementation}\label{sec:dyncorediscrete}
-\subsection{Time integration}
+\subsection{Time integration}\label{sec:time_integration}
 The prognostic equations are solved using low-storage Runge-Kutta time integration schemes. Such schemes require two fields per variable: one that contains the actual value, which we denote with $\phi$ in this section, and one that represents the tendencies, denoted with $\delta \phi$. The code provides two options: a three-stage third-order scheme \citep{Williamson1980} and a five-stage fourth-order scheme \citep{Carpenter1994}. Both can be written in the same generic form in semi-discrete formulation as
 \begin{eqnarray}
 \left( \delta \phi \right)_n & = & f \left( \phi_n \right) + a_n \left( \delta \phi \right)_{n-1} \\
@@ -190,12 +190,17 @@ For the fourth-order scheme the vectors $a$ and $b$ are
 
 The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}). The code can be run with a fixed $\Delta t$, as well as an adaptive time step based on the local flow velocities.
 
-\subsection{Grid}
-MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces. The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section. All spatial operators in the model, such as the advection and diffusion, default to the same order as the grid, and can be overriden according to the user's wishes (see Sect. \ref{sec:running}).
+\subsection{Grid}\label{sec:grid}
+MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces. The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in Sect. \ref{sec:buiding_blocks}. All spatial operators in the model, such as the advection and diffusion, default to the same order as the grid, and can be overriden according to the user's wishes (see Sect. \ref{sec:running}).
 
 There is the option to apply a uniform translation velocity to the grid, thus to let the grid move with the flow. This so-called Galilean transformation is allowed as the Navier-Stokes equations are invariant under translation. It has the potential to allow for larger time steps and to increase the accuracy of simulations.
 
-\subsection{Building blocks of the spatial discretization}
+\subsection{Three-dimensional fields}
+In order to solve the governing equations, MicroHH generates three-dimensional fields of the prognostic variables, such as the three components of the momentum (Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}), and the thermodynamic variables (Eqs. \ref{eq:consthermo}, \ref{eq:consbsimp}, or \ref{eq:consbslope}). Furthermore, the user has the option to define additional passive scalars (Eq. \ref{eq:consscal}). Each of the prognostic fields has an additional three-dimensional field assigned to store its tendency (see Sect. \ref{sec:time_integration}). Furthermore, a diagnostic field is assigned for the pressure, as well as three to four temporary arrays for intermediate computations. Newly implemented physical parameterizations have the option to request additional three-dimensional fields at initialization. 
+
+The generation of turbulence requires perturbations to the initial fields. MicroHH has to option to superimpose perturbations in a user-specified layer on any of the prognostic variables. These perturbations can be random noise of which the amplitude and location can be controlled, as well as rotating vortices with an axis aligned with the $x$- or $y$-dimension. The former option is the most commonly used method to start convective turbulence, whereas the latter is more efficient in neutral or stably-stratified flows.
+
+\subsection{Building blocks of the spatial discretization}\label{sec:buiding_blocks}
 The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series, spatial operators can be derived that constitute the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the elementary operators and the composite operators that can be derived from them. We use only two dimensions for brevity.
 
 We define two second-order interpolation operators, one with a small stencil and one with a wide stencil, as
