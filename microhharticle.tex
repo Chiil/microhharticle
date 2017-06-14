@@ -191,7 +191,7 @@ For the fourth-order scheme the vectors $a$ and $b$ are
 The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}). The code can be run with a fixed $\Delta t$, as well as an adaptive time step based on the local flow velocities.
 
 \subsection{Grid}
-MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces. The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section.
+MicroHH is discretized on a staggered Arakawa C-grid, where the scalars are located in the center of a grid cell and the three velocity components at the faces. The code can work with stretched grids in the wall-bounded dimension. The grid is initialized from a vertical profile that contains the heights of the cell centres. The locations of the faces are determined consistently with the spatial order of the interpolations that are described in the next section. All spatial operators in the model, such as the advection and diffusion, default to the same order as the grid, and can be overriden according to the user's wishes (see Sect. \ref{sec:running}).
 
 There is the option to apply a uniform translation velocity to the grid, thus to let the grid move with the flow. This so-called Galilean transformation is allowed as the Navier-Stokes equations are invariant under translation. It has the potential to allow for larger time steps and to increase the accuracy of simulations.
 
@@ -246,7 +246,7 @@ and
 \nonumber
 \left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta^{4xb} \left( \phi \right)_{i,j}\\
 & \equiv & \dfrac{-23 \phi_{i-\frac{1}{2},j} + 21 \phi_{i+\frac{1}{2},j} + 3 \phi_{i+\frac{3}{2},j} - \phi_{i+\frac{5}{2},j}}
-                 {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}
+                 {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}.
 \end{eqnarray}
 
 % \begin{eqnarray}
@@ -272,14 +272,14 @@ We use the previously introduced notation to describe the more complex operators
 & = & \dfrac{ u_{i+\frac{1}{2},j} \overline{\phi}^{2x}_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \overline{\phi}^{2x}_{i-\frac{1}{2},j} }
             { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
 & + & \dfrac{ v_{i,j+\frac{1}{2}} \overline{\phi}^{2y}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \overline{\phi}^{2y}_{i,j-\frac{1}{2}} }
-            { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }
+            { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }.
 \end{eqnarray}
 The discretization of the advection of the velocity components (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) involves extra interpolations as the following example illustrates:
 \begin{eqnarray}
 \nonumber
 \left. \dfrac{\partial v u}{\partial x} \right|_{i,j} & = & \delta^{2x} \left( \overline{v}^{2y} \overline{u}^{2x} \right)_{i,j} \\
 & = & \dfrac{ \overline{v}^{2y}_{i+\frac{1}{2},j} \overline{u}^{2x}_{i+\frac{1}{2},j} - \overline{v}^{2y}_{i-\frac{1}{2},j} \overline{u}^{2x}_{i-\frac{1}{2},j} }
-      { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\label{eq:advec2u}
+      { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }.\label{eq:advec2u}
 \end{eqnarray}
 In the standard fourth-order scheme, the scalar advection in flux form is represented by
 \begin{eqnarray}
@@ -324,11 +324,11 @@ To increase the overall accuracy of the second-order advection operator, there i
 We apply a discretization for diffusion that can be written as the divergence of a gradient, using the building blocks defined earlier in this section. As this operator is identical in all directions, we present it in one direction only
 \begin{eqnarray}
 \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
-\kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j}\\
+\kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j},\\
 % \kappa_\phi \dfrac{\left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} - \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j}}
 %                                 {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
 \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
-\kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}
+\kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}.
 \end{eqnarray}
 On an equidistant grid, this provides the well-known second-order accurate operator for the second derivative
 \begin{eqnarray}
@@ -938,7 +938,7 @@ $N$ & Brunt-Vaissala frequency & s\\
 \fi
 
 \begin{acknowledgements}
-Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with many of the developers of DALES (Huug Ouwersloot, Stephan de Roode, Arnold Moene and Jordi Vil\`{a}-Guerau de Arellano), PALM (Bj\"{o}rn Maronga and Siegfried Raasch), UCLA-LES (Linda Schlemmer and Bjorn Stevens) and ICON (Leonidas Linardakis). We thank Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven flows. The authors gratefully acknowledge the Gauss Centre for Supercomputing (GCS) for providing computing time for a GCS Large-Scale Project on the GCS share of the supercomputer JUQUEEN at Jülich Supercomputing Centre (JSC). 
+Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with many of the developers of DALES (Huug Ouwersloot, Stephan de Roode, Arnold Moene and Jordi Vil\`{a}-Guerau de Arellano), PALM (Bj\"{o}rn Maronga and Siegfried Raasch), UCLA-LES (Linda Schlemmer and Bjorn Stevens) and ICON (Leonidas Linardakis). We thank Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven flows. The authors gratefully acknowledge the Gauss Centre for Supercomputing (GCS) for providing computing time for a GCS Large-Scale Project on the GCS share of the supercomputer JUQUEEN at J\"{u}lich Supercomputing Centre (JSC). 
 \end{acknowledgements}
 
 \bibliographystyle{copernicus}
