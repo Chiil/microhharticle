@@ -347,7 +347,7 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 \end{eqnarray}
 Whereas diffusion can be fourth-order accurate computed using a five-point stencil, we have chosen for a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
 
-The usage of a seven-point stencil requires special care near the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green circle in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the wall (lowest red circle in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased}).
+The usage of a seven-point stencil requires special care near the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green node in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the wall (lowest red node in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased} and yellow stencil connected to lowest red node in Fig. \ref{fig:stencil_wall}). The extent of the complete stencil near the wall (white nodes, Fig. \ref{fig:stencil_wall}) is thus six points, rather than seven.
 
 \begin{figure}[t]
 	\vspace*{2mm}
@@ -355,7 +355,7 @@ The usage of a seven-point stencil requires special care near the walls. In Fig.
 		\includegraphics[width=5cm]{figs/stencil_wall.pdf}
 		% TO THE TYPESETTER: I have deliberately made this figure smaller in width because it does not need to take up too much space.
 	\end{center}
-	\caption{Schematic of the diffusion discretization near the wall. Green is the evaluation point at the center of the first cell above the wall, red is the stencil of the divergence operator, and yellow shows the stencils of the four gradient operators over which the divergence is evaluated. White indicates the extent of the stencil.} \label{fig:stencil_wall}
+	\caption{Schematic of the diffusion discretization near the wall. The green node is the evaluation point at the center of the first cell above the wall, the red node is the stencil of the divergence operator, and yellow nodes show the stencils of the four gradient operators over which the divergence is evaluated. White nodes indicate the extent of the stencil.} \label{fig:stencil_wall}
 \end{figure}
 % \begin{eqnarray}
 % \nonumber
