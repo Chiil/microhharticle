@@ -246,7 +246,7 @@ and
 \nonumber
 \left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta^{4xb} \left( \phi \right)_{i,j}\\
 & \equiv & \dfrac{-23 \phi_{i-\frac{1}{2},j} + 21 \phi_{i+\frac{1}{2},j} + 3 \phi_{i+\frac{3}{2},j} - \phi_{i+\frac{5}{2},j}}
-                 {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}.
+                 {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}.\label{eq:grad_biased}
 \end{eqnarray}
 
 % \begin{eqnarray}
@@ -346,6 +346,17 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 &&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right).\label{eq:diff_4th}
 \end{eqnarray}
 Whereas diffusion can be fourth-order accurate computed using a five-point stencil, we have chosen for a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
+
+The usage of a seven-point stencil requires special care at the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green circle in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the surface (lowest red circle in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased}).
+
+\begin{figure}[t]
+	\vspace*{2mm}
+	\begin{center}
+		\includegraphics[width=5cm]{figs/stencil_wall.pdf}
+		% TO THE TYPESETTER: I have deliberately made this figure smaller in width because it does not need to take up too much space.
+	\end{center}
+	\caption{Schematic of the diffusion discretization near the wall. Green is the evaluation point at the center of the first cell above the wall, red is the stencil of the divergence operator, and yellow shows the stencils of the four gradient operators over which the divergence is evaluated. White indicates the extent of the stencil.} \label{fig:stencil_wall}
+\end{figure}
 % \begin{eqnarray}
 % \nonumber
 % \left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & = & \kappa_\phi
