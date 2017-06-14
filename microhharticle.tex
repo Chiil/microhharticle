@@ -347,7 +347,7 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 \end{eqnarray}
 Whereas diffusion can be fourth-order accurate computed using a five-point stencil, we have chosen for a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
 
-The usage of a seven-point stencil requires special care at the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green circle in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the surface (lowest red circle in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased}).
+The usage of a seven-point stencil requires special care near the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green circle in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the wall (lowest red circle in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased}).
 
 \begin{figure}[t]
 	\vspace*{2mm}
