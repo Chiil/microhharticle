@@ -72,7 +72,7 @@ Even though we started from scratch, many of the ideas are the results of our ex
 This paper is built up as following: in Sect. \ref{sec:dyncore}, we provide a full description of the governing equations of the dynamical core, and their numerical implementation is discussed in Sect. \ref{sec:dyncorediscrete}. Subsequently, in Sect. \ref{sec:parametrizations} we present the parameterizations and their underlying assumptions. Section \ref{sec:technical} discusses the technical details of the code, and Sections \ref{sec:running} and \ref{sec:output} explain how to run the model and which output is generated. This is followed by a series of model tests on the validity and accuracy of the dynamical core in Sect. \ref{sec:tests}, and a series of more applied atmospheric flow cases based on previous studies (Sect. \ref{sec:validation_atmos}). Hereafter, the parallel performance is evaluated (Sect. \ref{sec:performance}). After the  future plans (Sect. \ref{sec:future}) and the concluding remarks (Sect. \ref{sec:conclusion}), there is a short description where to get MicroHH, and where to find its tutorials and a selection of visualisations (Sect. \ref{sec:howto}).
 
 \section{Dynamical core: governing equations}\label{sec:dyncore}
-The dynamical core of MicroHH solves the conservation equations of mass, momentum, and energy under the anelastic approximation \citep{Bannon1996}. Under this approximation, the state variables density, pressure, and temperature are described as small fluctuations (denoted with a prime in this paper) from corresponding vertical reference profiles (denoted with subscript zero) that are functions of height only. This form of the approximation directly simplifies to the Boussinesq approximation if the reference density $\rho_0 (z)$ is assumed to be constant with height $z$. To facilitate the subsequent discussion of the conservation equations, we define the scale height for density $H_\rho$ based on the reference density profile
+The dynamical core of MicroHH solves the conservation equations of mass, momentum, and energy under the anelastic approximation \citep{Bannon1996}. Under this approximation, the state variables density, pressure, and temperature are described as small fluctuations (denoted with a prime in this paper) from corresponding vertical reference profiles (denoted with subscript zero) that are functions of height only. This form of the approximation directly simplifies to the Boussinesq approximation if the reference density $\rho_0 (z)$ is taken to be constant with height $z$. Consequently, MicroHH does not need separate implementations of Boussinesq and anelastic approximations. To facilitate the subsequent discussion of the conservation equations, we define the scale height for density $H_\rho$ based on the reference density profile
 \begin{eqnarray}
 H_{\rho} & \equiv & \left( \dfrac{1}{\rho_0} \dfrac{d \rho_0}{dz} \right)^{-1}.
 \end{eqnarray}
@@ -82,7 +82,8 @@ The conservation of mass is formulated using Einstein summation as
 \begin{eqnarray}
 \dfrac{\partial \rho_0 u_i}{\partial x_i} & = & \rho_0 \dfrac{\partial u_i}{\partial x_i} + \rho_0 w H_{\rho}^{-1} = 0, \label{eq:consmassa}
 \end{eqnarray}
-where $u_i$ is the velocity vector $(u,v,w)$ and $x_i$ is the position vector $(x,y,z)$.
+where $u_i$ is the velocity vector $(u,v,w)$ and $x_i$ is the position vector $(x,y,z)$. This formulation conserves the reference mass, as density perturbations are ignored in the equation \citep{Lilly1996}.
+
 Under the Boussinesq approximation ($H_{\rho}~\rightarrow~\infty$), Eq. \ref{eq:consmassa} simplifies to conservation of volume
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial x_i} & = & 0. \label{eq:consmassb}
@@ -95,13 +96,13 @@ The equation of state under the anelastic approximation is (see \citet{Bannon199
 \end{eqnarray}
 where $\theta_v^\prime$ is the perturbation virtual potential temperature, $\theta_{v0}$ the reference virtual potential temperature, $p^\prime$ is the perturbation pressure, $g$ is the gravity acceleration, and $\rho^\prime$ is the perturbation density.
 
-The corresponding momentum equation is written in the flux form, in order to assure mass and momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted and Eq. \ref{eq:statea} has been used to introduce potential temperature as the buoyancy variable to formulate the conservation of momentum as
+The corresponding momentum equation is written in the flux form, in order to assure momentum conservation. The hydrostatic balance $dp_0 / dz~=~-\rho_0 g$ has been subtracted and Eq. \ref{eq:statea} has been used to introduce potential temperature as the buoyancy variable to formulate the conservation of momentum as
 \begin{eqnarray}
 \nonumber \dfrac{\partial u_i}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_i u_j}{\partial x_j} 
 - \dfrac{\partial}{\partial x_i}\left(\dfrac{p'}{\rho_0}\right) \\
 & + & \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + F_i,\label{eq:consmoma}
 \end{eqnarray}
-where $\delta$ is the Kronecker delta, $\nu$ the kinematic viscosity, and vector $F_i$ represents external forces resulting from parameterizations or large-scale forcings.
+where $\delta$ is the Kronecker delta, $\nu$ the kinematic viscosity, and vector $F_i$ represents external forces resulting from parameterizations or large-scale forcings. As \citet{Bannon1996} showed, this formulation is energy-conserving in the sense that there is a consistent transfer between kinetic and potential energy.
 
 Under the Boussinesq approximation, the two equations simplify to
 \begin{eqnarray}
@@ -122,7 +123,7 @@ Under the Boussinesq approximation the equation simplifies to
 \dfrac{\partial^2}{\partial x_i^2} \left( \dfrac{p'}{\rho_0} \right) & = &
 \dfrac{\partial f \left( u_i \right)}{\partial x_i}.\label{eq:presb}
 \end{eqnarray}
-In Sect. \ref{sec:dyncorediscrete} we explain how these equations are solved.
+In Sect. \ref{sec:dyncorediscrete} we explain how these equations are solved numerically.
 
 \subsection{Conservation of an arbitrary scalar}
 The conservation equation of an arbitrary scalar $\phi$ is written in flux form
@@ -292,7 +293,7 @@ In the standard fourth-order scheme, the scalar advection in flux form is repres
 \end{eqnarray}
 Hereafter, we assume that operator notation is clear and only expand it where necessary.
 
-MicroHH has a fully energy-conserving fourth-order advection scheme \citep{Morinishi1998} available. This scheme is constructed by interpolation of two energy-conserving second-order schemes to eliminate the second-order error as illustrated below
+MicroHH has a fully kinetic energy-conserving fourth-order advection scheme \citep{Morinishi1998} available. The scheme is constructed by interpolation of two kinetic energy-conserving second-order discretizations to eliminate the second-order error as illustrated below
 \begin{eqnarray}
 % \nonumber
 \left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \frac{9}{8} \delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j} 
@@ -303,6 +304,8 @@ MicroHH has a fully energy-conserving fourth-order advection scheme \citep{Morin
 % & - & \frac{1}{16} \dfrac{ u_{i+\frac{3}{2},j} \overline{\phi}^{3x}_{i+\frac{3}{2},j} - u_{i-\frac{3}{2},j} \overline{\phi}^{3x}_{i-\frac{3}{2},j} }
 %                           { x_{i+\frac{3}{2}} - x_{i-\frac{3}{2}} }
 \end{eqnarray}
+to ensure that velocity variances are conserved under advection.
+
 Velocity interpolations, such as those in Eq. \ref{eq:advec2u}, still need to be performed with fourth-order accuracy (Eq. \ref{eq:interp4}) in order to  be fourth-order accurate (see \citet{Morinishi1998} for details). The expression
 \begin{eqnarray}
 \left. \dfrac{\partial v u}{\partial x}\right|_{i,j} \approx \frac{9}{8} \delta^{2x} \left( \overline{v}^{4y} \overline{u}^{2x} \right)_{i,j} 
@@ -606,15 +609,12 @@ MicroHH provides two options to introduce a large-scale pressure force into the 
 \right> - \left< \dfrac{\partial}{\partial x} \left( \dfrac{p}{\rho_0} \right) \right>
 + F_{p;ls}
 \end{eqnarray}
-where brackets indicate a volume average, $f_1$ contains all the righthand side terms of the $u$-component of the conservation of momentum, except for the dynamic pressure, which is contained in the second term. The large-scale pressure force $F_{p;ls}$, which is to be computed, is the last term. We can now set $\left< u \right>^{n+1} = U_f$ to explicitly set the volume-averaged velocity in the next time step. Furthermore, the volume-averaged horizontal pressure gradient vanishes, because of the periodic boundary condition, which makes $F_{p;ls}$ the only unknown. The acquired pressure force will be added following
-\begin{eqnarray}
-\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k,F_{p;ls}} & = & F_{p;ls}
-\end{eqnarray}
+where brackets indicate a volume average, $f_1$ contains all the righthand side terms of the $u$-component of the conservation of momentum, except for the dynamic pressure, which is contained in the second term. The large-scale pressure force $F_{p;ls}$, which is to be computed, is the last term. We can now set $\left< u \right>^{n+1} = U_f$ to explicitly set the volume-averaged velocity in the next time step. Furthermore, the volume-averaged horizontal pressure gradient vanishes, because of the periodic boundary condition, which makes $F_{p;ls}$ the only unknown. The acquired pressure force $F_{p;ls}$ will be added as an external force in the equation of zonal velocity ($F_1$ in Eqs \ref{eq:consmoma} and \ref{eq:consmomb}).
 
 The second option is to enforce a large-scale pressure force through the geostrophic wind components $u_g$ and $v_g$, in combination with rotation, with the tendencies of the two horizontal velocity components calculated as
 \begin{eqnarray}
-\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k,F_{p;ls}} & = & -f_0 v_{g;k},\\
-\left. \dfrac{\partial v}{\partial t}\right|_{i,j,k,F_{p;ls}} & = &  f_0 u_{g;k},
+F_{p;ls,1} & = & -f_0 v_{g;k},\\
+F_{p;ls,2} & = &  f_0 u_{g;k},
 \end{eqnarray}
 where $u_{g;k}$ and $v_{g;k}$ as user-specified vertical profiles of geostrophic wind components.
 
