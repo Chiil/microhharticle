@@ -262,6 +262,32 @@ and
 % &&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right)
 % \end{eqnarray}
 
+\subsection{Boundary conditions}
+The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form as the Robin boundary condition
+\begin{eqnarray}
+a \phi_s + b \left.\dfrac{\partial \phi}{\partial z}\right|_s = c,
+\end{eqnarray}
+with $a$, $b$ and $c$ as constants. This gives the Dirichlet boundary condition when ${a=1,~b=0}$, and the Neumann boundary condition when ${a=0,~b=1}$. 
+
+MicroHH makes use of ghost cells in order to avoid the need of biased schemes for single interpolation or gradient operators near the wall. The values at the ghost cells are derived making use of the boundary conditions following \citet{Morinishi1998}. The ghost cells for the Dirichlet boundary conditions in the second-order accurate discretization are
+\begin{eqnarray}
+\phi_{-\frac{1}{2}} & = & 2 c - \phi_{\frac{1}{2}},
+\end{eqnarray}
+whereas those for the Neumann boundary condition are
+\begin{eqnarray}
+\phi_{-\frac{1}{2}} & = & -c \left( - z_{-\frac{1}{2}} + z_{\frac{1}{2}} \right) + \phi_{\frac{1}{2}}.
+\end{eqnarray}
+In case of the fourth-order scheme, we have two ghost cells, and therefore a second boundary condition is required. Here, we set the third derivative equal to zero following \citep{Morinishi1998}. For the Dirichlet boundary condition we then acquire the following expressions for the ghost cells
+\begin{eqnarray}
+\phi_{-\frac{1}{2}} & = & \dfrac{8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}}}{3},\\
+\phi_{-\frac{3}{2}} & = & 8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}},
+\end{eqnarray}
+whereas in case of a Neumann boundary condition we find
+\begin{eqnarray}
+\phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{1}{2}},\\
+\phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}.
+\end{eqnarray}
+
 \subsection{Advection}
 We use the previously introduced notation to describe the more complex operators and expand them for illustration. The advection term is discretized in the flux form, where $\phi$ is an arbitrary scalar located in the center of the grid cell. In the second-order case, this gives the following discretization:
 \begin{eqnarray}
@@ -408,32 +434,6 @@ and
 where the former is the modified wave number for the second-order accurate solver and the latter is the wave number for the fourth-order one. Note that the coeffecients correspond to those in Eqs. \ref{eq:diff_2nd} and \ref{eq:diff_4th}. Both expressions satisfy the limit $\lim_{\Delta x \rightarrow 0} k_{*n}^2 = k^2$, where $n$ is the order of the scheme.
 
 Solving Eq. \ref{eq:presfourier} for $\widehat{\pi}$ requires solving a banded matrix for the vertical direction in which the walls are located. This matrix is tridiagonal for the second-order solver and hepta-diagonal for the fourth-order solver. For this, a standard Thomas algorithm \citep{Thomas1949} is used. After the pressure is acquired, inverse Fourier transforms are applied and subsequently the pressure gradient term (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) is computed for all three components of the velocity tendency. Note that the computation of the corrected velocity components does not require a boundary condition for pressure (see \citet{Vreman2014} for details).
-
-\subsection{Boundary conditions}
-The lateral boundaries in MicroHH are periodic. The bottom and top boundary conditions can be formulated in their most general form as the Robin boundary condition
-\begin{eqnarray}
-a \phi_s + b \left.\dfrac{\partial \phi}{\partial z}\right|_s = c,
-\end{eqnarray}
-with $a$, $b$ and $c$ as constants. This gives the Dirichlet boundary condition when ${a=1,~b=0}$, and the Neumann boundary condition when ${a=0,~b=1}$. 
-
-MicroHH makes use of ghost cells in order to avoid the need of biased schemes for single interpolation or gradient operators near the wall. The values at the ghost cells are derived making use of the boundary conditions following \citet{Morinishi1998}. The ghost cells for the Dirichlet boundary conditions in the second-order accurate discretization are
-\begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & 2 c - \phi_{\frac{1}{2}},
-\end{eqnarray}
-whereas those for the Neumann boundary condition are
-\begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & -c \left( - z_{-\frac{1}{2}} + z_{\frac{1}{2}} \right) + \phi_{\frac{1}{2}}.
-\end{eqnarray}
-In case of the fourth-order scheme, we have two ghost cells, and therefore a second boundary condition is required. Here, we set the third derivative equal to zero following \citep{Morinishi1998}. For the Dirichlet boundary condition we then acquire the following expressions for the ghost cells
-\begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & \dfrac{8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}}}{3},\\
-\phi_{-\frac{3}{2}} & = & 8 c - 6 \phi_{\frac{1}{2}} + \phi_{\frac{3}{2}},
-\end{eqnarray}
-whereas in case of a Neumann boundary condition we find
-\begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{1}{2}},\\
-\phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}.
-\end{eqnarray}
 
 \subsection{Thermodynamics}\label{sec:thermo}
 MicroHH supports the potential  ($\theta$) and liquid water potential ($\theta_\mathrm{l}$) temperature as thermodynamic variables (Sect. \ref{sec:conservation_of_energy}). The dry ($\theta$) and moist ($\theta_\mathrm{l}$) thermodynamics are related through the use of a total specific humidity $q_\mathrm{t}$, which is defined as the sum of the water vapour specific humidity ($q_\mathrm{v}$) and the cloud liquid water specific humidity ($q_\mathrm{l}$). In the absence of liquid water, $\theta_\mathrm{l} = \theta$, in the presence of liquid water, the liquid water potential temperature is approximated as \citep{Betts1973}
