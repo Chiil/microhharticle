@@ -297,29 +297,29 @@ whereas in case of a Neumann boundary condition we find
 We use the previously introduced notation to describe the more complex operators and expand them for illustration. The advection term is discretized in the flux form, where $\phi$ is an arbitrary scalar located in the center of the grid cell. In the second-order case, this gives the following discretization:
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j} + \left. \dfrac{\partial v \phi}{\partial y} \right|_{i,j} & \approx & 
-\delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j} + \delta^{2y} \left( v \overline{\phi}^{2y} \right)_{i,j} \\ 
+\left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j,k} + \left. \dfrac{\partial v \phi}{\partial y} \right|_{i,j,k} & \approx & 
+\delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j,k} + \delta^{2y} \left( v \overline{\phi}^{2y} \right)_{i,j,k} \\ 
 \nonumber
-& = & \dfrac{ u_{i+\frac{1}{2},j} \overline{\phi}^{2x}_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \overline{\phi}^{2x}_{i-\frac{1}{2},j} }
+& = & \dfrac{ u_{i+\frac{1}{2},j,k} \overline{\phi}^{2x}_{i+\frac{1}{2},j,k} - u_{i-\frac{1}{2},j,k} \overline{\phi}^{2x}_{i-\frac{1}{2},j,k} }
             { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
-& + & \dfrac{ v_{i,j+\frac{1}{2}} \overline{\phi}^{2y}_{i,j+\frac{1}{2}} - v_{i,j-\frac{1}{2}} \overline{\phi}^{2y}_{i,j-\frac{1}{2}} }
+& + & \dfrac{ v_{i,j+\frac{1}{2},k} \overline{\phi}^{2y}_{i,j+\frac{1}{2},k} - v_{i,j-\frac{1}{2},k} \overline{\phi}^{2y}_{i,j-\frac{1}{2},k} }
             { y_{j+\frac{1}{2}} - y_{j-\frac{1}{2}} }.
 \end{eqnarray}
 The discretization of the advection of the velocity components (see Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) involves extra interpolations as the following example illustrates:
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial v u}{\partial x} \right|_{i,j} & = & \delta^{2x} \left( \overline{v}^{2y} \overline{u}^{2x} \right)_{i,j} \\
-& = & \dfrac{ \overline{v}^{2y}_{i+\frac{1}{2},j} \overline{u}^{2x}_{i+\frac{1}{2},j} - \overline{v}^{2y}_{i-\frac{1}{2},j} \overline{u}^{2x}_{i-\frac{1}{2},j} }
+\left. \dfrac{\partial v u}{\partial x} \right|_{i,j,k} & = & \delta^{2x} \left( \overline{v}^{2y} \overline{u}^{2x} \right)_{i,j,k} \\
+& = & \dfrac{ \overline{v}^{2y}_{i+\frac{1}{2},j,k} \overline{u}^{2x}_{i+\frac{1}{2},j,k} - \overline{v}^{2y}_{i-\frac{1}{2},j,k} \overline{u}^{2x}_{i-\frac{1}{2},j,k} }
       { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }.\label{eq:advec2u}
 \end{eqnarray}
 In the standard fourth-order scheme, the scalar advection in flux form is represented by
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \delta^{4x} \left( u \overline{\phi}^{4x} \right)_{i,j} \\
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j,k} & \approx & \delta^{4x} \left( u \overline{\phi}^{4x} \right)_{i,j,k} \\
 \nonumber
-& = & \left( u_{i-\frac{3}{2},j} \overline{\phi}^{4x}_{i-\frac{3}{2},j} - 27 u_{i-\frac{1}{2},j} \overline{\phi}^{4x}_{i-\frac{1}{2},j} \right.\\
+& = & \left( u_{i-\frac{3}{2},j,k} \overline{\phi}^{4x}_{i-\frac{3}{2},j,k} - 27 u_{i-\frac{1}{2},j,k} \overline{\phi}^{4x}_{i-\frac{1}{2},j,k} \right.\\
 \nonumber
-&   &\left. + 27 u_{i+\frac{1}{2},j} \overline{\phi}^{4x}_{i+\frac{1}{2},j} - u_{i+\frac{3}{2},j} \overline{\phi}^{4x}_{i+\frac{3}{2},j} \right)\\
+&   &\left. + 27 u_{i+\frac{1}{2},j,k} \overline{\phi}^{4x}_{i+\frac{1}{2},j,k} - u_{i+\frac{3}{2},j,k} \overline{\phi}^{4x}_{i+\frac{3}{2},j,k} \right)\\
 &   &\slash \left( x_{i-\frac{3}{2}} - 27 x_{i-\frac{1}{2}} + 27 x_{i+\frac{1}{2}} - x_{i+\frac{3}{2}} \right).
 \end{eqnarray}
 Hereafter, we assume that operator notation is clear and only expand it where necessary.
@@ -327,8 +327,8 @@ Hereafter, we assume that operator notation is clear and only expand it where ne
 MicroHH has a fully kinetic energy-conserving fourth-order advection scheme \citep{Morinishi1998} available. The scheme is constructed by interpolation of two kinetic energy-conserving second-order discretizations to eliminate the second-order error as illustrated below
 \begin{eqnarray}
 % \nonumber
-\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j} & \approx & \frac{9}{8} \delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j} 
-                                                             - \frac{1}{8} \delta^{2xL} \left( u \overline{\phi}^{2xL} \right)_{i,j}%\\
+\left. \dfrac{\partial u \phi}{\partial x} \right|_{i,j,k} & \approx & \frac{9}{8} \delta^{2x} \left( u \overline{\phi}^{2x} \right)_{i,j,k} 
+                                                             - \frac{1}{8} \delta^{2xL} \left( u \overline{\phi}^{2xL} \right)_{i,j,k}%\\
 % \nonumber
 % & = & \frac{9}{16} \dfrac{ u_{i+\frac{1}{2},j} \overline{\phi}^x_{i+\frac{1}{2},j} - u_{i-\frac{1}{2},j} \overline{\phi}^x_{i-\frac{1}{2},j} }
 %                           { x_{i+\frac{1}{2}} - x_{i-\frac{1}{2}} }\\
@@ -339,42 +339,42 @@ to ensure that velocity variances are conserved under advection.
 
 Velocity interpolations, such as those in Eq. \ref{eq:advec2u}, still need to be performed with fourth-order accuracy (Eq. \ref{eq:interp4}) in order to  be fourth-order accurate (see \citet{Morinishi1998} for details). The expression
 \begin{eqnarray}
-\left. \dfrac{\partial v u}{\partial x}\right|_{i,j} \approx \frac{9}{8} \delta^{2x} \left( \overline{v}^{4y} \overline{u}^{2x} \right)_{i,j} 
-                                       - \frac{1}{8} \delta^{2xL} \left( \overline{v}^{4y} \overline{u}^{2xL} \right)_{i,j}
+\left. \dfrac{\partial v u}{\partial x}\right|_{i,j,k} \approx \frac{9}{8} \delta^{2x} \left( \overline{v}^{4y} \overline{u}^{2x} \right)_{i,j,k} 
+                                       - \frac{1}{8} \delta^{2xL} \left( \overline{v}^{4y} \overline{u}^{2xL} \right)_{i,j,k}
 \end{eqnarray}
 includes, for instance, a combination of second- and fourth-order interpolations.
 
 To increase the overall accuracy of the second-order advection operator, there is an option available to only increase the interpolation part to fourth order
 \begin{eqnarray}
-\left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j}
+\left. \dfrac{\partial u \phi}{\partial x}\right|_{i,j,k}
 & \approx & 
-\delta^{2x} \left( u \overline{\phi}^{4x} \right)_{i,j}.
+\delta^{2x} \left( u \overline{\phi}^{4x} \right)_{i,j,k}.
 \end{eqnarray}
 
 \subsection{Diffusion}
 We apply a discretization for diffusion that can be written as the divergence of a gradient, using the building blocks defined earlier in this section. As this operator is identical in all directions, we present it in one direction only
 \begin{eqnarray}
-\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
-\kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j},\\
+\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j,k} & \approx &
+\kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j,k},\\
 % \kappa_\phi \dfrac{\left. \dfrac{\partial \phi}{\partial x}\right|_{i+\frac{1}{2},j} - \left. \dfrac{\partial \phi}{\partial x}\right|_{i-\frac{1}{2},j}}
 %                                 {   x_{i+\frac{1}{2},j} -    x_{i-\frac{1}{2},j}}
-\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j} & \approx &
-\kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}.
+\left. \kappa_\phi \dfrac{\partial^2 \phi}{\partial x^2}\right|_{i,j,k} & \approx &
+\kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j,k}.
 \end{eqnarray}
 On an equidistant grid, this provides the well-known second-order accurate operator for the second derivative
 \begin{eqnarray}
-\kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j} =
-\kappa_\phi \dfrac{ \phi_{i-1,j} - 2 \phi_{i,j} + \phi_{i+1,j} }{\left( \Delta x \right)^2},\label{eq:diff_2nd}
+\kappa_\phi \delta^{2x} \left( \delta^{2x} \left( \phi \right) \right)_{i,j,k} =
+\kappa_\phi \dfrac{ \phi_{i-1,j,k} - 2 \phi_{i,j,k} + \phi_{i+1,j,k} }{\left( \Delta x \right)^2},\label{eq:diff_2nd}
 \end{eqnarray}
 where $\Delta x$ is the uniform grid spacing.
 
 For the fourth-order accurate operator, a seven-point stencil is used:
 \begin{eqnarray}
 \nonumber
-&& \kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j}\\
+&& \kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j,k}\\
 \nonumber
-&& = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j} - 54 \phi_{i-2,j} + 783 \phi_{i-1,j}\right.\\
-&&  \left. - 1460  \phi_{i,j} + 783 \phi_{i+1,j} - 54 \phi_{i+2,j} + \phi_{i+3,j} \right).\label{eq:diff_4th}
+&& = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j,k} - 54 \phi_{i-2,j,k} + 783 \phi_{i-1,j,k}\right.\\
+&&  \left. - 1460  \phi_{i,j,k} + 783 \phi_{i+1,j,k} - 54 \phi_{i+2,j,k} + \phi_{i+3,j,k} \right).\label{eq:diff_4th}
 \end{eqnarray}
 Whereas diffusion can be fourth-order accurate computed using a five-point stencil, we have chosen for a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
 
