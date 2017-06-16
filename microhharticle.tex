@@ -201,23 +201,23 @@ For the fourth-order scheme the vectors $a$ and $b$ are
 The reduced truncation error of the fourth-order scheme makes the scheme preferable over the third-order scheme under many conditions (see Sect. \ref{sec:validationtime}). The code can be run with a fixed $\Delta t$, as well as an adaptive time step based on the local flow velocities.
 
 \subsection{Building blocks of the spatial discretization}\label{sec:buiding_blocks}
-The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series, spatial operators can be derived that constitute the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the elementary operators and the composite operators that can be derived from them. We use only two dimensions for brevity.
+The spatial operators are based on finite differences. The code supports second-order and fourth-order accurate discretizations following \citet{Morinishi1998, Vasilyev2000}. From Taylor series, spatial operators can be derived that constitute the building blocks of more advanced operators, such as the advection and diffusion operators. In the following subsections we describe the elementary operators and the composite operators that can be derived from them. We have selected a set of examples that cover the relevant operators.
 
 We define two second-order interpolation operators, one with a small stencil and one with a wide stencil, as
 \begin{eqnarray}
-\phi_{i,j} \approx \overline{\phi}^{2x }_{i,j} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j} + \phi_{i+\frac{1}{2},j}}{2},\\
-\phi_{i,j} \approx \overline{\phi}^{2xL}_{i,j} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j} + \phi_{i+\frac{3}{2},j}}{2},
+\phi_{i,j,k} \approx \overline{\phi}^{2x }_{i,j,k} & \equiv & \dfrac{\phi_{i-\frac{1}{2},j,k} + \phi_{i+\frac{1}{2},j,k}}{2},\\
+\phi_{i,j,k} \approx \overline{\phi}^{2xL}_{i,j,k} & \equiv & \dfrac{\phi_{i-\frac{3}{2},j,k} + \phi_{i+\frac{3}{2},j,k}}{2},
 \end{eqnarray}
 Interpolations are marked with a bar. The superscript indicates the spatial order (2), and the direction ($x$) and has an extra qualifier $L$ when it is taken using the wide stencil. The subscript indicates the position on the grid ($i,j$).
 
 The gradient operators, denoted with letter $\delta$, are defined in a similar way
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2x} \left( \phi \right)_{i,j} & \equiv & \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} \approx \delta^{2x} \left( \phi \right)_{i,j,k} & \equiv & \dfrac{\phi_{i+\frac{1}{2},j,k} - \phi_{i-\frac{1}{2},j,k}}
                                                                                                                  {   x_{i+\frac{1}{2}}   -    x_{i-\frac{1}{2}  }} \\
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} \approx \delta^{2xL} \left( \phi \right)_{i,j}& \equiv & \dfrac{\phi_{i+\frac{3}{2},j} - \phi_{i-\frac{3}{2},j}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} \approx \delta^{2xL} \left( \phi \right)_{i,j,k}& \equiv & \dfrac{\phi_{i+\frac{3}{2},j,k} - \phi_{i-\frac{3}{2},j,k}}
                                                                                                                   {   x_{i+\frac{3}{2}}   -    x_{i-\frac{3}{2}  }}
 \end{eqnarray}
-We use the Einstein summation in the operators. For instance, the divergence of vector $\left.u_i\right|_{i,j}$ can be written as $\delta^{2x_i}\left( u_i \right)_{i,j}$.
+We use the Einstein summation in the operators. For instance, the divergence of vector $\left.u_i\right|_{i,j,k}$ can be written as $\delta^{2x_i}\left( u_i \right)_{i,j,k}$.
 % \begin{eqnarray}
 % \delta^{2x} \left( \phi \right)_{i,j} = \dfrac{\phi_{i+\frac{1}{2},j} - \phi_{i-\frac{1}{2},j}}
 %                                               {\Delta x}
@@ -230,28 +230,28 @@ We use the Einstein summation in the operators. For instance, the divergence of 
 
 The fourth-order operators, written down in the same notation, are defined as
 \begin{eqnarray}
-\phi_{i,j} \approx \overline{\phi}^{4x}_{i,j} \equiv \dfrac{- \phi_{i-\frac{3}{2},j} + 9 \phi_{i-\frac{1}{2},j} + 9 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}{16}.\label{eq:interp4}
+\phi_{i,j,k} \approx \overline{\phi}^{4x}_{i,j,k} \equiv \dfrac{- \phi_{i-\frac{3}{2},j,k} + 9 \phi_{i-\frac{1}{2},j,k} + 9 \phi_{i+\frac{1}{2},j,k} - \phi_{i+\frac{3}{2},j,k}}{16}.\label{eq:interp4}
 \end{eqnarray}
-The biased version of this operator (subscript $b$) can be applied in the vicinity of the boundaries 
+The biased version of this operator (subscript $b$) can be applied in the vicinity of the boundaries at the bottom and top. Here, we show the biased stencil that can be applied for vertical interpolation near the bottom
 \begin{eqnarray}
-\phi_{i,j} \approx \overline{\phi}^{4xb}_{i,j} \equiv \dfrac{ 5 \phi_{i-\frac{1}{2},j} + 15 \phi_{i+\frac{1}{2},j} - 5 \phi_{i+\frac{3}{2},j} + \phi_{i+\frac{5}{2},j}}{16}.
+\phi_{i,j,k} \approx \overline{\phi}^{4zb}_{i,j,k} \equiv \dfrac{ 5 \phi_{i,j,k-\frac{1}{2}} + 15 \phi_{i,j,k+\frac{1}{2}} - 5 \phi_{i,j,k+\frac{3}{2}} + \phi_{i,j,k+\frac{5}{2}}}{16}.
 \end{eqnarray}
 Note that we only write down the bottom boundary for brevity.
 
 The centered and biased fourth-order gradient operators are
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta^{4x} \left( \phi \right)_{i,j}\\
-& \equiv & \dfrac{\phi_{i-\frac{3}{2},j} - 27 \phi_{i-\frac{1}{2},j} + 27 \phi_{i+\frac{1}{2},j} - \phi_{i+\frac{3}{2},j}}
+\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j,k} & \approx & \delta^{4x} \left( \phi \right)_{i,j,k}\\
+& \equiv & \dfrac{\phi_{i-\frac{3}{2},j,k} - 27 \phi_{i-\frac{1}{2},j,k} + 27 \phi_{i+\frac{1}{2},j,k} - \phi_{i+\frac{3}{2},j,k}}
              {       x_{i-\frac{3}{2}}   - 27    x_{i-\frac{1}{2}}   + 27    x_{i+\frac{1}{2}}   -    x_{i+\frac{3}{2}}},
 \end{eqnarray}
 and
 
 \begin{eqnarray}
 \nonumber
-\left. \dfrac{\partial \phi}{\partial x}\right|_{i,j} & \approx & \delta^{4xb} \left( \phi \right)_{i,j}\\
-& \equiv & \dfrac{-23 \phi_{i-\frac{1}{2},j} + 21 \phi_{i+\frac{1}{2},j} + 3 \phi_{i+\frac{3}{2},j} - \phi_{i+\frac{5}{2},j}}
-                 {-23    x_{i-\frac{1}{2}}   + 21    x_{i+\frac{1}{2}}   + 3    x_{i+\frac{3}{2}}   -    x_{i+\frac{5}{2}}}.\label{eq:grad_biased}
+\left. \dfrac{\partial \phi}{\partial z}\right|_{i,j,k} & \approx & \delta^{4zb} \left( \phi \right)_{i,j,k}\\
+& \equiv & \dfrac{-23 \phi_{i,j,k-\frac{1}{2}} + 21 \phi_{i,j,k+\frac{1}{2}} + 3 \phi_{i,j,k+\frac{3}{2}} - \phi_{i,j,k+\frac{5}{2}}}
+                 {-23    z_{k-\frac{1}{2}}   + 21    z_{k+\frac{1}{2}}   + 3    z_{k+\frac{3}{2}}   -    z_{k+\frac{5}{2}}}.\label{eq:grad_biased}
 \end{eqnarray}
 
 % \begin{eqnarray}
@@ -289,8 +289,8 @@ In case of the fourth-order scheme, we have two ghost cells, and therefore a sec
 \end{eqnarray}
 whereas in case of a Neumann boundary condition we find
 \begin{eqnarray}
-\phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{1}{2}},\\
-\phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{i-\frac{3}{2}} - 27 z_{i-\frac{1}{2}} + 27 z_{i+\frac{1}{2}} - z_{i+\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}.
+\phi_{-\frac{1}{2}} & = & -c  \dfrac{z_{-\frac{3}{2}} - 27 z_{-\frac{1}{2}} + 27 z_{\frac{1}{2}} - z_{\frac{3}{2}}}{24} + \phi_{\frac{1}{2}},\\
+\phi_{-\frac{3}{2}} & = & -3c \dfrac{z_{-\frac{3}{2}} - 27 z_{-\frac{1}{2}} + 27 z_{\frac{1}{2}} - z_{\frac{3}{2}}}{24} + \phi_{\frac{3}{2}}.
 \end{eqnarray}
 
 \subsection{Advection}
