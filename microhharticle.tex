@@ -374,11 +374,10 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 && \kappa_\phi \delta^{4x} \left( \delta^{4x} \left( \phi \right) \right)_{i,j,k}\\
 \nonumber
 && = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j,k} - 54 \phi_{i-2,j,k} + 783 \phi_{i-1,j,k}\right.\\
-&&  \left. - 1460  \phi_{i,j,k} + 783 \phi_{i+1,j,k} - 54 \phi_{i+2,j,k} + \phi_{i+3,j,k} \right).\label{eq:diff_4th}
+&&  \left. - 1460  \phi_{i,j,k} + 783 \phi_{i+1,j,k} - 54 \phi_{i+2,j,k} + \phi_{i+3,j,k} \right). \label{eq:diff_4th}
 \end{eqnarray}
-Whereas diffusion can be computed with fourth-order accuracy using a five-point stencil, we use a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
 
-The usage of a seven-point stencil requires special care near the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green node in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the wall (lowest red node in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased} and yellow stencil connected to lowest red node in Fig. \ref{fig:stencil_wall}). The extent of the complete stencil near the wall (white nodes, Fig. \ref{fig:stencil_wall}) is thus six points, rather than seven.
+Whereas diffusion can be computed with fourth-order accuracy using a five-point stencil, we use a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}. The usage of a seven-point stencil requires special care near the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green node in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the wall (lowest red node in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased} and yellow stencil connected to lowest red node in Fig. \ref{fig:stencil_wall}). The extent of the complete stencil near the wall (white nodes, Fig. \ref{fig:stencil_wall}) is thus six points, rather than seven.
 
 \begin{figure}[t]
 	\vspace*{2mm}
@@ -959,7 +958,7 @@ $N$ & Brunt-Vaissala frequency & s\\
 \fi
 
 \begin{acknowledgements}
-Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with many of the developers of DALES (Huug Ouwersloot, Stephan de Roode, Arnold Moene and Jordi Vil\`{a}-Guerau de Arellano), PALM (Bj\"{o}rn Maronga and Siegfried Raasch), UCLA-LES (Linda Schlemmer and Bjorn Stevens) and ICON (Leonidas Linardakis). We thank Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven flows. The authors gratefully acknowledge the Gauss Centre for Supercomputing (GCS) for providing computing time for a GCS Large-Scale Project on the GCS share of the supercomputer JUQUEEN at J\"{u}lich Supercomputing Centre (JSC). 
+Finishing the 1.0 version of MicroHH has only become possible thanks to extensive discussions and exchange of code with many of the developers of DALES (Huug Ouwersloot, Stephan de Roode, Arnold Moene and Jordi Vil\`{a}-Guerau de Arellano), PALM (Bj\"{o}rn Maronga and Siegfried Raasch), UCLA-LES (Linda Schlemmer and Bjorn Stevens) and ICON (Leonidas Linardakis). We thank Alan Shapiro for the discussions on the bottom boundary condition for pressure for buoyancy driven flows and for his comments on the manuscript. We thank Elie Bou-Zeid and an anonymous reviewer for their constructive comments on the manuscript. The authors gratefully acknowledge the Gauss Centre for Supercomputing (GCS) for providing computing time for a GCS Large-Scale Project on the GCS share of the supercomputer JUQUEEN at J\"{u}lich Supercomputing Centre (JSC). 
 \end{acknowledgements}
 
 \bibliographystyle{copernicus}
