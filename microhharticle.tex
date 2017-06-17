@@ -739,8 +739,8 @@ The second test of the dynamical core consists of combined evaluation of kinetic
 
 The loss of kinetic energy as a function of time is shown in Fig. \ref{fig:timeconvergence}a. The fourth-order scheme results in a smaller energy loss for the same time step and an a faster convergence. The error-convergence plot (Fig. \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the order of the respective scheme. Furthermore, it illustrates the fact that, if high accuracy in time is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the error of the fourth-order scheme is approximately equal to the error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy, the fourth-order scheme needs only 5 steps per 10 time units, whereas the third-order scheme needs 12 steps.
 
-\subsection{Laminar katabatic flow} \label{sec:laminarkatabatic}
-To test the buoyancy routine and the option to put the domain on a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942} (\texttt{cases/prandtl}). In this test case, the surface is inclined at an angle of $-30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$) is cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~s$^{-3}$.
+\subsection{Laminar anabatic flow} \label{sec:laminaranabatic}
+To test the buoyancy routine and the option to put the domain on a slope, a Prandl-type anabatic slope flow  \citep{Prandtl1942} has been simulated (\texttt{cases/prandtlslope}). In this test case, the surface is inclined at an angle of $30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$) is heated from below with a fixed surface buoyancy flux of 0.05~m$^2$~s$^{-3}$.
 
 \begin{figure}[t]
 	\vspace*{2mm}
@@ -751,7 +751,7 @@ To test the buoyancy routine and the option to put the domain on a slope, a lami
 	\label{fig:prandtl}
 \end{figure}
 
-The fluid, which was initially at rest, goes through a series of decaying oscillations after the negative buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of analytical and numerical solutions, which very closely agree with each other, is presented in Fig.~\ref{fig:prandtl}.
+The fluid, which was initially at rest, goes through a series of decaying oscillations after the  buoyancy flux is applied at the surface. Eventually, it reaches the steady state corresponding to the Prandtl model solution. Numerical integration was performed sufficiently long for the oscillation amplitude to become a small fraction of the amplitude of the first oscillation. Comparison of horizontal wind $u$ and buoyancy $b$ of analytical and numerical solutions is shown in Fig.~\ref{fig:prandtl}. For both variables the solutions closely agree with each other.
 
 \subsection{Turbulent channel flow}
 For fully turbulent flows, the numerical solutions cannot be compared against any analytical testcases. Therefore, we validate our results against a channel flow at a Reynolds-$\tau$  number of 590 \citep{Moser1999} for means, variances, spectra, and second-order budget statistics (\texttt{cases/moser590}). The case is run at a resolution of 768 $\times$ 384 $\times$ 256 grid points. The original numerical simulation data of \citet{Moser1999} has been produced on a 384 $\times$ 384 $\times$ 256 grid, with spectral schemes in the horizontal dimensions and Chebyshev polynomials in the vertical.
