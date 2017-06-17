@@ -139,7 +139,7 @@ MicroHH provides multiple options for the energy conservation equation. The cons
 \begin{eqnarray}
 \dfrac{\partial \theta}{\partial t} & = & - \dfrac{1}{\rho_0} \dfrac{\partial \rho_0 u_j \theta}{\partial x_j} + \kappa_\theta \dfrac{\partial^2 \theta}{\partial x_j^2} + \dfrac{\theta_0}{\rho_0 c_p T_0} Q,\label{eq:consthermo}
 \end{eqnarray}
-where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details). In the dry mode, the Brunt-Vaissala frequency $N$ is defined as $N^2 \equiv \left(g/\theta_0\right) \left( \partial \theta/\partial z \right)$, whereas in the moist dynamics $N^2 \equiv \left(g/\theta_{v0}\right) \left( \partial \theta_v/\partial z \right)$.
+where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details). 
 
 A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv -(g/\rho_0)\rho^\prime$ as
 \begin{eqnarray}
@@ -148,18 +148,18 @@ A third, more simplified mode, is available for dry dynamics under the Boussines
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
 \kappa_b \dfrac{\partial^2 b}{\partial x_j^2} + Q_b \label{eq:consbsimp}.
 \end{eqnarray}
-with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. In this mode, $N$ is defined as $N^2 \equiv \partial b/\partial z$.
+with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. 
 
-With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ (positive anticlockwise, thus $x$-axis pointing upslope, see \citet{Fedorovich2009}, their Fig. 1) in the $x$-direction, take the proper gravity vector, and define the buoyancy as $b \equiv -(g/\rho_0)\rho^\prime - N_0^2 z$, with $N_0^2$ as a prescribed background buoyancy profile, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consbsimp} becomes
+With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ ($x$-axis pointing upslope, see \citet{Fedorovich2009}, their Fig. 1) in the $x$-direction, take the proper gravity vector, and define the buoyancy as $b \equiv -(g/\rho_0)\rho^\prime + N^2 z$, with $N^2$ as the prescribed background static stability, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consbsimp} becomes
 \begin{eqnarray}
 \dfrac{\partial u}{\partial t} + \dfrac{\partial u_j u}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + \sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
 \dfrac{\partial w}{\partial t} + \dfrac{\partial u_j w}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial z} + \cos(\alpha) b + \nu \dfrac{\partial^2 w}{\partial x_j^2}\label{eq:conswslope},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
-\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N_0^2 + Q_b.\label{eq:consbslope}
+\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N^2 + Q_b.\label{eq:consbslope}
 \end{eqnarray}
-where the evolution equation of $v$ is omitted as it contains no changes. In this formulation, $N$ is defined as $N^2 \equiv \partial b/\partial z + N_0^2$.
+where the evolution equation of $v$ is omitted as it contains no changes.
 
 \section{Dynamical core: numerical implementation}\label{sec:dyncorediscrete}
 \subsection{Grid}\label{sec:grid}
@@ -511,13 +511,13 @@ As $\tau_{ij}$ contains the filtered product of unfiltered velocity components, 
 with $K_m$ interpreted as the subfilter eddy-diffusivity. This quantity is modeled as 
 \begin{eqnarray}
 K_m    & = & \lambda^2 S
-\left(1 - \dfrac{N^2}{Pr_t S^2} \right)^\frac{1}{2},
+\left(1 - \dfrac{  \dfrac{g}{\theta_{v0}} \dfrac{\partial \thetaf_v}{\partial z}}{Pr_t S^2} \right)^\frac{1}{2},
 \end{eqnarray}
 and is proportional to the magnitude $S \equiv \left( 2 S_{ij} S_{ij} \right)^\frac{1}{2}$ of the strain tensor $S_{ij}$, which is defined as
 \begin{eqnarray}
 S_{ij} & \equiv & \frac{1}{2} \left( \dfrac{\partial \uf_i}{\partial x_j} + \dfrac{\partial \uf_j}{\partial x_i} \right).
 \end{eqnarray}
-The subfilter eddy diffusivity thus takes into account the local stratification $N^2$ and the turbulent Prandtl number $Pr_t$. The latter is set to $\frac{1}{3}$ by default, but can be overridden in the settings. The length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}, as
+The subfilter eddy diffusivity thus takes into account the local stratification and the turbulent Prandtl number $Pr_t$. The latter is set to $\frac{1}{3}$ by default, but can be overridden in the settings. The length scale  $\lambda$ is the mixing length defined following \citet{Mason1992}, as
 \begin{eqnarray}
 \dfrac{1}{\lambda^n} = \dfrac{1}{\left[ \kappa \left(z + z_0 \right) \right]^n} + \dfrac{1}{\left( c_s \Delta \right)^n},
 \end{eqnarray}
