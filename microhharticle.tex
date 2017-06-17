@@ -150,14 +150,14 @@ A third, more simplified mode, is available for dry dynamics under the Boussines
 \end{eqnarray}
 with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. In this mode, $N$ is defined as $N^2 \equiv \partial b/\partial z$.
 
-With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ (positive anticlockwise) in the $x$-direction, take the proper gravity vector, and define the buoyancy as $b \equiv -(g/\rho_0)\rho^\prime - N_0^2 z$, with $N_0^2$ as a prescribed background buoyancy profile, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consenbsimp} becomes
+With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ (positive anticlockwise, thus $x$-axis pointing upslope, see \citet{Fedorovich2009}, their Fig. 1) in the $x$-direction, take the proper gravity vector, and define the buoyancy as $b \equiv -(g/\rho_0)\rho^\prime - N_0^2 z$, with $N_0^2$ as a prescribed background buoyancy profile, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consbsimp} becomes
 \begin{eqnarray}
 \dfrac{\partial u}{\partial t} + \dfrac{\partial u_j u}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + \sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
 \dfrac{\partial w}{\partial t} + \dfrac{\partial u_j w}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial z} + \cos(\alpha) b + \nu \dfrac{\partial^2 w}{\partial x_j^2}\label{eq:conswslope},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
-\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N_0^2\label{eq:consbslope}
+\kappa_b \dfrac{\partial^2 b}{\partial x_j^2} - \left (u\,\sin(\alpha) + w\,\cos(\alpha) \right) N_0^2 + Q_b.\label{eq:consbslope}
 \end{eqnarray}
 where the evolution equation of $v$ is omitted as it contains no changes. In this formulation, $N$ is defined as $N^2 \equiv \partial b/\partial z + N_0^2$.
 
@@ -376,7 +376,7 @@ For the fourth-order accurate operator, a seven-point stencil is used:
 && = \dfrac{\kappa_\phi}{576 \left( \Delta x \right)^2} \left( \phi_{i-3,j,k} - 54 \phi_{i-2,j,k} + 783 \phi_{i-1,j,k}\right.\\
 &&  \left. - 1460  \phi_{i,j,k} + 783 \phi_{i+1,j,k} - 54 \phi_{i+2,j,k} + \phi_{i+3,j,k} \right).\label{eq:diff_4th}
 \end{eqnarray}
-Whereas diffusion can be fourth-order accurate computed using a five-point stencil, we have chosen for a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
+Whereas diffusion can be computed with fourth-order accuracy using a five-point stencil, we use a seven-point stencil as it extends naturally to non-uniform grids as explained in \citet{Castillo1995}.
 
 The usage of a seven-point stencil requires special care near the walls. In Fig. \ref{fig:stencil_wall} we show an example of how the second derivative in the vertical direction is computed for a scalar at the first model level (green node in Fig. \ref{fig:stencil_wall}). The calculation of the divergence (Fig. \ref{fig:stencil_wall}, red stencil) requires the gradient located at the first face below the wall (lowest red node in Fig. \ref{fig:stencil_wall}), which can only be acquired using the biased gradient operator (Eq. \ref{eq:grad_biased} and yellow stencil connected to lowest red node in Fig. \ref{fig:stencil_wall}). The extent of the complete stencil near the wall (white nodes, Fig. \ref{fig:stencil_wall}) is thus six points, rather than seven.
 
@@ -741,7 +741,7 @@ The second test of the dynamical core consists of combined evaluation of kinetic
 The loss of kinetic energy as a function of time is shown in Fig. \ref{fig:timeconvergence}a. The fourth-order scheme results in a smaller energy loss for the same time step and an a faster convergence. The error-convergence plot (Fig. \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the order of the respective scheme. Furthermore, it illustrates the fact that, if high accuracy in time is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the error of the fourth-order scheme is approximately equal to the error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy, the fourth-order scheme needs only 5 steps per 10 time units, whereas the third-order scheme needs 12 steps.
 
 \subsection{Laminar katabatic flow} \label{sec:laminarkatabatic}
-To test the buoyancy routine and the option to put the domain on a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942} (\texttt{cases/prandtl}). In this test case, the surface is inclined at an angle of $30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$) is cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~s$^{-3}$.
+To test the buoyancy routine and the option to put the domain on a slope, a laminar katabatic flow has been simulated, based on the test case of \citet{Prandtl1942} (\texttt{cases/prandtl}). In this test case, the surface is inclined at an angle of $-30^{\circ}$ and a linearly stratified atmosphere ($N = 1$~s$^{-1}$) is cooled from below with a fixed surface buoyancy flux of -0.005~m$^2$~s$^{-3}$.
 
 \begin{figure}[t]
 	\vspace*{2mm}
