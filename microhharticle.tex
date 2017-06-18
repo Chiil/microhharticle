@@ -141,7 +141,7 @@ MicroHH provides multiple options for the energy conservation equation. The cons
 \end{eqnarray}
 where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details). 
 
-A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation Here, the equation of state can be eliminated and the conservation of momentum and energy can be written in terms of buoyancy $b \equiv -(g/\rho_0)\rho^\prime$ as
+A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation Here, the equation of state can be eliminated and the conservation of momentum and energy can be written in terms of buoyancy $b \equiv \left( g/\theta_{v0} \right) \theta_v^\prime$ as
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} + \dfrac{\partial u_i u_j}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x_i} + \delta_{i3} b + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmombsimp},\\
