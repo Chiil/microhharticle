@@ -89,8 +89,8 @@ Under the Boussinesq approximation ($H_{\rho}~\rightarrow~\infty$), Eq. \ref{eq:
 \dfrac{\partial u_i}{\partial x_i} & = & 0. \label{eq:consmassb}
 \end{eqnarray}
 
-\subsection{The equation of state and conservation of momentum}
-The relation between the virtual potential temperature and the pressure and density under the anelastic approximation is (see \citet{Bannon1996} for its derivation)
+\subsection{Thermodynamic relations and conservation of momentum}
+The thermodynamic relation between the fluctuations of virtual potential temperature, pressure, and density under the anelastic approximation is (see \citet{Bannon1996} for its derivation)
 \begin{eqnarray}
 \dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho_0 g H_{\rho}} - \dfrac{\rho'}{\rho_0},\label{eq:statea}
 \end{eqnarray}
@@ -106,9 +106,9 @@ where $\delta$ is the Kronecker delta, $\nu$ the kinematic viscosity, and vector
 
 Under the Boussinesq approximation, the two equations simplify to
 \begin{eqnarray}
+\dfrac{\theta_v'}{\theta_{v0}} & = & - \dfrac{\rho'}{\rho_0}\label{eq:stateb},\\
 \nonumber \dfrac{\partial u_i}{\partial t} & = & - \dfrac{\partial u_i u_j}{\partial x_j} - \dfrac{1}{\rho_0}\dfrac{\partial p^\prime}{\partial x_i} \\
-& + & \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + F_i \label{eq:consmomb},\\
-\dfrac{\theta_v'}{\theta_{v0}} & = & - \dfrac{\rho'}{\rho_0}\label{eq:stateb}.
+& + & \delta_{i3} g \dfrac{\theta_v'}{\theta_{v0}} + \nu \dfrac{\partial^2 u_i}{\partial x_j^2} + F_i \label{eq:consmomb}.
 \end{eqnarray}
 
 \subsection{Pressure equation}
@@ -141,16 +141,16 @@ MicroHH provides multiple options for the energy conservation equation. The cons
 \end{eqnarray}
 where $\kappa_\theta$ is the thermal diffusivity for heat, and $Q$ represents external sources and sinks of heat. A second option for moist dynamics is available. This has an identical conservation equation, but with liquid water potential temperature $\theta_l$ (moist dynamics), rather than $\theta$ as the conserved variable (see Sect. \ref{sec:thermo} for details). 
 
-A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation. Here, the equation of state can be eliminated and the conservation of momentum and energy can be written using buoyancy $b \equiv -(g/\rho_0)\rho^\prime$ as
+A third, more simplified mode, is available for dry dynamics under the Boussinesq approximation Here, the equation of state can be eliminated and the conservation of momentum and energy can be written in terms of buoyancy $b \equiv -(g/\rho_0)\rho^\prime$ as
 \begin{eqnarray}
 \dfrac{\partial u_i}{\partial t} + \dfrac{\partial u_i u_j}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x_i} + \delta_{i3} b + \nu \dfrac{\partial^2 u_i}{\partial x_j^2}\label{eq:consmombsimp},\\
 \dfrac{\partial b}{\partial t} + \dfrac{\partial b u_j}{\partial x_j} & = & 
 \kappa_b \dfrac{\partial^2 b}{\partial x_j^2} + Q_b \label{eq:consbsimp}.
 \end{eqnarray}
-with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. 
+with $\kappa_b$ being the diffusivity for buoyancy, and $Q_b$ is an external buoyancy source. By using buoyancy, length and time remain as the only two dimensions, which proves convenient for dimensional analysis. In this formulation, we consider a reference profile $\theta_{v,0}$ that is constant with height, so that $\theta'_v$ is the fluctuation of the virtual potential temperature with respect to the surface value. The consequence is that the buoyancy increases with height in a stratified atmosphere, analogously to the virtual potential temperature (see Garcia and Mellado (2014), their Fig. B1 and van Heerwaarden and Mellado (2016), their Fig. 7a)
 
-With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ ($x$-axis pointing upslope, see \citet{Fedorovich2009}, their Fig. 1) in the $x$-direction, take the proper gravity vector, and define the buoyancy as $b \equiv -(g/\rho_0)\rho^\prime + N^2 z$, with $N^2$ as the prescribed background static stability, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consbsimp} becomes
+With a slight modification to the previous set of equations, it is possible to study slope flows in periodic domains. If we introduce a slope $\alpha$ ($x$-axis pointing upslope, see \citet{Fedorovich2009}, their Fig. 1) in the $x$-direction, take the proper gravity vector, and introduce the background stratification $N^2$ into the evolution equation for $b$, the set of Eqs. \ref{eq:consmombsimp} and \ref{eq:consbsimp} becomes
 \begin{eqnarray}
 \dfrac{\partial u}{\partial t} + \dfrac{\partial u_j u}{\partial x_j} & = & 
 - \dfrac{1}{\rho_0}\dfrac{\partial p'}{\partial x} + \sin(\alpha) b + \nu \dfrac{\partial^2 u}{\partial x_j^2}\label{eq:consuslope},\\
