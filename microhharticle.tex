@@ -32,7 +32,7 @@
 \author[3]{Thijs Heus}
 \author[4]{Jeremy A. Gibbs}
 \author[5]{Evgeni Fedorovich}
-\author[2]{Juan-Pedro Mellado}
+\author[2]{Juan Pedro Mellado}
 
 \affil[1]{Meteorology and Air Quality Group, Wageningen University, Wageningen, The Netherlands}
 \affil[2]{Max Planck Institute for Meteorology, Hamburg, Germany}
@@ -90,7 +90,7 @@ Under the Boussinesq approximation ($H_{\rho}~\rightarrow~\infty$), Eq. \ref{eq:
 \end{eqnarray}
 
 \subsection{The equation of state and conservation of momentum}
-The equation of state under the anelastic approximation is (see \citet{Bannon1996} for its derivation)
+The relation between the virtual potential temperature and the pressure and density under the anelastic approximation is (see \citet{Bannon1996} for its derivation)
 \begin{eqnarray}
 \dfrac{\theta_v'}{\theta_{v0}} & = & \dfrac{p'}{\rho_0 g H_{\rho}} - \dfrac{\rho'}{\rho_0},\label{eq:statea}
 \end{eqnarray}
@@ -727,14 +727,14 @@ We use the analytical form at $t=0$ as the initial condition and run this case f
 Figure \ref{fig:taylorgreen} shows the error convergence of the simulations. The error for a variable $\phi$ is computed as $\sum \Delta x \Delta z \left| \phi_{i,k} - \phi_{\textrm{ref},i,k}, \right|$ over the two-dimensional domain, where $\Delta x$ and $\Delta z$ are the uniform grid spacings used in this case and $\phi_{\textrm{ref}}$ is the analytical solution. All variables converge according to the order of the numerical scheme. The fourth-order dynamical core loses accuracy at fine grid spacings. This is due to the boundary condition for the vertical velocity that sacrifies an order of accuracy to ensure global mass conservation \citep{Morinishi1998}.
 
 \subsection{Kinetic energy conservation and time accuracy} \label{sec:validationtime}
-The second test of the dynamical core consists of combined evaluation of kinetic energy ($u^2 + v^2 + w^2$) conservation and time accuracy 
+The second test of the dynamical core consists of combined evaluation of kinetic energy ($\textrm{KE} \equiv \frac{1}{2}\left( u^2 + v^2 + w^2 \right)$) conservation and time accuracy 
 (\texttt{cases/conservation}). In this experiment, we run the model with only the advection and pressure solver enabled and advect random noise through the domain for 1000 seconds. These tests have been conducted with the third- and fourth-order Runge-Kutta schemes. We have chosen the fourth-order spatial discretization in order to demonstrate its energy conservation.
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
 \includegraphics[width=8.3cm]{figs/timeconvergence.pdf}
 \end{center}
-\caption{Time evolution of the energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes with three different time steps (a). Error convergence of the temporal discretization for the RK3 and RK4 scheme (b).}\label{fig:timeconvergence}
+\caption{Time evolution of the kinetic energy loss during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes with three different time steps (a). Kinetic energy loss convergence of the temporal discretization for the RK3 and RK4 scheme (b).}\label{fig:timeconvergence}
 \end{figure}
 
 The loss of kinetic energy as a function of time is shown in Fig. \ref{fig:timeconvergence}a. The fourth-order scheme results in a smaller energy loss for the same time step and an a faster convergence. The error-convergence plot (Fig. \ref{fig:timeconvergence}b) shows that the error convergence is in accordance with the order of the respective scheme. Furthermore, it illustrates the fact that, if high accuracy in time is desired, the five-stage fourth-order scheme is less expensive than the three-stage third-order scheme. For instance, at a $\Delta t$ of 10, the error of the fourth-order scheme is approximately equal to the error of the third-order scheme at a $\Delta t$ of 2.5. To reach this accuracy, the fourth-order scheme needs only 5 steps per 10 time units, whereas the third-order scheme needs 12 steps.
