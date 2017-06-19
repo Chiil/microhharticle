@@ -480,10 +480,10 @@ p_{0;k+1} = p_{0;k} ~ \mathrm{exp}\left(\frac{-g (z_{k+1}-z_k)}{R_\mathrm{d} ~ \
 The base state density $\rho_0$ that is used in the dynamical core (Sect. \ref{sec:dyncore}) is calculated using the initial virtual potential temperature profile, and is not updated during the experiment. The density and hydrostatic pressure used in the moist thermodynamics can optionally be updated every time step, following the same procedure as explained in \citet{Boing2014}.
 
 \subsection{Rotation}
-The effects of a rotating reference can be included through the Coriolis force. MicroHH can run on an $f$-plane, where the related tendencies of the two horizontal velocity components are calculated as
+The effects of a rotating reference frame on an $f$-plane can be included through the Coriolis force. The acceleration due to the Coriolis force $F_{i,\textrm{cor}}$ is computed for the two horizontal velocity components (index 1 and 2 in Eqs. \ref{eq:consmoma} and \ref{eq:consmomb}) as
 \begin{eqnarray}
-\left. \dfrac{\partial u}{\partial t}\right|_{i,j,k,F_\textrm{cor}} & = & f_0 v_{i,j,k},\\
-\left. \dfrac{\partial v}{\partial t}\right|_{i,j,k,F_\textrm{cor}} & = & -f_0 u_{i,j,k},
+\left. F_{1,\textrm{cor}} \right|_{i,j,k} & = & f_0 v_{i,j,k},\\
+\left. F_{2,\textrm{cor}} \right|_{i,j,k} & = & -f_0 u_{i,j,k},
 \end{eqnarray}
 with $f_0$ as Coriolis parameter specified by the user.
 
@@ -622,31 +622,31 @@ MicroHH provides two options to introduce a large-scale pressure force into the 
 \begin{eqnarray}
 \dfrac{\left< u \right>^{n+1}  - \left< u \right>^{n}}{\Delta t} & = & \left< f_1 
 \right> - \left< \dfrac{\partial}{\partial x} \left( \dfrac{p}{\rho_0} \right) \right>
-+ F_{p;ls}
++ F_{p;\textrm{ls}}
 \end{eqnarray}
 where brackets indicate a volume average, $f_1$ contains all the righthand side terms of the $u$-component of the conservation of momentum, except for the dynamic pressure, which is contained in the second term. The large-scale pressure force $F_{p;ls}$, which is to be computed, is the last term. We can now set $\left< u \right>^{n+1} = U_f$ to explicitly set the volume-averaged velocity in the next time step. Furthermore, the volume-averaged horizontal pressure gradient vanishes, because of the periodic boundary condition, which makes $F_{p;ls}$ the only unknown. The acquired pressure force $F_{p;ls}$ will be added as an external force in the equation of zonal velocity ($F_1$ in Eqs \ref{eq:consmoma} and \ref{eq:consmomb}).
 
-The second option is to enforce a large-scale pressure force through the geostrophic wind components $u_g$ and $v_g$, in combination with rotation, with the tendencies of the two horizontal velocity components calculated as
+The second option is to enforce a large-scale pressure force through the geostrophic wind components $u_g$ and $v_g$, in combination with rotation, with the accelerations of the two horizontal velocity components $F_{i,p;\textrm{ls}}$ calculated as
 \begin{eqnarray}
-F_{p;ls,1} & = & -f_0 v_{g;k},\\
-F_{p;ls,2} & = &  f_0 u_{g;k},
+\left. F_{1, p;\textrm{ls}} \right|_{i,j,k} & = & -f_0 v_{g;k},\\
+\left. F_{2, p;\textrm{ls}} \right|_{i,j,k} & = &  f_0 u_{g;k},
 \end{eqnarray}
-where $u_{g;k}$ and $v_{g;k}$ as user-specified vertical profiles of geostrophic wind components.
+where $u_{g;k}$ and $v_{g;k}$ are user-specified vertical profiles of geostrophic wind components.
 
 \subsubsection{Large-scale sources and sinks}
-Large-scale sources and sinks, representing for instance large-scale advection or radiative cooling, can be prescribed for each variable separately. The user has to provide vertical profiles of large-scale tendencies $S_{\phi;ls}$ that are added to the total tendencies.
+Large-scale sources and sinks, representing for instance large-scale advection or radiative cooling, can be prescribed for each variable separately. The user has to provide vertical profiles of large-scale tendencies $S_{\phi;\textrm{ls}}$ that are added to the total tendencies.
 
 \subsubsection{Large-scale vertical velocity}
-A second method of introducing large-scale thermodynamic effects is through the inclusion of a large-scale vertical velocity. In this case, each scalar gets an additional tendency term of the form
+A second method of introducing large-scale thermodynamic effects is through the inclusion of a large-scale vertical velocity. In this case, each scalar gets an additional source term $S_{\phi,\textrm{w,ls}}$  of the form
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial t}\right|_{i,j,k,ls} & = &  - w_{ls;k}\,\delta^{2x} \left( \left< \phi \right>_k \right),
+\left. S_{\phi,\textrm{w,ls}} \right|_{i,j,k} & = &  - w_{\textrm{ls};k}\,\delta^{2x} \left( \left< \phi \right>_k \right),
 \end{eqnarray}
 where $\left< \phi \right>_k$ is the horizontally-averaged vertical profile at height $z_k$ for scalar $\phi$. The tendency term is not applied to the momentum variables.
 
 \subsection{Buffer layer}
-MicroHH has the option to damp gravity waves in the top of the simulation domain in a so-called buffer layer.  The tendency associated with the damping at grid cell $i,j,k$ is calculated for an arbitrary variable $\phi$ as
+MicroHH has the option to damp gravity waves in the top of the simulation domain in a so-called buffer layer.  The source term  $S_{\phi,\textrm{buf}}$ associated with the damping at grid cell $i,j,k$ is calculated for an arbitrary variable $\phi$ as
 \begin{eqnarray}
-\left. \dfrac{\partial \phi}{\partial t}\right|_{i,j,k,\textrm{buf}} = \dfrac{\phi_{i,j,k} - \phi_{0;k}}{\tau_{d;k}}
+\left. S_{\phi,\textrm{buf}} \right|_{i,j,k} = \dfrac{\phi_{i,j,k} - \phi_{0;k}}{\tau_{d;k}}
 \end{eqnarray}
 where $\phi_0$ is taken from a user-specified reference profile, and time scale $\tau_d$ is a measure for the strength of the damping. It varies with height and is calculated at height $z_k$ following
 \begin{eqnarray}
