@@ -382,10 +382,10 @@ Whereas diffusion can be computed with fourth-order accuracy using a five-point 
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=5cm]{figs/stencil_wall.pdf}
+		\includegraphics[width=5cm]{figs/f01.pdf}
 		% TO THE TYPESETTER: I have deliberately made this figure smaller in width because it does not need to take up too much space.
 	\end{center}
-	\caption{Schematic of the diffusion discretization near the wall. The green node is the evaluation point at the center of the first cell above the wall, the red node is the stencil of the divergence operator, and yellow nodes show the stencils of the four gradient operators over which the divergence is evaluated. White nodes indicate the extent of the stencil.} \label{fig:stencil_wall}
+	\caption{Schematic of the diffusion discretization near the wall. The green node is the evaluation point at the center of the first cell above the wall, the red nodes are the stencil of the divergence operator, and yellow nodes show the stencils of the four gradient operators over which the divergence is evaluated. White nodes indicate the extent of the stencil.} \label{fig:stencil_wall}
 \end{figure}
 % \begin{eqnarray}
 % \nonumber
@@ -717,7 +717,7 @@ We use the analytical form at $t=0$ as the initial condition and run this case f
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/taylorgreen.pdf}
+		\includegraphics[width=8.3cm]{figs/f02.pdf}
 	\end{center}
 	\caption{Convergence of the spatial discretization error in the two-dimensional Taylor-Green vortex. Subscript $2$ indicates the second-order scheme, $4$ the most accurate fourth-order scheme, and $4M$ the fully energy-conserving fourth-order scheme. The dashed black line is the reference for second-order convergence, the dotted black lines indicate fourth-order convergence.}\label{fig:taylorgreen}
 \end{figure}
@@ -730,7 +730,7 @@ The second test of the dynamical core consists of combined evaluation of kinetic
 \begin{figure}[t]
 \vspace*{2mm}
 \begin{center}
-\includegraphics[width=8.3cm]{figs/timeconvergence.pdf}
+\includegraphics[width=8.3cm]{figs/f03.pdf}
 \end{center}
 \caption{Time evolution of the kinetic energy change $\Delta \textrm{KE}$ during 1000 time units of random noise advection for the RK3 and RK4 time integration schemes with three different time steps (a). Kinetic energy change convergence of the temporal discretization for the RK3 and RK4 scheme (b).}\label{fig:timeconvergence}
 \end{figure}
@@ -743,7 +743,7 @@ To test the buoyancy routine and the option to put the domain on a slope, a Pran
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/prandtlslope.pdf}
+		\includegraphics[width=8.3cm]{figs/f04.pdf}
 	\end{center}
 	\caption{Normalized numerical Prandtl-model solutions for velocity $u$ (left) and buoyancy $b$ (right) compared to their analytical counterparts.}
 	\label{fig:prandtl}
@@ -756,7 +756,7 @@ For fully turbulent flows, the numerical solutions cannot be compared against an
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/gmd_m590_umean_var.pdf}
+		\includegraphics[width=8.3cm]{figs/f05.pdf}
 	\end{center}
 	\caption{Velocity means and variances for \citet{Moser1999} channel flow case at Reynolds-$\tau$ 590. The dashed vertical lines marks the spectra locations. Height $z$ is normalized with $u_\tau / \nu$, velocities with $u_\tau^{-1}$.}\label{fig:moser_velocity}
 \end{figure}
@@ -769,7 +769,7 @@ The findings in the previous paragraph are further corroborated by the spectra s
 \begin{figure*}[t]
 \vspace*{2mm}
 \begin{center}
-\includegraphics[width=16.6cm]{figs/gmd_m590_turb_budg.pdf}
+\includegraphics[width=16.6cm]{figs/f06.pdf}
 \end{center}
 \caption{Budgets of variances and TKE compared against \citet{Moser1999}'s reference data at Reynolds-$\tau$ of 590. Height $z$ is normalized with $u_\tau / \nu$, the variances and TKE budget with $\nu / u_\tau^{4}$.}\label{fig:moser_budget}
 \end{figure*}
@@ -778,7 +778,7 @@ The findings in the previous paragraph are further corroborated by the spectra s
 \begin{figure*}[t]
 \vspace*{2mm}
 \begin{center}
-\includegraphics[width=16.6cm]{figs/gmd_m590_spectra_4x1.pdf}
+\includegraphics[width=16.6cm]{figs/f07.pdf}
 \end{center}
 \caption{Spectra of all velocity components and pressure compared against \citet{Moser1999}'s reference data at Reynolds-$\tau$ of 590. The velocity spectra are normalized with $u_\tau^{-2}$, the pressure spectra with $u_\tau^{-4}$}\label{fig:moser_spectra}
 \end{figure*}
@@ -795,7 +795,7 @@ Numerical results obtained with both numerical codes testify that stable environ
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/katabatic.pdf}
+		\includegraphics[width=8.3cm]{figs/f08.pdf}
 	\end{center}
 	\caption{Profile of the mean along-slope velocity (a) and buoyancy (b) as predicted by MicroHH and FS09.}
 	\label{fig:katabatic}
@@ -808,7 +808,7 @@ As a first test case of MicroHH in LES mode, we present that of \citet{Sullivan2
 \begin{figure}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/sullivan2011.pdf}
+		\includegraphics[width=8.3cm]{figs/f09.pdf}
 	\end{center}
 	\caption{Vertical profiles of horizontally-averaged potential temperature (a) and normalized kinematic heat flux (b). The boundary layer depth $z_i$ is the location of the maximum vertical gradient in the potential temperature profile shown in (a). }
 	\label{fig:sullivan2011}
@@ -824,7 +824,7 @@ This case produces non-precipitating shallow cumulus. It has a large-scale cooli
 \begin{figure*}[t]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=16.6cm]{figs/gmd_bomex_profs.pdf}
+		\includegraphics[width=16.6cm]{figs/f10.pdf}
 	\end{center}
 	\caption{BOMEX LES intercomparison (S03). Shown are the domain mean, and conditionally sampled cloud ($q_\mathrm{l} > 0$) and cloud core ($q_\mathrm{l}>0 \ \mathrm{and} \ b-\langle b \rangle > 0$) vertical profiles of (a) area coverage of cloud and cloud core, (b) liquid water potential temperature, (c) total specific humidity and (d) vertical velocity. The results are averaged over $t$ = 18000 s -- 21600 s. The shaded area denotes the mean $\pm$ one standard deviation of the participating models from S03, the solid and dashed lines the results from MicroHH, using the original (solid) and a higher resolution (dashed) setup.}
 	\label{fig:bomex}
@@ -840,7 +840,7 @@ Figure \ref{fig:gabls} shows the domain and time-averaged (over a period from 28
 \begin{figure*}[t]
 \vspace*{2mm}
 \begin{center}
-\includegraphics[width=16.6cm]{figs/gmd_gabls_prof_tser.pdf}
+\includegraphics[width=16.6cm]{figs/f11.pdf}
 \end{center}
 \caption{GABLS1 LES intercomparison \citep{Beare2006}. Shown are the vertical profiles of (a) potential temperature and (b) $u$-component of the velocity, and time series of the (c) boundary layer depth and (d) surface friction velocity. The shaded areas show the range in the results from the models that participated in the \citet{Beare2006} study. The dotted black lines show the initial conditions.}
 \label{fig:gabls}
@@ -851,7 +851,7 @@ Figure \ref{fig:gabls} shows the domain and time-averaged (over a period from 28
 \begin{figure}[!hbt]
 	\vspace*{2mm}
 	\begin{center}
-		\includegraphics[width=8.3cm]{figs/scaling.pdf}
+		\includegraphics[width=8.3cm]{figs/f12.pdf}
 	\end{center}
 	\caption{Speed-up from a strong-scaling experiment (a). Efficiency from a weak-scaling experiments (b). Black lines indicate perfect speed-up and efficiency. The dashed red lines show the efficiency change relative to the previous measurement.}\label{fig:scaling}
 \end{figure}
@@ -889,10 +889,10 @@ The results shown in Table \ref{tab:gpu} point to the great potential of GPU com
 To date, several studies have been published that make use of MicroHH or data generated with MicroHH. \Citet{vanHeerwaarden2014} studied the scaling of flow over heterogeneously heated land surfaces using DNS and LES, \citet{Gentine2015} used LES to study the structure of the inversion of a convective boundary layer, \citet{vanHeerwaarden2016} developed scaling laws for the convective boundary layer over a surface with a constant temperature from DNS data, \citet{McColl2017} improved surface-layer similarity under mildly convective conditions with the help of DNS data, and \citet{Umphrey2017} used DNS data produced with MicroHH as a reference for their simulations of slope flow.
 
 \section{Future plans}\label{sec:future}
-There are several ongoing projects to extend the model. Currently, a parameterization for microphysics has been developed, and an interactive land surface model is under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles and hills. Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax (\url{https://github.com/microhh/stencilbuilder/}). This development has shown great potential, for two reasons. First, the DSL prevents implementation errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system-specific tuning, such as loop tiling or OpenMP.
+There are several ongoing projects to extend the model. Currently, a parameterization for microphysics has been developed, and an interactive land surface model is under development. In addition, the immersed boundary method following \citet{Tseng2003} is being implemented to allow for simulations of flow over obstacles, urban canopy, and hills. Furthermore, preliminary experiments have been performed to include a Domain-Specific Language (DSL) to enable the expression of complex finite difference operators in simple and compact syntax (\url{https://github.com/microhh/stencilbuilder/}). This development has shown great potential, for two reasons. First, the DSL prevents implementation errors, as the explicit indexing in computational kernels with spatial operators can be omitted. Second, the DSL allows for simple implementation of system-specific tuning, such as loop tiling or OpenMP.
 
 \conclusions  \label{sec:conclusion} %% \conclusions[modified heading if necessary]
-This paper has presented a full description of MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation has been presented, and a broad validation under a wide range of settings has been shown. MicroHH delivers the expected error convergence of the spatial and temporal schemes, and has proven to be mass, momentum, and energy conserving. The code delivers good performance in weak and strong scaling experiments. Its current limitations are the absense of horizontal boundary conditions other than periodic, and the limited set of available physical parameterizations. Both limitations will be addressed in future versions of the code.
+This paper has presented a full description of MicroHH, a new computational fluid dynamics code for simulations of turbulent flows in the atmospheric boundary layer. The governing equations and their implementation have been presented, and a broad validation under a wide range of settings has been shown. MicroHH delivers the expected error convergence of the spatial and temporal schemes, and has proven to be mass, momentum, and energy conserving. The code delivers good performance in weak and strong scaling experiments. Its current limitations are the absense of horizontal boundary conditions other than periodic, and the limited set of available physical parameterizations. Both limitations will be addressed in future versions of the code.
 
 \section{Availability of code and resources}\label{sec:howto}
 MicroHH has its own website at \url{http://microhh.org}. The code is hosted at GitHub and can be accessed either via the website, or directly from 
